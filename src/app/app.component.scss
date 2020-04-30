@@ -1,0 +1,16 @@
+$appHeight: 56px;
+
+.app-shell {
+  height: calc(100% - 56px);
+  width: 100%;
+  padding: 25px;
+  padding-top: 0px;
+  display: flex;
+}
+
+.breadcrumb {
+  width: 100%;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-bottom: 0px;
+}

@@ -1,0 +1,99 @@
+<div class="tabs">
+  <ul>
+    <li
+      *ngFor="let n of list"
+      [class.is-active]="clicked === n"
+      (click)="clicked = n"
+    >
+      <a>{{ n }}</a>
+    </li>
+  </ul>
+</div>
+<div id="tab-content" [formGroup]="currentPdsaCycle">
+  <div class="field is-horizontal" *ngIf="clicked === 'Plan'">
+    <div class="field-label is-normal">
+      <label class="label">Plan</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control">
+          <textarea
+            class="textarea"
+            placeholder="What is the Plan?"
+            formControlName="plan"
+          ></textarea>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="field is-horizontal" *ngIf="clicked === 'Do'">
+    <div class="field-label is-normal">
+      <label class="label">Do</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control">
+          <textarea
+            class="textarea"
+            placeholder="Describe what happened when you ran the test"
+            formControlName="do"
+          ></textarea>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="field is-horizontal" *ngIf="clicked === 'Study'">
+    <div class="field-label is-normal">
+      <label class="label">Study</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control">
+          <textarea
+            class="textarea"
+            placeholder="Describe the measured results"
+            formControlName="study"
+          ></textarea>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="field is-horizontal" *ngIf="clicked === 'Act'">
+    <div class="field-label is-normal">
+      <label class="label">Act</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control">
+          <textarea
+            class="textarea"
+            placeholder="What should we do different next time"
+            formControlName="act"
+          ></textarea>
+        </p>
+      </div>
+    </div>
+  </div>
+  <button mat-button [disabled]='canSave' class="save-button" (click)="saveForm()">Save New Cycle</button>
+</div>
+<mat-divider class="new-and-previous-divider"></mat-divider>
+<mat-accordion *ngFor="let prev of pdsa$ | async">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{ prev.dateCreated.toMillis() | date: "short" }}
+      </mat-panel-title>
+      <mat-panel-description>
+        {{ prev.plan }}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <span>Plan</span>
+    <p>{{ prev.plan }}</p>
+    <span>Do</span>
+    <p>{{ prev.do }}</p>
+    <span>Study</span>
+    <p>{{ prev.study }}</p>
+    <span>Act</span>
+    <p>{{ prev.act }}</p>
+  </mat-expansion-panel>
+</mat-accordion>

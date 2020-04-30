@@ -1,0 +1,24 @@
+<app-shell>
+  <div class="notification is-warning has-text-centered" #constructionNotification>
+    <button class="delete" (click)="close($event)"></button>
+    Thanks for visiting us. This website is currently under construction.
+    <br/>
+    Please come back in the future. Looking forward to seeing you again.
+  </div>
+  <nav class="breadcrumb" aria-label="breadcrumbs" *ngIf="(breadcrumbs$ | async)?.home">
+    <ul>
+      <!-- <li *ngIf="(breadcrumbs$ | async)?.home" (click)="homeClicked()">
+        <a routerLink="/" routerLinkActive="active">Home</a>
+      </li> -->
+      <li *ngIf="orgId" (click)="orgClicked()">
+        <a routerLink="{{'/organization/' + orgId}}" routerLinkActive="active">Organization</a>
+      </li>
+      <li *ngIf="orgId && siteId && pdsaId" (click)="pdsaClicked()">
+        <a routerLink="{{'/organization/' + orgId + '/site/' + siteId}}" routerLinkActive="active">Site</a>
+      </li>
+    </ul>
+  </nav>
+  <div class='app-shell'>
+    <router-outlet></router-outlet>
+  </div>
+</app-shell>

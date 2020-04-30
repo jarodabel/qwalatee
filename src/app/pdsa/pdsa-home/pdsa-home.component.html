@@ -1,0 +1,100 @@
+<div class="container">
+  <div class="column">
+    <div class="notification">
+      <nav class="level">
+        <div class="level-left">
+          <button class="button is-left" (click)="goBack()">Go Back</button>
+        </div>
+        <div class="level-right">
+          <button class="button is-right" (click)="saveForm()">Save</button>
+        </div>
+      </nav>
+      <form [formGroup]="checkoutForm">
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Aim (Overall goal for this project)</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <p class="control">
+                <input class="input" type="text" placeholder="Overall goal for this project" formControlName="aim">
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Change Idea</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <p class="control">
+                <input class="input" type="text" placeholder="What is the idea?" formControlName="changeIdea">
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Objective</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <p class="control">
+                <textarea class="textarea" placeholder="Describe the objective"
+                  formControlName="objective"></textarea>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Predict</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <p class="control">
+                <textarea class="textarea"
+                  placeholder="What will happen when the text is carried out?"
+                  formControlName="prediction"></textarea>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Questions</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <p class="control">
+                <textarea class="textarea"
+                  placeholder="What questions do we want answered for this test of change?"
+                  formControlName="questions"></textarea>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Measures</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <p class="control">
+                <textarea class="textarea"
+                  placeholder="Measures to determine if prediction succeeds" formControlName="measures"></textarea>
+              </p>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="column">
+    <div class="notification">
+      <pdsa-tabs></pdsa-tabs>
+    </div>
+  </div>
+</div>
