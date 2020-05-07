@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "predeploy": "npm --prefix functions run build"
+  },
   "hosting": {
     "public": "dist/browser",
     "ignore": [

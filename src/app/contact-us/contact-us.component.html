@@ -1,0 +1,32 @@
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column" [formGroup]="contactForm">
+    <div class="field">
+      <label class="label">Who are you?</label>
+      <div class="control">
+        <input class="input" type="text" placeholder="Name here" formControlName="name">
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">How can we reach you?</label>
+      <div class="control">
+        <input class="input" type="text" placeholder="Email address, please" formControlName="email">
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">What can we help with?</label>
+      <div class="control">
+        <textarea class="input" type="text" placeholder="Inquiry here" formControlName="message"></textarea>
+      </div>
+    </div>
+    <div class="field is-grouped">
+      <div class="control">
+        <button class="button is-link" (click)="submit()">Submit</button>
+      </div>
+      <div class="control">
+        <button class="button is-link is-light" [routerLink]="['/']">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>

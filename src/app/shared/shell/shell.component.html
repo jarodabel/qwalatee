@@ -1,36 +1,93 @@
-<nav class="navbar is-primary" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a class="navbar-item has-text-weight-bold is-size-3" routerLink="/" (click)="hideNavbarMenu()">
-      Qwalatee
-      <!-- <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28"> -->
-      <!-- <span class="is-medium">Qwalatee</span> -->
-    </a>
-    <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
-      (click)="openMenu()"
-      #navbarBurger>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-  <div id="navbarBasicExample" class="navbar-menu" #navbarBasicMenu>
-    <div class="navbar-start">
-      <a class="navbar-item is-size-5" *ngIf="(org$ | async)?.name" (click)="goToOrg()">My PDSAs</a>
+<nav class="navbar is-white" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item is-size-4" [routerLink]="['/']" (click)="hideNavbarMenu()">
+        Qwalatee
+        <!-- <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28"> -->
+        <!-- <span class="is-medium">Qwalatee</span> -->
+      </a>
+      <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+        (click)="openMenu()"
+        #navbarBurger>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
     </div>
+    <div id="navbarBasicExample" class="navbar-menu" #navbarBasicMenu>
+      <div class="navbar-start">
+        <a class="navbar-item" *ngIf="(dbUser$ | async)" (click)="goToOrg()">
+          <span class="icon has-text-primary">
+            <i class="fas fa-book"></i>
+          </span>
+          <span>PDSAs</span>
+        </a>
+        <a class="navbar-item" [routerLink]="['/contact-us']" (click)="hideNavbarMenu()">
+          <span class="icon has-text-info">
+            <i class="fas fa-paper-plane"></i>
+          </span>
+          <span>Contact</span>
+        </a>
+        <a class="navbar-item" [routerLink]="['/about-us']" (click)="hideNavbarMenu()">
+          <span class="icon has-text-dark">
+            <i class="fas fa-info"></i>
+          </span>
+          <span>About</span>
+        </a>
+      </div>
 
-    <div class="navbar-end">
-      <a class="navbar-item is-size-5" routerLink="/about-us" (click)="hideNavbarMenu()">
-        About Us
-      </a>
-      <a class="navbar-item is-size-5" routerLink="/login" *ngIf="!(afAuth.authState | async)"
-        (click)="hideNavbarMenu()">
-        Log in
-      </a>
-      <a class="navbar-item is-size-5" routerLink="/login" *ngIf="afAuth.authState | async as user"
-        (click)="hideNavbarMenu()">
-        My Profile
-      </a>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <button class="button is-primary" *ngIf="!(afAuth.authState | async)" (click)="logIn()">Log In
+          </button>
+        </div>
+        <div class="navbar-item has-dropdown" *ngIf="afAuth.authState | async as user" #settingsMenu>
+          <a class="navbar-link" (click)="openSettingsMenu()">
+            <span class="icon has-text-dark">
+              <i class="fas fa-cog"></i>
+            </span>
+          </a>
+
+          <div class="navbar-dropdown is-right">
+            <a class="navbar-item" [routerLink]="['/settings']" *ngIf="afAuth.authState | async as user"
+              (click)="hideNavbarMenu()">
+              <span class="icon">
+                <i class="fas fa-user-cog"></i>
+              </span>
+              <span>
+                Settings
+              </span>
+            </a>
+            <hr class="navbar-divider">
+
+            <a class="navbar-item" [routerLink]="['/']"
+              (click)="signOut()">
+              <span class="icon">
+                <i class="fas fa-sign-out-alt"></i>
+              </span>
+              <span>
+                Logout
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
 </nav>
 <ng-content></ng-content>
+<footer class="footer has-background-white">
+  <div class="columns">
+    <div class="column is-1"></div>
+    <div class="column has-text-left ">
+      <a class="has-text-link is-size-7" [routerLink]="['/privacy-policy']">Privacy Policy</a>
+    </div>
+    <div class="column has-text-right">
+      <a href="https://bulma.io">
+        <img src="https://bulma.io/images/made-with-bulma--black.png" alt="Made with Bulma" width="128" height="24">
+      </a>
+    </div>
+    <div class="column is-1"></div>
+  </div>
+</footer>

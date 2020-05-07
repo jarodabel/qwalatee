@@ -16,10 +16,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
+import { UserModule } from '../user/user.module';
 
-const components = [
-  ShellComponent, DeleteButtonComponent
-];
+const components = [ShellComponent, DeleteButtonComponent];
 
 const modules = [
   CommonModule,
@@ -41,15 +40,8 @@ const modules = [
 ];
 
 @NgModule({
-  declarations: [
-    ...components
-  ],
-  imports: [
-    ...modules,
-  ],
-  exports: [
-    ...components,
-    ...modules
-  ],
+  declarations: [...components],
+  imports: [...modules],
+  exports: [...components, ...modules],
 })
-export class SharedModule { }
+export class SharedModule {}

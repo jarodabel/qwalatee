@@ -25,6 +25,8 @@ import { OrganizationModule } from './organization/organization.component';
 import { reducer } from './shared/reducers/shared-reducers';
 import { HttpClientModule } from '@angular/common/http';
 import { AboutUsModule } from './about-us/about-us.component';
+import { ContactUsModule } from './contact-us/contact-us.component';
+import { PrivacyModule } from './privacy/privacy.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +42,9 @@ import { AboutUsModule } from './about-us/about-us.component';
     UserModule,
     PdsaModule,
     OrganizationModule,
+    ContactUsModule,
     AboutUsModule,
+    PrivacyModule,
     FontAwesomeModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,

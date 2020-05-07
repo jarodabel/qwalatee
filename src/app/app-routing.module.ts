@@ -6,11 +6,13 @@ import { PdsaHomeComponent } from './pdsa/pdsa-home/pdsa-home.component';
 import { OrganizationComponent } from './organization/organization.component';
 import { PdsaPlanListComponent } from './pdsa/pdsa-plan-list/pdsa-plan-list.component';
 import { AboutUsComponent } from './about-us/about-us.component';
+import { ContactUsComponent } from './contact-us/contact-us.component';
+import { PrivacyComponent } from './privacy/privacy.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: HomePageComponent
+    component: HomePageComponent,
   },
   {
     path: 'organization/:orgId',
@@ -35,21 +37,29 @@ const routes: Routes = [
     component: PdsaComponent,
   },
   {
-    path: 'login',
-    loadChildren: () => import('./user/user.module').then(m => m.UserModule)
+    path: 'settings',
+    loadChildren: () => import('./user/user.module').then((m) => m.UserModule),
   },
   {
     path: 'about-us',
-    component: AboutUsComponent
+    component: AboutUsComponent,
+  },
+  {
+    path: 'contact-us',
+    component: ContactUsComponent,
+  },
+  {
+    path: 'privacy-policy',
+    component: PrivacyComponent,
   },
   {
     path: '**',
     redirectTo: '',
-  }
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

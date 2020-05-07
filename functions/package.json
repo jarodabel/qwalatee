@@ -1,0 +1,26 @@
+{
+  "name": "functions",
+  "version": "1.0.0",
+  "description": "firebase-functions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/tslint -p tslint.json && ./node_modules/.bin/tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sendgrid/mail": "^7.1.0",
+    "@types/node": "^13.13.4",
+    "firebase-admin": "^8.11.0",
+    "firebase-functions": "^3.6.1",
+    "ts-loader": "^7.0.2",
+    "ts-node": "^8.10.1",
+    "tslint": "^6.1.2",
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^0.2.1",
+    "mocha": "^7.1.2"
+  }
+}
