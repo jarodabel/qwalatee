@@ -11,7 +11,7 @@ export const addBreadcrumb = createAction(
 
 export const removeBreadcrumb = createAction(
   RemoveBreadcrumbActionName,
-  props<{ keyToRemove: string }>()
+  props<{ keysToRemove: string[], next: string }>()
 );
 
 export const resetBreadcrumb = createAction(ResetBreadcrumbActionName);

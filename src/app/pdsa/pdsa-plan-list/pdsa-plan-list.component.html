@@ -1,20 +1,25 @@
-<header>
-  <button mat-raised-button (click)="createNewPdsa()">Add New PDSA</button>
-</header>
-
-<div class="container">
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
   <div class="column">
-    <mat-card class="card-container" *ngFor="let pdsa of (existingPdsas$ | async)" (click)="edit(pdsa.id)">
-      <mat-card-header>
-        <mat-card-title>{{pdsa.aim}}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p>
-        </p>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-button>Edit</button>
-      </mat-card-actions>
-    </mat-card>
+    <breadcrumbs></breadcrumbs>
   </div>
+  <div class="column is-2">
+    <div>
+      <button class="button is-link is-pulled-right is-small" (click)="createNewPdsa()">Add New PDSA</button>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column">
+    <div class="tile is-parent" *ngFor="let pdsa of (existingPdsas$ | async)" >
+      <article class="tile is-child notification is-light" >
+        <p class="subtitle">{{pdsa.aim}}</p>
+        <button class="button is-link is-small" (click)="edit(pdsa.id)">Edit</button>
+      </article>
+    </div>
+
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
 </div>

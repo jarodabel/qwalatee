@@ -8,6 +8,7 @@ import { PdsaPlanListComponent } from './pdsa/pdsa-plan-list/pdsa-plan-list.comp
 import { AboutUsComponent } from './about-us/about-us.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { PrivacyComponent } from './privacy/privacy.component';
+import { BaseResourceComponent } from './resouces/base-resouce/base-resource.component';
 
 const routes: Routes = [
   {
@@ -47,6 +48,14 @@ const routes: Routes = [
   {
     path: 'contact-us',
     component: ContactUsComponent,
+  },
+  {
+    path: 'resources',
+    component: BaseResourceComponent,
+  },
+  {
+    path: 'resources/:org',
+    component: BaseResourceComponent,
   },
   {
     path: 'privacy-policy',

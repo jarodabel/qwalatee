@@ -1,0 +1,23 @@
+<div class="columns is-desktop base-resource">
+  <div class="column is-half-desktop">
+    <div class="field">
+      <div class="control">
+        <input class="input is-primary" type="text" placeholder="Filter" [(ngModel)]="searchTerm">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th *ngFor="let item of header">{{item}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of body | resourcefilter:searchTerm">
+        <td *ngFor="let item of row">{{item}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

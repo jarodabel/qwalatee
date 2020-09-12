@@ -14,7 +14,6 @@ export class PdsaService {
   constructor(
     private db: AngularFirestore,
     private store: Store<AppState>,
-    private route: ActivatedRoute,
   ) {}
   getOrganization(usersOrg) {
     return this.db.collection('organization').valueChanges({ idField: 'id' });

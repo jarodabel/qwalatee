@@ -22,6 +22,4 @@ export class DeleteButtonComponent {
     this.delete.emit(true);
     this.canDelete = false;
   }
-
-
 }

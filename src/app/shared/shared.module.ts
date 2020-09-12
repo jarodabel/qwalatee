@@ -10,6 +10,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import { DeleteButtonComponent } from './delete-button/delete-button.component';
+import { BreadcrumbsComponent } from './breadcrumbs/breadcrumbs.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -18,7 +19,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserModule } from '../user/user.module';
 
-const components = [ShellComponent, DeleteButtonComponent];
+const components = [ShellComponent, DeleteButtonComponent, BreadcrumbsComponent];
 
 const modules = [
   CommonModule,

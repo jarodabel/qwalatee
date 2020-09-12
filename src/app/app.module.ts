@@ -27,12 +27,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { AboutUsModule } from './about-us/about-us.component';
 import { ContactUsModule } from './contact-us/contact-us.component';
 import { PrivacyModule } from './privacy/privacy.component';
+import { BreadcrumbService } from './shared/breadcrumbs/breadcrumbs.service';
+import { EffectsModule } from '@ngrx/effects';
+import { ResourcesModule } from './resouces/base-resouce/base-resource.component';
+import { ResourcePipe } from './shared/pipes/resouce-pipe.pipe';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HomePageComponent,
-  ],
+  declarations: [AppComponent, HomePageComponent],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     AppRoutingModule,
@@ -45,21 +46,26 @@ import { PrivacyModule } from './privacy/privacy.component';
     ContactUsModule,
     AboutUsModule,
     PrivacyModule,
+    ResourcesModule,
     FontAwesomeModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAuthModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
-    StoreModule.forRoot({
-      breadcrumbs: reducer
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
     }),
-    StoreDevtoolsModule .instrument({
+    StoreModule.forRoot({
+      breadcrumbs: reducer,
+    }),
+    StoreDevtoolsModule.instrument({
       maxAge: 25, // Retains last 25 states
       logOnly: environment.production, // Restrict extension to log-only mode
     }),
     HttpClientModule,
+    EffectsModule.forRoot([BreadcrumbService]),
   ],
-  providers: [PdsaService ],
-  bootstrap: [AppComponent]
+  providers: [PdsaService],
+  bootstrap: [AppComponent],
+  exports: [],
 })
-export class AppModule { }
+export class AppModule {}

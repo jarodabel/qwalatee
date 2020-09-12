@@ -1,4 +1,4 @@
-<nav class="navbar is-white" role="navigation" aria-label="main navigation">
+<nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
   <div class="container">
     <div class="navbar-brand">
       <a class="navbar-item is-size-4" [routerLink]="['/']" (click)="hideNavbarMenu()">
@@ -27,6 +27,12 @@
             <i class="fas fa-paper-plane"></i>
           </span>
           <span>Contact</span>
+        </a>
+        <a class="navbar-item" [routerLink]="['/resources']" (click)="hideNavbarMenu()">
+          <span class="icon has-text-success">
+            <i class="fas fa-table"></i>
+          </span>
+          <span>Resources</span>
         </a>
         <a class="navbar-item" [routerLink]="['/about-us']" (click)="hideNavbarMenu()">
           <span class="icon has-text-dark">

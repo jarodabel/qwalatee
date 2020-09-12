@@ -22,7 +22,9 @@ const breadcrumbReducer = createReducer(
   }),
   on(breadcrumbActions.removeBreadcrumb, (state, { type, ...rest }) => {
     const newCrumbs = { ...state };
-    delete newCrumbs[rest.keyToRemove];
+    rest.keysToRemove.forEach((key) => {
+      delete newCrumbs[key];
+    });
     return {
       ...newCrumbs,
     };
