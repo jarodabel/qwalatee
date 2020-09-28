@@ -16,36 +16,42 @@ const sgMail = require('@sendgrid/mail');
  * @param {string} req.body.html Body of the email subject line.
  * @param {object} res Cloud Function response context.
  */
-exports.sendgridEmail = async (req, res) => {
-  try {
-    if (req.method !== 'POST') {
-      const error = new Error('Only POST requests are accepted');
-      error.code = 405;
-      throw error;
-    }
-
-    sgMail.setApiKey(req.query.sg_key);
-    const msg = {
-      to: req.body.to,
-      from: req.body.from, // Use the email address or domain you verified above
-      html: req.body.html,
-      subject: req.body.subject,
-      text: req.body.text,
-    };
-    // Make the request to SendGrid's API
-    console.log(`Sending email to: ${req.body.to}`);
-    // const response = await client.API(request);
-    sgMail.send(msg).then(
-      () => {
-      },
-      (error) => {
-        console.error(error);
-        if (error.response) {
-          console.error(error.response.body);
-        }
+exports.sendgridEmail = async (req) => {
+  return new Promise((success, failure) => {
+    try {
+      if (req.method !== 'POST') {
+        const error = new Error('Only POST requests are accepted');
+        error.code = 405;
+        throw error;
       }
-    );
-  } catch (err) {
-    console.error(err);
-  }
+
+      sgMail.setApiKey(req.query.sg_key);
+      const msg = {
+        to: req.body.to,
+        from: req.body.from,
+        html: req.body.html,
+        subject: req.body.subject,
+        text: req.body.text,
+      };
+      // Make the request to SendGrid's API
+      console.log(`Sending email to: ${req.body.to}`);
+      // const response = await client.API(request);
+      sgMail.send(msg).then(
+        () => {
+          success();
+        },
+        (error) => {
+          console.error(error);
+          if (error.response) {
+            console.error(error.response.body);
+          }
+          failure();
+        }
+      );
+    } catch (err) {
+      console.error(err);
+      failure();
+    }
+  })
+
 };

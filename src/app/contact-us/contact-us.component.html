@@ -16,12 +16,15 @@
     <div class="field">
       <label class="label">What can we help with?</label>
       <div class="control">
-        <textarea class="input" type="text" placeholder="Inquiry here" formControlName="message"></textarea>
+        <textarea class="input help-area" type="text" placeholder="Inquiry here" formControlName="message"></textarea>
       </div>
+    </div>
+    <div class="field">
+      <div id="recaptcha" class="g-recaptcha"></div>
     </div>
     <div class="field is-grouped">
       <div class="control">
-        <button class="button is-link" (click)="submit()">Submit</button>
+        <button class="button is-link" [disabled]="disabled || !loading" (click)="submit()">Submit</button>
       </div>
       <div class="control">
         <button class="button is-link is-light" [routerLink]="['/']">Cancel</button>

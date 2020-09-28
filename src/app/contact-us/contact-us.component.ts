@@ -1,22 +1,83 @@
-import { Component, NgModule } from '@angular/core';
+import {
+  Component,
+  NgModule,
+  OnInit,
+  AfterViewInit,
+  SecurityContext,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ContactUsService } from '../services/contact-us.service';
+import { DomSanitizer } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'contact-us',
   styleUrls: ['./contact-us.component.scss'],
   templateUrl: './contact-us.component.html',
 })
-export class ContactUsComponent {
+export class ContactUsComponent implements AfterViewInit {
   contactForm = this.formBuilder.group({
-    name: 'bill',
-    email: 'bill@science.nye',
-    message: 'hello world',
+    name: '',
+    email: '',
+    message: '',
   });
-  constructor(private formBuilder: FormBuilder) {}
-  submit(){
+  disabled = true;
+  loading = false;
+  constructor(
+    private formBuilder: FormBuilder,
+    private contactService: ContactUsService,
+    private _sanitizer: DomSanitizer,
+    private router: Router,
+  ) {}
+
+  ngAfterViewInit() {
+    this.onloadCallback();
+  }
+
+  verifyCallback(res) {
+    console.log('res', res);
+    this.disabled = res ? false : true;
+  }
+
+  onloadCallback() {
+    const callback = (a) => {
+      this.verifyCallback(a);
+    };
+    callback.bind(this);
+    window.grecaptcha.render('recaptcha', {
+      callback: callback,
+      'expired-callback': callback,
+      sitekey: '6LcE29AZAAAAANSH7g2cJBagXamRVWlGeyT3hkDY',
+    });
+  }
+
+  submit() {
     console.log(this.contactForm);
+    const message = {
+      from: this._sanitizer.sanitize(
+        SecurityContext.HTML,
+        this.contactForm.value.email
+      ),
+      name: this._sanitizer.sanitize(
+        SecurityContext.HTML,
+        this.contactForm.value.name
+      ),
+      text: this._sanitizer.sanitize(
+        SecurityContext.HTML,
+        this.contactForm.value.message
+      ),
+    };
+
+    this.contactService.sendMessage(message).subscribe(
+      () => {
+        this.router.navigate(['/','message?contact-thank-you'])
+      },
+      () => {
+        this.router.navigate(['/','message?contact-error'])
+      }
+    );
   }
 }
 
@@ -24,5 +85,6 @@ export class ContactUsComponent {
   declarations: [ContactUsComponent],
   exports: [],
   imports: [CommonModule, SharedModule, FormsModule, ReactiveFormsModule],
+  providers: [ContactUsService],
 })
 export class ContactUsModule {}

@@ -63,7 +63,7 @@ export class ShellComponent {
   hideNavbarMenu() {
     this.navbarBurger.nativeElement.classList.remove('is-active');
     this.navbarBasicMenu.nativeElement.classList.remove('is-active');
-    this.settingsMenu.nativeElement.classList.remove('is-active');
+    // this.settingsMenu.nativeElement.classList.remove('is-active');
   }
 
   logIn() {
