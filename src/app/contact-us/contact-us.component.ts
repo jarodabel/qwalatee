@@ -54,7 +54,7 @@ export class ContactUsComponent implements AfterViewInit {
   }
 
   submit() {
-    console.log(this.contactForm);
+    this.loading = true;
     const message = {
       from: this._sanitizer.sanitize(
         SecurityContext.HTML,
@@ -72,10 +72,10 @@ export class ContactUsComponent implements AfterViewInit {
 
     this.contactService.sendMessage(message).subscribe(
       () => {
-        this.router.navigate(['/','message?contact-thank-you'])
+        this.router.navigate(['/','messages'],{queryParams:{m :'contact-thank-you'}})
       },
       () => {
-        this.router.navigate(['/','message?contact-error'])
+        this.router.navigate(['/','messages'],{queryParams:{m :'contact-error'}})
       }
     );
   }

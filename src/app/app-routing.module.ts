@@ -9,6 +9,7 @@ import { AboutUsComponent } from './about-us/about-us.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { PrivacyComponent } from './privacy/privacy.component';
 import { BaseResourceComponent } from './resouces/base-resouce/base-resource.component';
+import { MessagesComponent } from './messages/messages.component';
 
 const routes: Routes = [
   {
@@ -60,6 +61,10 @@ const routes: Routes = [
   {
     path: 'privacy-policy',
     component: PrivacyComponent,
+  },
+  {
+    path: 'messages',
+    component: MessagesComponent
   },
   {
     path: '**',

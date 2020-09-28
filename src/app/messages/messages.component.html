@@ -1,0 +1,22 @@
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column">
+    <div class="container" [ngSwitch]="message">
+      <div *ngSwitchCase="'contact-thank-you'" class="notification is-primary">
+        <h2 class="subtitle">Hey There!</h2>
+        We got your message and will be in touch soon.
+      </div>
+      <div *ngSwitchCase="'contact-error'" class="notification is-primary">
+        <h2 class="subtitle">Uh Oh!</h2>
+        Something went wrong. Please try again later.
+      </div>
+      <div *ngSwitchCase="'loading'" class="notification is-primary">
+        <h2 class="subtitle">Loading <i class="fas fa-spinner fa-pulse"></i></h2>
+      </div>
+      <div *ngSwitchDefault class="notification is-primary">
+        <h2 class="subtitle">hum, something is not right</h2>
+      </div>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>

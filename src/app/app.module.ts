@@ -31,6 +31,7 @@ import { BreadcrumbService } from './shared/breadcrumbs/breadcrumbs.service';
 import { EffectsModule } from '@ngrx/effects';
 import { ResourcesModule } from './resouces/base-resouce/base-resource.component';
 import { ResourcePipe } from './shared/pipes/resouce-pipe.pipe';
+import { MessagesModudle } from './messages/messages.component';
 
 @NgModule({
   declarations: [AppComponent, HomePageComponent],
@@ -63,6 +64,7 @@ import { ResourcePipe } from './shared/pipes/resouce-pipe.pipe';
     }),
     HttpClientModule,
     EffectsModule.forRoot([BreadcrumbService]),
+    MessagesModudle,
   ],
   providers: [PdsaService],
   bootstrap: [AppComponent],

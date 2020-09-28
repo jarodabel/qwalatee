@@ -24,7 +24,7 @@
     </div>
     <div class="field is-grouped">
       <div class="control">
-        <button class="button is-link" [disabled]="disabled || !loading" (click)="submit()">Submit</button>
+        <button class="button is-link" [disabled]="disabled || loading" (click)="submit()">Submit</button>
       </div>
       <div class="control">
         <button class="button is-link is-light" [routerLink]="['/']">Cancel</button>
