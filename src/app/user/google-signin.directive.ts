@@ -14,7 +14,6 @@ export class GoogleSigninDirective {
       .signInWithPopup(new firebase.auth.GoogleAuthProvider())
       .then(
         (a) => {
-          console.log('success', a);
         },
         (err) => {
           console.log('error');

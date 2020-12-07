@@ -37,7 +37,6 @@ export class ContactUsComponent implements AfterViewInit {
   }
 
   verifyCallback(res) {
-    console.log('res', res);
     this.disabled = res ? false : true;
   }
 

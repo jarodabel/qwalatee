@@ -1,0 +1,19 @@
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column">
+    <div>
+      <upload-csv (uploadData)="uploadData($event)"></upload-csv>
+    </div>
+    <div>
+      <table>
+        <tbody>
+          <tr *ngFor="let row of objList">
+            <td>{{row.first_name}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="button is-link" *ngIf="objList.length" (click)="send()">Send Statements</button>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>

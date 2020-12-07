@@ -12,10 +12,8 @@ export class BreadcrumbService {
     dispatch: false,
   })
   breadcrumbUpdate$ = this.actions.pipe(
-    tap((a)=>{console.log(a)}),
     ofType(removeBreadcrumb),
     tap((payload) => {
-      console.log(payload);
       this.router.navigate([payload.next]);
   }));
   constructor(private router: Router, private actions: Actions) {}

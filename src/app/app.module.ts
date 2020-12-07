@@ -32,6 +32,11 @@ import { EffectsModule } from '@ngrx/effects';
 import { ResourcesModule } from './resouces/base-resouce/base-resource.component';
 import { ResourcePipe } from './shared/pipes/resouce-pipe.pipe';
 import { MessagesModudle } from './messages/messages.component';
+import { UserService } from './services/user.service';
+import { ValidationService } from './services/validation.service';
+import { LobService } from './services/lob.service';
+import { StatementsModule } from './statements/statements.component';
+import { CanActivateService } from './statements/statements.route.guard';
 
 @NgModule({
   declarations: [AppComponent, HomePageComponent],
@@ -65,8 +70,9 @@ import { MessagesModudle } from './messages/messages.component';
     HttpClientModule,
     EffectsModule.forRoot([BreadcrumbService]),
     MessagesModudle,
+    StatementsModule,
   ],
-  providers: [PdsaService],
+  providers: [PdsaService, UserService, ValidationService, LobService, CanActivateService],
   bootstrap: [AppComponent],
   exports: [],
 })

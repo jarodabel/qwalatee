@@ -17,10 +17,16 @@
     <div id="navbarBasicExample" class="navbar-menu" #navbarBasicMenu>
       <div class="navbar-start">
         <a class="navbar-item" *ngIf="(dbUser$ | async)" (click)="goToOrg()">
-          <span class="icon has-text-primary">
+          <span class="icon has-text-info">
             <i class="fas fa-book"></i>
           </span>
           <span>PDSAs</span>
+        </a>
+        <a class="navbar-item" [routerLink]="['/statements']" *ngIf="(dbUser$ | async)?.lob_statements" (click)="hideNavbarMenu()">
+          <span class="icon has-text-info">
+            <i class="fas fa-file-invoice-dollar"></i>
+          </span>
+          <span>Statements</span>
         </a>
         <a class="navbar-item" [routerLink]="['/contact-us']" (click)="hideNavbarMenu()">
           <span class="icon has-text-info">
@@ -29,13 +35,13 @@
           <span>Contact</span>
         </a>
         <a class="navbar-item" [routerLink]="['/resources']" (click)="hideNavbarMenu()">
-          <span class="icon has-text-success">
+          <span class="icon has-text-info">
             <i class="fas fa-table"></i>
           </span>
           <span>Resources</span>
         </a>
         <a class="navbar-item" [routerLink]="['/about-us']" (click)="hideNavbarMenu()">
-          <span class="icon has-text-dark">
+          <span class="icon has-text-info">
             <i class="fas fa-info"></i>
           </span>
           <span>About</span>
@@ -44,7 +50,7 @@
 
       <div class="navbar-end">
         <div class="navbar-item">
-          <button class="button is-primary" *ngIf="!(afAuth.authState | async)" (click)="logIn()">Log In
+          <button class="button is-info" *ngIf="!(afAuth.authState | async)" (click)="logIn()">Log In
           </button>
         </div>
         <div class="navbar-item has-dropdown" *ngIf="afAuth.authState | async as user" #settingsMenu>

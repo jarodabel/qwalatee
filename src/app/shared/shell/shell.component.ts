@@ -34,10 +34,11 @@ export class ShellComponent {
         .valueChanges()
         .pipe(catchError((error) => of(null)))
     ),
+    map((userArray) => { return userArray ? userArray[0]: false}),
   );
 
   org$ = this.dbUser$.pipe(
-    switchMap(([userInfo]: any[]) =>
+    switchMap((userInfo: any) =>
       this.db.collection('organization').doc(userInfo.organization).get()
     ),
     map((a) => ({ id: a.id, ...a.data() }))

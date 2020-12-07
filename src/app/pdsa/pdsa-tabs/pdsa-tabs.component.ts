@@ -18,7 +18,7 @@ const documentFields = [
   styleUrls: ['./pdsa-tabs.component.scss'],
   templateUrl: './pdsa-tabs.component.html',
 })
-export class PdsaTabsComponent implements OnInit, OnChanges {
+export class PdsaTabsComponent implements OnInit {
   list = ['Plan', 'Do', 'Study', 'Act'];
   clicked = 'Plan';
   currentPdsaCycle;
@@ -36,10 +36,6 @@ export class PdsaTabsComponent implements OnInit, OnChanges {
     this.currentPdsaCycle = this.formBuilder.group({ ...defaultForm });
 
     this.setCycles();
-  }
-
-  ngOnChanges({ currentPdsaCycle }: SimpleChanges): void {
-    console.log(currentPdsaCycle);
   }
 
   async setCycles() {
@@ -77,7 +73,6 @@ export class PdsaTabsComponent implements OnInit, OnChanges {
       })
       .then(
         () => {
-          console.log('success');
           this.currentPdsaCycle = this.formBuilder.group({ ...defaultForm });
           this.setCycles();
         },
