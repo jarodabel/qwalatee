@@ -1,0 +1,65 @@
+<div class="container">
+  <div class="notification">
+    <form [formGroup]="newOrgForm">
+
+      <div class="field">
+        <label class="label">Name (Required)</label>
+        <div class="control has-icons-left has-icons-right">
+          <input class="input is-success" type="text" placeholder="Your Organization's Name" formControlName="name">
+          <span class="icon is-small is-left">
+            <i class="fas fa-sitemap"></i>
+          </span>
+          <!-- <span class="icon is-small is-right">
+          <i class="fas fa-check"></i>
+        </span> -->
+        </div>
+        <!-- <p class="help is-success">This username is available</p> -->
+      </div>
+      <div class="field">
+        <label class="label">Abbreviation (Required)</label>
+        <div class="control has-icons-left has-icons-right">
+          <input class="input is-success" type="text" placeholder="Abbr" formControlName="nameAbbr">
+          <span class="icon is-small is-left">
+            <i class="fas fa-tag"></i>
+          </span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Address</label>
+        <div class="control has-icons-left has-icons-right">
+          <input class="input" type="text" placeholder="Organization's Address" formControlName="address">
+          <span class="icon is-small is-left">
+            <i class="fas fa-map-marker"></i>
+          </span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Phone</label>
+        <div class="control has-icons-left has-icons-right">
+          <input class="input" type="text" placeholder="Main Phone Number" formControlName="phone">
+          <span class="icon is-small is-left">
+            <i class="fas fa-phone"></i>
+          </span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Website</label>
+        <div class="control has-icons-left has-icons-right">
+          <input class="input" type="text" placeholder="Your Organization's Website" formControlName="website">
+          <span class="icon is-small is-left">
+            <i class="fas fa-desktop"></i>
+          </span>
+        </div>
+      </div>
+    </form>
+    <br>
+    <div class="field is-grouped">
+      <div class="control">
+        <button class="button is-link" [disabled]="!newOrgForm.value.name || !newOrgForm.value.nameAbbr" (click)="submit()">Submit</button>
+      </div>
+      <div class="control">
+        <button class="button is-link is-light" (click)="goToHome()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

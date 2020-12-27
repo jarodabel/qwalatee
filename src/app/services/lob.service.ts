@@ -32,6 +32,8 @@ export class LobService {
         total_charges: user.totalCharges,
       },
       color: true,
+      double_sided: true,
+      perforated_page: 1,
     };
     console.log('a', data );
     const options = {
