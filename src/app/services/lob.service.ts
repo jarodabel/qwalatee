@@ -16,7 +16,7 @@ export class LobService {
 
   sendLobRequest(template, user) {
     const data = {
-      description: 'Demo Letter',
+      description: 'CHCSEK Statement',
       to: {
         name: user.name,
         address_line1: user.address1,
@@ -31,9 +31,10 @@ export class LobService {
         name: user.first_name,
         total_charges: user.totalCharges,
       },
-      color: true,
+      color: false,
       double_sided: true,
       perforated_page: 1,
+      return_envelope: true,
     };
     console.log('a', data );
     const options = {

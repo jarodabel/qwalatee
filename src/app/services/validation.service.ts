@@ -1,34 +1,47 @@
 import { Injectable } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Subject } from 'rxjs';
-
-const headerFields = [
-  'first_name',
-  'last_name',
-  'address',
-  'city',
-  'state',
-  'zip',
-];
 
 @Injectable({
   providedIn: 'root',
 })
 export class ValidationService {
   responseSub = new Subject();
+  headerFields = [];
 
-  checkData(data) {
-    return this.validate(data);
+  constructor(private db: AngularFirestore) {}
+
+  checkData(data, statementId) {
+    console.log(data);
+    this.validate(data, statementId);
   }
 
-  validate(data) {
+  async validate(data, statementId) {
+    const statement = await this.db
+      .collection('statements')
+      .doc(statementId)
+      .get()
+      .toPromise();
+
+    const statementObj = statement.data();
+    console.log(statementObj);
+    const headerFields = statementObj
+      ? statementObj.acceptableFields
+      : undefined;
+
+    if (!headerFields || !headerFields.length) {
+      this.responseSub.next(false);
+      return;
+    }
+    this.headerFields = headerFields;
     this.responseSub.next(this.validateHeaderRow(data));
   }
 
   validateHeaderRow(data) {
     const isSame = (row) =>
-      row.length == headerFields.length &&
-      row.every(function (element, index) {
-        return element === headerFields[index];
+      row.length === this.headerFields.length &&
+      row.every((element, index) => {
+        return element === this.headerFields[index];
       });
 
     const res = data.every((row, i) => {
@@ -38,6 +51,7 @@ export class ValidationService {
         return !isSame(row);
       }
     });
+    console.log(res)
     return res;
   }
 }

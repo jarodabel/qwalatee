@@ -1,18 +1,60 @@
 <div class="columns">
   <div class="column is-hidden-mobile is-2"></div>
   <div class="column">
+    <div class="notification is-danger" *ngIf="errorMessage">
+      <h2 class="subtitle">"Bad Data" - There seems to be an issue with this CSV</h2>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>
+
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column">
     <div>
       <upload-csv (uploadData)="uploadData($event)"></upload-csv>
     </div>
-    <div>
-      <table>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column">
+    <div class="select">
+      <select *ngIf="(statements$ | async)?.length" [(ngModel)]="selectedStatement" (change)="statementSelect()">
+        <option value="none">None</option>
+        <option *ngFor="let opt of statements$ | async" [ngValue]="(opt|async)?.id">{{(opt|async)?.name}}</option>
+      </select>
+    </div>
+    <button class="button is-link" *ngIf="objList?.length" (click)="sendAll()">Send All Statements</button>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column">
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <th *ngFor="let name of headingList">
+            {{name}}
+          </th>
+        </thead>
         <tbody>
-          <tr *ngFor="let row of objList">
+          <tr *ngFor="let row of dataList">
             <td>{{row.first_name}}</td>
+            <td>{{row.last_name}}</td>
+            <td>{{row.address}}</td>
+            <td>{{row.city}}</td>
+            <td>{{row.state}}</td>
+            <td>{{row.zip}}</td>
+            <td>
+              <button class="button is-link" (click)="testOne(row)">Test&nbsp;<i class="fas fa-vial"></i></button>
+            </td>
+            <td><i class="fas fa-link" *ngIf="row.url" (click)="openUrl(row.url)"></i>/td>
           </tr>
         </tbody>
       </table>
-      <button class="button is-link" *ngIf="objList.length" (click)="send()">Send Statements</button>
     </div>
   </div>
   <div class="column is-hidden-mobile is-2"></div>
