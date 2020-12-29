@@ -1,16 +1,6 @@
 <div class="columns">
   <div class="column is-hidden-mobile is-2"></div>
   <div class="column">
-    <div class="notification is-danger" *ngIf="errorMessage">
-      <h2 class="subtitle">"Bad Data" - There seems to be an issue with this CSV</h2>
-    </div>
-  </div>
-  <div class="column is-hidden-mobile is-2"></div>
-</div>
-
-<div class="columns">
-  <div class="column is-hidden-mobile is-2"></div>
-  <div class="column">
     <div>
       <upload-csv (uploadData)="uploadData($event)"></upload-csv>
     </div>
@@ -20,9 +10,19 @@
 <div class="columns">
   <div class="column is-hidden-mobile is-2"></div>
   <div class="column">
+    <div class="notification is-danger" *ngIf="errorMessage" [ngSwitch]="errorMessage">
+      <h2 class="subtitle" *ngSwitchCase="'badData'">"Bad Data" - There seems to be an issue with this CSV</h2>
+      <h2 class="subtitle" *ngSwitchCase="'selectStatement'">Select a statment to use</h2>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column">
     <div class="select">
       <select *ngIf="(statements$ | async)?.length" [(ngModel)]="selectedStatement" (change)="statementSelect()">
-        <option value="none">None</option>
+        <option [ngValue]="undefined">None</option>
         <option *ngFor="let opt of statements$ | async" [ngValue]="(opt|async)?.id">{{(opt|async)?.name}}</option>
       </select>
     </div>
@@ -42,6 +42,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let row of dataList">
+            <td>{{row.id}}</td>
             <td>{{row.first_name}}</td>
             <td>{{row.last_name}}</td>
             <td>{{row.address}}</td>
@@ -49,9 +50,12 @@
             <td>{{row.state}}</td>
             <td>{{row.zip}}</td>
             <td>
-              <button class="button is-link" (click)="testOne(row)">Test&nbsp;<i class="fas fa-vial"></i></button>
+              <button class="button is-link" (click)="testOne(row)" [disabled]="row.url">Test&nbsp;<i class="fas fa-vial"></i></button>
             </td>
-            <td><i class="fas fa-link" *ngIf="row.url" (click)="openUrl(row.url)"></i>/td>
+            <td>
+              <button class="button is-link" *ngIf="row.url" (click)="openUrl(row.url)">Open&nbsp;<i
+                  class="fas fa-link"></i></button>
+            </td>
           </tr>
         </tbody>
       </table>

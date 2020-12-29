@@ -10,10 +10,6 @@ import { ValidationService } from '../services/validation.service';
 import { SharedModule } from '../shared/shared.module';
 import { TemplateLookup } from '../types/lob';
 
-type LobLetterObject = {
-  url
-}
-
 @Component({
   selector: 'statements',
   templateUrl: './statements.component.html',
@@ -23,10 +19,10 @@ export class StatementsComponent implements OnInit {
   objList = [];
   errorMessage: string;
   headingList: string[];
-  dataList: object[];
+  dataList: any[];
   statements$;
   data;
-  selectedStatement = 'none';
+  selectedStatement = undefined;
 
   constructor(
     private userService: UserService,
@@ -56,7 +52,7 @@ export class StatementsComponent implements OnInit {
         return user;
       });
 
-      this.headingList = headerRow;
+      this.headingList = [...headerRow, 'Test', 'Preview'];
       this.dataList = objList;
     });
   }
@@ -68,7 +64,11 @@ export class StatementsComponent implements OnInit {
   }
 
   checkData() {
-    this.validator.checkData([...this.data], this.selectedStatement);
+    if (this.selectedStatement && this.data) {
+      this.validator.checkData([...this.data], this.selectedStatement);
+      return;
+    }
+    this.errorMessage = 'selectStatement';
   }
 
   sendAll() {
@@ -80,14 +80,13 @@ export class StatementsComponent implements OnInit {
   }
 
   async testOne(row) {
-    const res = await this.lobService
+    const res = (await this.lobService
       .sendLetter(TemplateLookup.ChcSekVersion1, row)
-      .toPromise() as any;
+      .toPromise()) as any;
 
-    const tableRow = this.data.find((item) => item.id === row.id);
-    tableRow.id = res.url;
-    // console.log(res);
-    console.log(res.url)
+    const tableRow = this.dataList.find((item) => item.id === row.id);
+    tableRow.url = res.url;
+    console.log(this.dataList);
   }
 
   statementSelect() {
@@ -108,6 +107,10 @@ export class StatementsComponent implements OnInit {
       }),
       take(1)
     );
+  }
+
+  openUrl(url) {
+    window.open(url, '_blank');
   }
 }
 

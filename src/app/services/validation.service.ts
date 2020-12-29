@@ -12,7 +12,6 @@ export class ValidationService {
   constructor(private db: AngularFirestore) {}
 
   checkData(data, statementId) {
-    console.log(data);
     this.validate(data, statementId);
   }
 
@@ -24,11 +23,11 @@ export class ValidationService {
       .toPromise();
 
     const statementObj = statement.data();
-    console.log(statementObj);
     const headerFields = statementObj
       ? statementObj.acceptableFields
       : undefined;
 
+    console.log(headerFields)
     if (!headerFields || !headerFields.length) {
       this.responseSub.next(false);
       return;
@@ -38,20 +37,18 @@ export class ValidationService {
   }
 
   validateHeaderRow(data) {
-    const isSame = (row) =>
-      row.length === this.headerFields.length &&
-      row.every((element, index) => {
-        return element === this.headerFields[index];
-      });
+    const headerRowIsCorrect = (row) => {
+      return row.every((heading) => this.headerFields.indexOf(heading) >= 0);
+    }
+    const isProperLength = (row) => row.length === this.headerFields.length;
 
     const res = data.every((row, i) => {
       if (i === 0) {
-        return isSame(row);
+        return isProperLength(row) && headerRowIsCorrect(row);
       } else {
-        return !isSame(row);
+        return isProperLength(row);
       }
     });
-    console.log(res)
     return res;
   }
 }
