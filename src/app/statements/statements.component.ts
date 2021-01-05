@@ -72,11 +72,12 @@ export class StatementsComponent implements OnInit {
   }
 
   sendAll() {
-    this.objList.forEach(async (row) => {
-      await this.lobService
-        .sendLetter(TemplateLookup.ChcSekVersion1, row)
-        .toPromise();
-    });
+
+    // this.objList.forEach(async (row) => {
+    //   await this.lobService
+    //     .sendLetter(TemplateLookup.ChcSekVersion1, row)
+    //     .toPromise();
+    // });
   }
 
   async testOne(row) {

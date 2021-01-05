@@ -4,19 +4,29 @@ import * as Lob from 'Lob';
 import { TemplateLookup } from '../types/lob';
 import * as envData from '../../../credentials.json';
 
-
 const baseConfig = {};
 
 @Injectable({
   providedIn: 'root',
 })
 export class LobService {
-  url = "https://api.lob.com/v1/letters"
-;  constructor(private http: HttpClient) {}
+  url = 'https://api.lob.com/v1/letters';
+  constructor(private http: HttpClient) {}
 
   sendLobRequest(template, user) {
     const data = {
+      color: false,
+      custom_envelope: null,
+      double_sided: true,
       description: 'CHCSEK Statement',
+      from: 'adr_468039d7b6ffab30',
+      file: template,
+      merge_variables: {
+        name: user.first_name,
+        total_charges: user.totalCharges,
+      },
+      perforated_page: 1,
+      return_envelope: true,
       to: {
         name: user.name,
         address_line1: user.address1,
@@ -25,26 +35,16 @@ export class LobService {
         address_state: user.state,
         address_zip: user.zip,
       },
-      from: 'adr_468039d7b6ffab30',
-      file: template,
-      merge_variables: {
-        name: user.first_name,
-        total_charges: user.totalCharges,
-      },
-      color: false,
-      double_sided: true,
-      perforated_page: 1,
-      return_envelope: true,
     };
-    console.log('a', data );
+    console.log('a', data);
     const options = {
       headers: new HttpHeaders({
-        'Content-Type':  'application/json',
-        'Authorization': 'Basic ' + btoa(`${envData.lob['public-test']}:`)
-      })
-    }
+        'Content-Type': 'application/json',
+        Authorization: 'Basic ' + btoa(`${envData.lob['public-test']}:`),
+      }),
+    };
 
-    return this.http.post(this.url, data, options)
+    return this.http.post(this.url, data, options);
   }
 
   sendLetter(template, user) {

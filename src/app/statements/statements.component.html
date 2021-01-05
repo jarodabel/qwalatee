@@ -26,7 +26,7 @@
         <option *ngFor="let opt of statements$ | async" [ngValue]="(opt|async)?.id">{{(opt|async)?.name}}</option>
       </select>
     </div>
-    <button class="button is-link" *ngIf="objList?.length" (click)="sendAll()">Send All Statements</button>
+    <button class="button is-link is-right" *ngIf="dataList?.length" (click)="sendAll()">Send All Statements</button>
   </div>
   <div class="column is-hidden-mobile is-2"></div>
 </div>
@@ -50,10 +50,10 @@
             <td>{{row.state}}</td>
             <td>{{row.zip}}</td>
             <td>
-              <button class="button is-link" (click)="testOne(row)" [disabled]="row.url">Test&nbsp;<i class="fas fa-vial"></i></button>
+              <button class="button is-link is-small" (click)="testOne(row)" [disabled]="row.url">Test&nbsp;<i class="fas fa-vial"></i></button>
             </td>
             <td>
-              <button class="button is-link" *ngIf="row.url" (click)="openUrl(row.url)">Open&nbsp;<i
+              <button class="button is-link is-small" *ngIf="row.url" (click)="openUrl(row.url)">Open&nbsp;<i
                   class="fas fa-link"></i></button>
             </td>
           </tr>

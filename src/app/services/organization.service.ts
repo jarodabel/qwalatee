@@ -9,33 +9,19 @@ import {
   map,
   switchMap,
 } from 'rxjs/operators';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OrganizationService {
-  userAuth$ = this.afAuth.user.pipe(distinctUntilChanged());
-
-  dbUser$ = this.userAuth$.pipe(
-    filter((user) => Boolean(user)),
-    switchMap((user) =>
-      this.db
-        .collection('users', (ref) => ref.where('email', '==', user.email))
-        .valueChanges()
-        .pipe(catchError((error) => of(null)))
-    ),
-    map((userArray) => {
-      return userArray ? userArray[0] : false;
-    })
-  );
-
-  org$ = this.dbUser$.pipe(
+  org$ = this.userService.dbUser$.pipe(
     switchMap((userInfo: any) =>
       this.db.collection('organization').doc(userInfo.organization).get()
     )
   );
 
-  constructor(private db: AngularFirestore, public afAuth: AngularFireAuth) {}
+  constructor(private db: AngularFirestore, private userService: UserService) {}
 
   createOrganization(name, nameAbbr) {
     this.db.collection('organization').add({
