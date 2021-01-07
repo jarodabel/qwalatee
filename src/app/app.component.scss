@@ -1,8 +1,14 @@
-$appHeight: 56px;
 
 .app-shell {
-  height: calc(100% - 56px);
+  height: calc(100vh - 190px);
   width: 100%;
   padding: 25px;
   display: flex;
+  overflow: scroll;
+}
+
+@media (min-width: 769px ){
+  .app-shell {
+    height: calc(100vh - 96px);
+  }
 }

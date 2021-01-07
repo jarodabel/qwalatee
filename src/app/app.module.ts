@@ -38,6 +38,7 @@ import { LobService } from './services/lob.service';
 import { StatementsModule } from './statements/statements.component';
 import { CanActivateService } from './statements/statements.route.guard';
 import { OrganizationService } from './services/organization.service';
+import { StatementService } from './services/statement.service';
 
 @NgModule({
   declarations: [AppComponent, HomePageComponent],
@@ -73,7 +74,7 @@ import { OrganizationService } from './services/organization.service';
     MessagesModudle,
     StatementsModule,
   ],
-  providers: [PdsaService, UserService, ValidationService, LobService, CanActivateService, OrganizationService],
+  providers: [PdsaService, UserService, ValidationService, LobService, CanActivateService, OrganizationService, StatementService],
   bootstrap: [AppComponent],
   exports: [],
 })

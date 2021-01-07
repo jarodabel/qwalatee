@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, NgModule, OnInit } from '@angular/core';
+import { FirebaseApp } from '@angular/fire';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { map, take, tap } from 'rxjs/operators';
@@ -9,6 +10,10 @@ import { UserService } from '../services/user.service';
 import { ValidationService } from '../services/validation.service';
 import { SharedModule } from '../shared/shared.module';
 import { TemplateLookup } from '../types/lob';
+
+import * as firebase from 'firebase';
+import { StatementService } from '../services/statement.service';
+import { USER_FIELDS } from '../shared/upload-csv/upload-csv.component';
 
 @Component({
   selector: 'statements',
@@ -23,12 +28,14 @@ export class StatementsComponent implements OnInit {
   statements$;
   data;
   selectedStatement = undefined;
+  fieldNames = USER_FIELDS
 
   constructor(
     private userService: UserService,
     private validator: ValidationService,
     private lobService: LobService,
-    private orgService: OrganizationService
+    private orgService: OrganizationService,
+    private statementService: StatementService,
   ) {}
 
   user$ = this.userService.dbUser$;
@@ -43,17 +50,12 @@ export class StatementsComponent implements OnInit {
         return;
       }
       const data = [...this.data];
-      const headerRow = [...data[0]];
-      data.splice(0, 1);
-
-      const objList = data.map((row) => {
-        const user = {};
-        headerRow.forEach((key, i) => (user[key] = row[i]));
-        return user;
-      });
+      // TODO: should use firebase record
+      const headerRow = USER_FIELDS;
 
       this.headingList = [...headerRow, 'Test', 'Preview'];
-      this.dataList = objList;
+      this.fieldNames = headerRow;
+      this.dataList = data;
     });
   }
 
@@ -72,7 +74,6 @@ export class StatementsComponent implements OnInit {
   }
 
   sendAll() {
-
     // this.objList.forEach(async (row) => {
     //   await this.lobService
     //     .sendLetter(TemplateLookup.ChcSekVersion1, row)
@@ -80,14 +81,26 @@ export class StatementsComponent implements OnInit {
     // });
   }
 
-  async testOne(row) {
-    const res = (await this.lobService
-      .sendLetter(TemplateLookup.ChcSekVersion1, row)
-      .toPromise()) as any;
+  statementHistory(res, id) {
+    const statementHistoryObj = this.makeStatementHistoryObj(res, id);
+    this.statementService.postStatementHistory(statementHistoryObj, 1);
+  }
 
-    const tableRow = this.dataList.find((item) => item.id === row.id);
-    tableRow.url = res.url;
-    console.log(this.dataList);
+  testOne(row) {
+    this.lobService
+      .sendLetter(TemplateLookup.ChcSekVersion1, row)
+      .pipe(take(1))
+      .subscribe(
+        (res: any) => {
+          this.statementHistory(res, row.id);
+
+          const tableRow = this.dataList.find((item) => item.id === row.id);
+          tableRow.url = res.url;
+        },
+        (res) => {
+          this.statementHistory(res, row.id);
+        }
+      );
   }
 
   statementSelect() {
@@ -112,6 +125,23 @@ export class StatementsComponent implements OnInit {
 
   openUrl(url) {
     window.open(url, '_blank');
+  }
+
+  private makeStatementHistoryObj(res, id) {
+    const obj = {
+      created: firebase.firestore.FieldValue.serverTimestamp(),
+      group: '',
+      id,
+      ltrId: '',
+      status: undefined,
+    };
+    if (res.error) {
+      obj.status = 'error';
+      return obj;
+    }
+    obj.status = 'success';
+    obj.ltrId = res.id;
+    return obj;
   }
 }
 
