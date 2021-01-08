@@ -18,7 +18,11 @@ export class OrganizationService {
   org$ = this.userService.dbUser$.pipe(
     switchMap((userInfo: any) =>
       this.db.collection('organization').doc(userInfo.organization).get()
-    )
+    ),
+    catchError((error) => {
+      console.log(error)
+      return of(null);
+    })
   );
 
   constructor(private db: AngularFirestore, private userService: UserService) {}

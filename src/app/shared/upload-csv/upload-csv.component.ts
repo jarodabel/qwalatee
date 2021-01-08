@@ -97,7 +97,7 @@ export class UploadCSVComponent {
         const htmlRow = this.getHtmlRow(currentValue);
         if (htmlRow) {
           console.log(htmlRow);
-          tempObj.charges.push(htmlRow);
+          // tempObj.charges.push(htmlRow);
         }
 
         return accumulator;

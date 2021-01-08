@@ -21,7 +21,12 @@ export class UserService {
         return this.db
           .collection('users', (ref) => ref.where('email', '==', user.email))
           .valueChanges()
-          .pipe(catchError((error) => of(null)));
+          .pipe(
+            catchError((error) => {
+              console.log('cannot find user', error);
+              return of(null);
+            })
+          );
       }
       return of(undefined);
     }),

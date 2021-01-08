@@ -3,7 +3,7 @@ import { Component, NgModule, OnInit } from '@angular/core';
 import { FirebaseApp } from '@angular/fire';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { map, take, tap } from 'rxjs/operators';
+import { catchError, map, take, tap } from 'rxjs/operators';
 import { LobService } from '../services/lob.service';
 import { OrganizationService } from '../services/organization.service';
 import { UserService } from '../services/user.service';
@@ -14,6 +14,7 @@ import { TemplateLookup } from '../types/lob';
 import * as firebase from 'firebase';
 import { StatementService } from '../services/statement.service';
 import { USER_FIELDS } from '../shared/upload-csv/upload-csv.component';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'statements',
@@ -114,13 +115,18 @@ export class StatementsComponent implements OnInit {
       map((org) => {
         const orgData = org.data();
         return orgData.availableStatements.map(async (ref) => {
+          console.log(ref)
           const statement = await ref.get();
           const data = statement.data();
           const response = { id: statement.id, name: data.name };
           return response;
         });
       }),
-      take(1)
+      take(1),
+      catchError((err)=>{
+        console.log(err);
+        return of(null);
+      }),
     );
   }
 
