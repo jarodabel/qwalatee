@@ -68,7 +68,7 @@ export class UploadCSVComponent {
     const userObjects = statementChunks.reduce(
       (accumulator, currentValue, currentIndex) => {
         // first one
-        if(currentIndex === 0) {
+        if (currentIndex === 0) {
           newPatient = true;
           return accumulator;
         }
@@ -89,12 +89,16 @@ export class UploadCSVComponent {
             (obj, key, index) => ({ ...obj, [key]: currentValueArr[index] }),
             {}
           );
-          tempObj = {...merged, charges: []};
+          tempObj = { ...merged, charges: [] };
           return accumulator;
         }
 
         // add billing info to object
-        // tempObj.charges.push(currentValue);
+        const htmlRow = this.getHtmlRow(currentValue);
+        if (htmlRow) {
+          console.log(htmlRow);
+          tempObj.charges.push(htmlRow);
+        }
 
         return accumulator;
       },
@@ -102,5 +106,42 @@ export class UploadCSVComponent {
     );
 
     this.uploadData.emit(userObjects);
+  }
+
+  private merge(keys, values) {
+    return keys.reduce(
+      (obj, key, index) => ({ ...obj, [key]: values[index] }),
+      {}
+    );
+  }
+
+  private csvToArray(text) {
+    let p = '',
+      row = [''],
+      ret = [row],
+      i = 0,
+      r = 0,
+      s = !0,
+      l;
+    for (l of text) {
+      if ('"' === l) {
+        if (s && l === p) row[i] += l;
+        s = !s;
+      } else if (',' === l && s) l = row[++i] = '';
+      else if ('\n' === l && s) {
+        if ('\r' === p) row[i] = row[i].slice(0, -1);
+        row = ret[++r] = [(l = '')];
+        i = 0;
+      } else row[i] += l;
+      p = l;
+    }
+    return ret;
+  }
+
+  private getHtmlRow(data) {
+    const values = this.csvToArray(data);
+
+    console.log('uncaught', values);
+    return values;
   }
 }

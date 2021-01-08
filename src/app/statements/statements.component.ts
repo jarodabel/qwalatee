@@ -56,6 +56,7 @@ export class StatementsComponent implements OnInit {
       this.headingList = [...headerRow, 'Test', 'Preview'];
       this.fieldNames = headerRow;
       this.dataList = data;
+      console.log(data);
     });
   }
 
