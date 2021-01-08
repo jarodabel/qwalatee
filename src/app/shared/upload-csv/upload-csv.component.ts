@@ -97,7 +97,7 @@ export class UploadCSVComponent {
         const htmlRow = this.getHtmlRow(currentValue);
         if (htmlRow) {
           console.log(htmlRow);
-          // tempObj.charges.push(htmlRow);
+          tempObj.charges.push(htmlRow);
         }
 
         return accumulator;
@@ -135,13 +135,14 @@ export class UploadCSVComponent {
       } else row[i] += l;
       p = l;
     }
-    return ret;
+    return ret[0];
   }
 
   private getHtmlRow(data) {
     const values = this.csvToArray(data);
-
-    console.log('uncaught', values);
-    return values;
+    let res = '<tr>'
+    res += values.map((item) => `<td>${item}</td>`).join('');
+    res += '</tr>';
+    return res;
   }
 }

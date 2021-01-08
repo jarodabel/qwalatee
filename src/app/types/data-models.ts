@@ -36,5 +36,5 @@ export interface PatientRecord {
   unknown6?: string;
   unknown7?: string;
   billNum?: string;
-  charges?: string[];
+  charges?: string[][];
 }
