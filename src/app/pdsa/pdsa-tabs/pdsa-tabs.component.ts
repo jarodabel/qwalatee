@@ -77,7 +77,7 @@ export class PdsaTabsComponent implements OnInit {
           this.setCycles();
         },
         () => {
-          console.log('failure');
+          console.error('failure');
         }
       );
   }

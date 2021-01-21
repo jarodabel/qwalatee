@@ -3,10 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, map, take, tap } from 'rxjs/operators';
 import { AngularFirestore } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app';
-import { PdsaService } from 'src/app/services/pdsa.service';
 import { Store } from '@ngrx/store';
-import { AppState } from 'src/app/app-state';
-import { addBreadcrumb } from 'src/app/shared/actions/shared-actions';
+import { AppState } from '../../app-state';
+import { PdsaService } from '../../shared/services/pdsa.service';
+import { addBreadcrumb } from '../../shared/actions/shared-actions';
+
 
 const defaultPdsa = {
   aim: '',
@@ -31,8 +32,8 @@ export class PdsaPlanListComponent implements OnInit {
     private route: ActivatedRoute,
     private db: AngularFirestore,
     private router: Router,
+    private store: Store<AppState>,
     private pdsaService: PdsaService,
-    private store: Store<AppState>
   ) {}
 
   ngOnInit() {

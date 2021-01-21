@@ -13,6 +13,9 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import * as firebase from 'firebase/app';
 import { of } from 'rxjs';
+import { select, Store } from '@ngrx/store';
+import { AppState } from '../../app-state';
+import { selectUser } from '../selectors/user.selectors';
 
 @Component({
   selector: 'app-shell',
@@ -26,18 +29,9 @@ export class ShellComponent {
 
   userAuth$ = this.afAuth.user.pipe(distinctUntilChanged());
 
-  dbUser$ = this.userAuth$.pipe(
-    filter((user) => Boolean(user)),
-    switchMap((user) =>
-      this.db
-        .collection('users', (ref) => ref.where('email', '==', user.email))
-        .valueChanges()
-        .pipe(catchError((error) => of(null)))
-    ),
-    map((userArray) => { return userArray ? userArray[0]: false}),
-  );
+  user$ = this.store.pipe(select(selectUser));
 
-  org$ = this.dbUser$.pipe(
+  org$ = this.user$.pipe(
     switchMap((userInfo: any) =>
       this.db.collection('organization').doc(userInfo.organization).get()
     ),
@@ -47,6 +41,7 @@ export class ShellComponent {
   constructor(
     public afAuth: AngularFireAuth,
     private db: AngularFirestore,
+    private store: Store<AppState>,
     private router: Router
   ) {}
 
@@ -75,7 +70,7 @@ export class ShellComponent {
           this.router.navigate(['/']);
         },
         (err) => {
-          console.log('error');
+          console.error('error');
         }
       );
   }

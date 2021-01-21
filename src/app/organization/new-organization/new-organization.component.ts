@@ -20,13 +20,11 @@ export class NewOrganizationComponent implements OnInit {
 
   ngOnInit() {
     this.newOrgForm = this.formBuilder.group({ ...defaultForm });
-    console.log(this.newOrgForm);
   }
   goToHome() {
     this.router.navigate(['/']);
   }
   submit(){
-    console.log('submit');
     // create org
 
     // add org id to user

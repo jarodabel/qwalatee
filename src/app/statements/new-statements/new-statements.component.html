@@ -1,0 +1,89 @@
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column is-4">
+    <div class="select" *ngIf="(statements)?.length && (statements)?.length > 1">
+      <select [(ngModel)]="selectedStatement" (change)="statementSelect(opt)">
+        <option [ngValue]="undefined">None</option>
+        <option *ngFor="let opt of statements" [ngValue]="(opt|async)?.id">{{(opt)?.name}}</option>
+      </select>
+    </div>
+    <div *ngIf="(statements)?.length === 1">
+      <span *ngFor="let opt of statements" class="tag is-info is-light is-small">{{(opt)?.name}}</span>
+    </div>
+    <div *ngIf="!(statements)?.length || (statements)?.length === 0">
+      <span class="tag is-danger is-small">No Statements Available</span>
+    </div>
+  </div>
+  <div class="column is-4">
+    <div class="field has-addons is-pulled-right">
+      <p class="control">
+        <button class="button is-small"
+          [ngClass]="{'is-focused is-info': env === 'test'}"
+          (click)="toggleEnv('test')">
+          <span class="icon is-small">
+            <i class="fas fa-vial"></i>
+          </span>
+          <span>TEST Environment</span>
+        </button>
+      </p>
+      <p class="control">
+        <button class="button is-small" [disabled]="true"
+          [ngClass]="{'is-focused is-info': env === 'live'}"
+          (click)="toggleEnv('live')">
+          <span class="icon is-small">
+            <i class="fas fa-paper-plane"></i>
+          </span>
+          <span>LIVE Environment</span>
+        </button>
+      </p>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column">
+    <div>
+      <upload-csv (uploadData)="uploadData($event)"></upload-csv>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column">
+    <div class="notification is-danger" *ngIf="errorMessage" [ngSwitch]="errorMessage">
+      <h2 class="subtitle" *ngSwitchCase="'badData'">"Bad Data" - There seems to be an issue with this CSV</h2>
+      <h2 class="subtitle" *ngSwitchCase="'selectStatement'">Select a statement</h2>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>
+<div class="columns">
+  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column is-full-mobile is-8">
+    <div class="table-container">
+      <table class="table is-narrow is-striped">
+        <thead>
+          <th *ngFor="let name of headingList">
+            {{name}}
+          </th>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of dataList">
+            <td *ngFor="let field of fieldNames">{{row[field]}}</td>
+            <td>
+              <button class="button is-link is-small" (click)="testOne(row)" [disabled]="row.url">Test&nbsp;<i
+                  class="fas fa-vial"></i></button>
+            </td>
+            <td>
+              <button class="button is-link is-small" *ngIf="row.url" (click)="openUrl(row.url)">Open&nbsp;<i
+                  class="fas fa-link"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-2"></div>
+</div>

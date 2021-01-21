@@ -8,9 +8,9 @@ import {
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ContactUsService } from '../services/contact-us.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { ContactUsService } from '../shared/services/contact-us.service';
 
 @Component({
   selector: 'contact-us',

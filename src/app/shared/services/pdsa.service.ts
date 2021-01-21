@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Effect } from '@ngrx/effects';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { AppState } from '../app-state';
+import { AppState } from '../../app-state';
 import { ActivatedRoute } from '@angular/router';
-import { addBreadcrumb } from '../shared/actions/shared-actions';
+import { addBreadcrumb } from '../actions/shared-actions';
 import { take } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 

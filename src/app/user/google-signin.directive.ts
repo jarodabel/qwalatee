@@ -16,7 +16,7 @@ export class GoogleSigninDirective {
         (a) => {
         },
         (err) => {
-          console.log('error');
+          console.error('error');
         }
       );
   }

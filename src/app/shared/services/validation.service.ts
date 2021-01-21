@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Subject } from 'rxjs';
-import { USER_FIELDS } from '../shared/upload-csv/upload-csv.component';
+import { USER_FIELDS } from '../../shared/upload-csv/upload-csv.component';
 
 @Injectable({
   providedIn: 'root',

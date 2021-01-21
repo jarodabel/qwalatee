@@ -16,13 +16,13 @@
     </div>
     <div id="navbarBasicExample" class="navbar-menu" #navbarBasicMenu>
       <div class="navbar-start">
-        <a class="navbar-item" *ngIf="(dbUser$ | async)" (click)="goToOrg()">
+        <a class="navbar-item" *ngIf="(user$ | async)" (click)="goToOrg()">
           <span class="icon has-text-info">
             <i class="fas fa-book"></i>
           </span>
           <span>PDSAs</span>
         </a>
-        <a class="navbar-item" [routerLink]="['/statements']" *ngIf="(dbUser$ | async)?.lob_statements" (click)="hideNavbarMenu()">
+        <a class="navbar-item" [routerLink]="['/statements']" *ngIf="(user$ | async)?.lobStatements" (click)="hideNavbarMenu()">
           <span class="icon has-text-info">
             <i class="fas fa-file-invoice-dollar"></i>
           </span>

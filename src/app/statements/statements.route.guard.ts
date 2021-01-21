@@ -1,23 +1,28 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { UserService } from '../services/user.service';
+import { select, Store } from '@ngrx/store';
+import { Observable, of, throwError } from 'rxjs';
+import { map, mergeMap, retry, skip, tap } from 'rxjs/operators';
+import { AppState } from '../app-state';
+import { selectUser } from '../shared/selectors/user.selectors';
 
 @Injectable()
 export class CanActivateService implements CanActivate {
-  user$ = this.userService.dbUser$;
+  user$ = this.store.pipe(select(selectUser));
 
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(private store: Store<AppState>, private router: Router) {}
 
   canActivate(): Observable<boolean> | Promise<boolean> {
-    return this.userService.dbUser$.pipe(
-      map((user) => (user ? user.lob_statements : false)),
-      tap((hasLobPermission) => {
-        if (!hasLobPermission) {
+    // return of(true);
+    return this.user$.pipe(
+      map((user) => {
+        return  user ? user.lobStatements : false;
+      }),
+      tap((canActivate) => {
+        if(!canActivate){
           this.router.navigate([]);
         }
-      })
+      }),
     );
   }
 }

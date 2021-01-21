@@ -9,7 +9,7 @@ interface BreadcrumbState {
   organization?: string;
 }
 
-export const initialState: BreadcrumbState = {};
+const initialState: BreadcrumbState = {};
 
 const breadcrumbReducer = createReducer(
   initialState,
@@ -34,6 +34,9 @@ const breadcrumbReducer = createReducer(
   })
 );
 
-export function reducer(state: AppState | undefined, action: Action) {
-  return breadcrumbReducer(state, action);
+export function breadcrumbReducerFn(
+  breadCrumbs: BreadcrumbState | undefined,
+  action: Action
+) {
+  return breadcrumbReducer(breadCrumbs, action);
 }

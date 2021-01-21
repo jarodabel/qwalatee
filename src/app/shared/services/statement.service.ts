@@ -5,10 +5,14 @@ import { AngularFirestore } from '@angular/fire/firestore';
   providedIn: 'root',
 })
 export class StatementService {
-  private batchList = [];
   constructor(private db: AngularFirestore) {}
-  postStatementHistory(row, batch) {
-    // if(batch === 1){}
+  postStatementHistory(row) {
     return this.db.collection('statement-history').add(row);
+  }
+
+  getStatementsById(id) {
+    return this.db
+      .collection('statement-history', (ref)=> ref.where('id', '==', id))
+      .get()
   }
 }

@@ -94,10 +94,9 @@ export class UploadCSVComponent {
         }
 
         // add billing info to object
-        const htmlRow = this.getHtmlRow(currentValue);
-        if (htmlRow) {
-          console.log(htmlRow);
-          tempObj.charges.push(htmlRow);
+        const rowData = this.csvToArray(currentValue);
+        if (rowData) {
+          tempObj.charges.push(rowData);
         }
 
         return accumulator;
@@ -116,13 +115,13 @@ export class UploadCSVComponent {
   }
 
   private csvToArray(text) {
-    let p = '',
-      row = [''],
-      ret = [row],
-      i = 0,
-      r = 0,
-      s = !0,
-      l;
+    let p = '';
+    let row = [''];
+    const ret = [row];
+    let i = 0;
+    let r = 0;
+    let s = !0;
+    let l: any;
     for (l of text) {
       if ('"' === l) {
         if (s && l === p) row[i] += l;
@@ -136,13 +135,5 @@ export class UploadCSVComponent {
       p = l;
     }
     return ret[0];
-  }
-
-  private getHtmlRow(data) {
-    const values = this.csvToArray(data);
-    let res = '<tr>'
-    res += values.map((item) => `<td>${item}</td>`).join('');
-    res += '</tr>';
-    return res;
   }
 }

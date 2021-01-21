@@ -18,11 +18,10 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { PdsaModule } from './pdsa/pdsa.component';
-import { PdsaService } from './services/pdsa.service';
 import { StoreModule } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
 import { OrganizationModule } from './organization/organization.component';
-import { reducer } from './shared/reducers/shared-reducers';
+import { breadcrumbReducerFn } from './shared/reducers/shared-reducers';
 import { HttpClientModule } from '@angular/common/http';
 import { AboutUsModule } from './about-us/about-us.component';
 import { ContactUsModule } from './contact-us/contact-us.component';
@@ -32,13 +31,15 @@ import { EffectsModule } from '@ngrx/effects';
 import { ResourcesModule } from './resouces/base-resouce/base-resource.component';
 import { ResourcePipe } from './shared/pipes/resouce-pipe.pipe';
 import { MessagesModudle } from './messages/messages.component';
-import { UserService } from './services/user.service';
-import { ValidationService } from './services/validation.service';
-import { LobService } from './services/lob.service';
 import { StatementsModule } from './statements/statements.component';
 import { CanActivateService } from './statements/statements.route.guard';
-import { OrganizationService } from './services/organization.service';
-import { StatementService } from './services/statement.service';
+import { userReducerFn } from './shared/reducers/user.reducers';
+import { PdsaService } from './shared/services/pdsa.service';
+import { UserService } from './shared/services/user.service';
+import { ValidationService } from './shared/services/validation.service';
+import { LobService } from './shared/services/lob.service';
+import { OrganizationService } from './shared/services/organization.service';
+import { StatementService } from './shared/services/statement.service';
 
 @NgModule({
   declarations: [AppComponent, HomePageComponent],
@@ -63,7 +64,8 @@ import { StatementService } from './services/statement.service';
       enabled: environment.production,
     }),
     StoreModule.forRoot({
-      breadcrumbs: reducer,
+      breadcrumbs: breadcrumbReducerFn,
+      user: userReducerFn,
     }),
     StoreDevtoolsModule.instrument({
       maxAge: 25, // Retains last 25 states
