@@ -30,6 +30,8 @@ export class NewStatementsComponent implements OnInit {
   selectedStatement = undefined;
   fieldNames = USER_FIELDS;
   env = 'test';
+  completedRequests = 0;
+  bulkLobRunning = false;
 
   user$ = this.store.pipe(select(selectUser));
 
@@ -109,33 +111,55 @@ export class NewStatementsComponent implements OnInit {
   }
 
   sendAll() {
-    // this.objList.forEach(async (row) => {
-    //   await this.lobService
-    //     .sendLetter(TemplateLookup.ChcSekVersion1, row)
-    //     .toPromise();
-    // });
+    this.completedRequests = undefined;
+    this.bulkLobRunning = true;
+
+    this.dataList.forEach((row) => {
+      this.testOne(row).then(() => {
+        if(!this.completedRequests){
+          this.completedRequests = 0;
+        }
+        this.completedRequests += 1;
+        if(this.completedRequests === this.dataList.length){
+          this.bulkLobRunning = false;
+        }
+      });
+    });
   }
 
-  async statementHistory(res, id) {
-    console.error(res);
-    const statementHistoryObj = await this.makeStatementHistoryObj(res, id);
+  areYouSure() {
+    if (!this.dataList) {
+      return;
+    }
+    const answer = confirm(
+      `Are you sure? Confirmation will mail ${this.dataList.length} statements. THIS CANNOT BE UNDONE`
+    );
+    if (answer) {
+      this.sendAll();
+    }
+  }
+
+  async statementHistory(res, id, date) {
+    const statementHistoryObj = await this.makeStatementHistoryObj(res, id, date);
     this.statementService.postStatementHistory(statementHistoryObj);
   }
 
-  testOne(row) {
-    this.lobService
-      .sendLetter(TemplateLookup.ChcSekVersion1, row)
-      .pipe(take(1))
-      .subscribe(
-        (res: any) => {
-          this.statementHistory(res, row.id);
-          const tableRow = this.dataList.find((item) => item.id === row.id);
-          tableRow.url = res.url;
-        },
-        (res) => {
-          this.statementHistory(res, row.id);
-        }
-      );
+  async testOne(row) {
+    let res: any;
+
+    try {
+      console.log(row);
+      res = await this.lobService
+        .sendLetter(TemplateLookup.ChcSekVersion1, row)
+        .pipe(take(1))
+        .toPromise();
+    } catch {
+      this.statementHistory(res, row.id, row.date);
+    } finally {
+      this.statementHistory(res, row.id, row.date);
+      const tableRow = this.dataList.find((item) => item.id === row.id);
+      tableRow.url = res.url;
+    }
   }
 
   statementSelect(option) {
@@ -151,7 +175,8 @@ export class NewStatementsComponent implements OnInit {
     window.open(url, '_blank');
   }
 
-  async makeStatementHistoryObj(res, id) {
+  async makeStatementHistoryObj(res, id, date) {
+    console.log(date)
     const user: User = await this.user$.pipe(take(1)).toPromise();
     const obj = {
       created: firebase.firestore.FieldValue.serverTimestamp(),
@@ -161,6 +186,7 @@ export class NewStatementsComponent implements OnInit {
       status: undefined,
       environment: this.env,
       user: user.id,
+      date
     };
     if (res.error) {
       obj.status = 'error';

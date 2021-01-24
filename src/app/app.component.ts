@@ -24,15 +24,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.userService.getUser().subscribe((_user) => {
-      const user = {
-        email: _user.email,
-        id: _user.id,
-        firstName: _user.firstname,
-        lastName: _user.lastname,
-        organization: _user.organization,
-        lobStatements: _user.lob_statements,
-      };
-      this.store.dispatch(setUser(user));
       this.loaded = true;
     });
   }

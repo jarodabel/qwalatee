@@ -12,6 +12,7 @@ import { BaseResourceComponent } from './resouces/base-resouce/base-resource.com
 import { MessagesComponent } from './messages/messages.component';
 import { StatementsComponent } from './statements/statements.component';
 import { CanActivateService } from './statements/statements.route.guard';
+import { ResourcesComponent } from './resouces/resources.component';
 
 const routes: Routes = [
   {
@@ -54,7 +55,7 @@ const routes: Routes = [
   },
   {
     path: 'resources',
-    component: BaseResourceComponent,
+    component: ResourcesComponent,
   },
   {
     path: 'resources/:org',

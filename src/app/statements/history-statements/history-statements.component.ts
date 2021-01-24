@@ -12,8 +12,8 @@ export class HistoryStatementsComponent {
   searchTerm = '';
   loading = false;
   results = [];
-  headers = ['created', 'user', 'id', 'ltrId'];
-  headerTitles = ['Date Created', 'User', 'Patient Id', 'Statement Id'];
+  headers = ['created', 'date', 'user', 'id', 'ltrId'];
+  headerTitles = ['Date Created', 'Statement Date', 'User', 'Patient Id', 'Statement Id'];
 
   constructor(
     private statementService: StatementService,

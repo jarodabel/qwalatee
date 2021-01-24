@@ -1,15 +1,10 @@
 import {
   Component,
-  NgModule,
   AfterViewInit,
   ChangeDetectorRef,
 } from '@angular/core';
 
 import * as envData from '../../../../credentials.json';
-import { BrowserModule } from '@angular/platform-browser';
-import { ResourcePipe } from '../../shared/pipes/resouce-pipe.pipe';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'base-resources',
@@ -67,10 +62,3 @@ export class BaseResourceComponent implements AfterViewInit {
     this.cdr.detectChanges();
   }
 }
-
-@NgModule({
-  declarations: [BaseResourceComponent, ResourcePipe],
-  exports: [ResourcePipe],
-  imports: [BrowserModule, CommonModule, FormsModule],
-})
-export class ResourcesModule {}

@@ -28,8 +28,6 @@ import { ContactUsModule } from './contact-us/contact-us.component';
 import { PrivacyModule } from './privacy/privacy.component';
 import { BreadcrumbService } from './shared/breadcrumbs/breadcrumbs.service';
 import { EffectsModule } from '@ngrx/effects';
-import { ResourcesModule } from './resouces/base-resouce/base-resource.component';
-import { ResourcePipe } from './shared/pipes/resouce-pipe.pipe';
 import { MessagesModudle } from './messages/messages.component';
 import { StatementsModule } from './statements/statements.component';
 import { CanActivateService } from './statements/statements.route.guard';
@@ -40,6 +38,7 @@ import { ValidationService } from './shared/services/validation.service';
 import { LobService } from './shared/services/lob.service';
 import { OrganizationService } from './shared/services/organization.service';
 import { StatementService } from './shared/services/statement.service';
+import { ResourcesModule } from './resouces/resources.component';
 
 @NgModule({
   declarations: [AppComponent, HomePageComponent],
