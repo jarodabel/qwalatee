@@ -1,5 +1,13 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PatientRecord } from '../../types/data-models';
 export const USER_FIELDS = [
   'first',
@@ -37,10 +45,24 @@ export const USER_FIELDS = [
   templateUrl: './upload-csv.component.html',
   styleUrls: [],
 })
-export class UploadCSVComponent {
+export class UploadCSVComponent implements OnInit, OnDestroy {
   @Output()
   uploadData = new EventEmitter();
+  @Input()
+  reset: Subject<undefined>;
+  destroy$ = new Subject();
   filename = '';
+
+  ngOnInit() {
+    this.reset.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.filename = '';
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   handleFileSelect(evt) {
     const onload = (event) => {

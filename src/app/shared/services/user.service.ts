@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import { of } from 'rxjs';
 import {
   catchError,
@@ -9,10 +9,14 @@ import {
   filter,
   map,
   switchMap,
+  take,
   tap,
 } from 'rxjs/operators';
 import { AppState } from '../../app-state';
 import { setUser } from '../actions/user-actions';
+import { selectUser } from '../selectors/user.selectors';
+import * as firebase from 'firebase';
+import { AccessObj, AccessType } from '../../types/access';
 
 @Injectable()
 export class UserService {
@@ -31,7 +35,9 @@ export class UserService {
           .valueChanges()
           .pipe(
             map((userArray: {}[]) => {
-              return userArray.length ? { ...userArray[0], id: user.uid } : undefined;
+              return userArray.length
+                ? { ...userArray[0], id: user.uid }
+                : undefined;
             }),
             catchError((error) => {
               console.error('cannot find user', error);
@@ -41,7 +47,7 @@ export class UserService {
       }
       return of(undefined);
     }),
-    filter((user) => (user)),
+    filter((user) => user),
     tap((_user) => {
       const user = {
         email: _user.email,
@@ -52,7 +58,7 @@ export class UserService {
         lobStatements: _user.lob_statements,
       };
       this.store.dispatch(setUser(user));
-    }),
+    })
   );
 
   getUser() {
@@ -61,5 +67,17 @@ export class UserService {
 
   getAllUsers() {
     this.db.collection('users');
+  }
+
+  async postAccessLog(what: AccessType, patientId: string, ltrId = '') {
+    const user = await this.store.pipe(select(selectUser), take(1)).toPromise();
+    const obj: AccessObj = {
+      created: firebase.firestore.FieldValue.serverTimestamp(),
+      userId: user.id,
+      what,
+      patientId,
+      ltrId,
+    };
+    this.db.collection('access').add(obj);
   }
 }

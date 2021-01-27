@@ -5,7 +5,7 @@ import { TemplateLookup } from '../../types/lob';
 
 import * as firebase from 'firebase';
 import { USER_FIELDS } from '../../shared/upload-csv/upload-csv.component';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 import { selectUser } from '../../shared/selectors/user.selectors';
 import { AppState } from '../../app-state';
@@ -14,6 +14,8 @@ import { LobService } from '../../shared/services/lob.service';
 import { OrganizationService } from '../../shared/services/organization.service';
 import { StatementService } from '../../shared/services/statement.service';
 import { User } from '../../shared/reducers/user.reducers';
+import { UserService } from '../../shared/services/user.service';
+import { AccessType } from '../../types/access';
 
 @Component({
   selector: 'new-statements',
@@ -30,8 +32,9 @@ export class NewStatementsComponent implements OnInit {
   selectedStatement = undefined;
   fieldNames = USER_FIELDS;
   env = 'test';
-  completedRequests = 0;
+  completedRequests;
   bulkLobRunning = false;
+  uploadReset = new Subject();
 
   user$ = this.store.pipe(select(selectUser));
 
@@ -68,6 +71,7 @@ export class NewStatementsComponent implements OnInit {
     private validator: ValidationService,
     private lobService: LobService,
     private orgService: OrganizationService,
+    private userService: UserService,
     private statementService: StatementService,
     private store: Store<AppState>
   ) {}
@@ -84,7 +88,6 @@ export class NewStatementsComponent implements OnInit {
         this.errorMessage = 'badData';
         return;
       }
-      console.log('here', this.data);
       const data = [...this.data];
       // TODO: should use firebase record
       const headerRow = USER_FIELDS;
@@ -104,6 +107,7 @@ export class NewStatementsComponent implements OnInit {
   checkData() {
     if (this.selectedStatement && this.data) {
       this.validator.checkData([...this.data], this.selectedStatement);
+      this.userService.postAccessLog(AccessType.STATEMENTS_LOAD_FILE, '');
       return;
     }
     this.errorMessage = 'selectStatement';
@@ -116,11 +120,11 @@ export class NewStatementsComponent implements OnInit {
 
     this.dataList.forEach((row) => {
       this.testOne(row).then(() => {
-        if(!this.completedRequests){
+        if (!this.completedRequests) {
           this.completedRequests = 0;
         }
         this.completedRequests += 1;
-        if(this.completedRequests === this.dataList.length){
+        if (this.completedRequests === this.dataList.length) {
           this.bulkLobRunning = false;
         }
       });
@@ -140,15 +144,19 @@ export class NewStatementsComponent implements OnInit {
   }
 
   async statementHistory(res, id, date) {
-    const statementHistoryObj = await this.makeStatementHistoryObj(res, id, date);
+    const statementHistoryObj = await this.makeStatementHistoryObj(
+      res,
+      id,
+      date
+    );
     this.statementService.postStatementHistory(statementHistoryObj);
+    this.userService.postAccessLog(AccessType.STATEMENTS_TEST_LOAD_LOB, id);
   }
 
   async testOne(row) {
     let res: any;
 
     try {
-      console.log(row);
       res = await this.lobService
         .sendLetter(TemplateLookup.ChcSekVersion1, row)
         .pipe(take(1))
@@ -171,12 +179,13 @@ export class NewStatementsComponent implements OnInit {
     await this.loadStatements$.toPromise();
   }
 
-  openUrl(url) {
+  openUrl(url, id) {
+    this.userService.postAccessLog(AccessType.STATEMENTS_TEST_OPEN_LOB, id);
+
     window.open(url, '_blank');
   }
 
   async makeStatementHistoryObj(res, id, date) {
-    console.log(date)
     const user: User = await this.user$.pipe(take(1)).toPromise();
     const obj = {
       created: firebase.firestore.FieldValue.serverTimestamp(),
@@ -186,7 +195,7 @@ export class NewStatementsComponent implements OnInit {
       status: undefined,
       environment: this.env,
       user: user.id,
-      date
+      date,
     };
     if (res.error) {
       obj.status = 'error';
@@ -199,5 +208,18 @@ export class NewStatementsComponent implements OnInit {
 
   toggleEnv(env) {
     this.env = env;
+  }
+
+  reset() {
+    this.dataList = [];
+    this.objList = [];
+    this.errorMessage = '';
+    this.headingList = [];
+    this.data = undefined;
+    this.selectedStatement = undefined;
+    this.env = 'test';
+    this.completedRequests = undefined;
+    this.bulkLobRunning = false;
+    this.uploadReset.next();
   }
 }

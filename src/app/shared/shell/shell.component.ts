@@ -23,9 +23,9 @@ import { selectUser } from '../selectors/user.selectors';
   styleUrls: ['./shell.component.scss'],
 })
 export class ShellComponent {
-  @ViewChild('navbarBasicMenu', { static: false }) navbarBasicMenu: ElementRef;
-  @ViewChild('navbarBurger', { static: false }) navbarBurger: ElementRef;
-  @ViewChild('settingsMenu', { static: false }) settingsMenu: ElementRef;
+  @ViewChild('navbarBasicMenu') navbarBasicMenu: ElementRef;
+  @ViewChild('navbarBurger') navbarBurger: ElementRef;
+  @ViewChild('settingsMenu') settingsMenu: ElementRef;
 
   userAuth$ = this.afAuth.user.pipe(distinctUntilChanged());
 

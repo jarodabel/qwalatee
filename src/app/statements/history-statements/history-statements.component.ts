@@ -2,6 +2,8 @@ import { Component, NgModule } from '@angular/core';
 import { map, take } from 'rxjs/operators';
 import { LobService } from '../../shared/services/lob.service';
 import { StatementService } from '../../shared/services/statement.service';
+import { UserService } from '../../shared/services/user.service';
+import { AccessType } from '../../types/access';
 
 @Component({
   selector: 'history-statements',
@@ -17,7 +19,8 @@ export class HistoryStatementsComponent {
 
   constructor(
     private statementService: StatementService,
-    private lobService: LobService
+    private lobService: LobService,
+    private userService: UserService,
   ) {}
 
   async getPropertyById(id) {
@@ -30,6 +33,7 @@ export class HistoryStatementsComponent {
       .getStatementsById(id)
       .pipe(map((stmts) => stmts.docs.map((stmt) => ({ ...stmt.data() }))))
       .toPromise();
+    this.userService.postAccessLog(AccessType.STATEMENTS_HISTORY_SEARCH, id);
   }
 
   async getLetterObj(row) {
@@ -38,15 +42,13 @@ export class HistoryStatementsComponent {
       .pipe(take(1))
       .toPromise();
     row.url = res.url;
+    this.userService.postAccessLog(AccessType.STATEMENTS_HISTORY_LOAD_LOB, row.id, row.ltrId);
+
   }
 
-  openLetter(url){
+  openLetter(url, id, ltrId){
+    this.userService.postAccessLog(AccessType.STATEMENTS_HISTORY_OPEN_LOB, id, ltrId);
+
     window.open(url, '_blank');
   }
 }
-
-@NgModule({
-  declarations: [HistoryStatementsComponent],
-  exports: [],
-})
-export class HistoryStatementsModule {}

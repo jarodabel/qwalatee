@@ -51,7 +51,7 @@
       <div class="tile is-parent">
         <div class="tile is-child box">
           <p class="title">Upload</p>
-          <upload-csv (uploadData)="uploadData($event)"></upload-csv>
+          <upload-csv (uploadData)="uploadData($event)" [reset]="uploadReset"></upload-csv>
           <div class="notification is-danger" [ngSwitch]="errorMessage" *ngIf="errorMessage">
             <h2 class="subtitle" *ngSwitchCase="'badData'">"Bad Data" - There seems to be an issue with this CSV</h2>
             <h2 class="subtitle" *ngSwitchCase="'selectStatement'">Select a statement</h2>
@@ -73,16 +73,18 @@
     <div class="tile is-ancestor">
       <div class="tile is-parent is-12">
         <div class="tile is-child box is-12">
-          <p class="title">Results
-            <button [disabled]="!dataList?.length" class="button is-danger is-small is-pulled-right"
-            (click)="areYouSure()">Send All</button>
-          </p>
           <!-- LOADING INDICATOR -->
           <progress class="progress is-danger" [value]="completedRequests"
             [max]="dataList?.length || 0" *ngIf="bulkLobRunning">10%</progress>
+          <p class="title">Results
 
+            <button [disabled]="!dataList?.length || bulkLobRunning" class="button is-danger is-small is-pulled-right"
+              (click)="areYouSure()">Send All</button>
+            <button [disabled]="!dataList?.length || bulkLobRunning" class="button is-small is-pulled-right"
+              (click)="reset()">Clear</button>
+          </p>
           <!-- TABLE -->
-          <div class="table-container">
+          <div class="table-container" [ngClass]="{'disabled': bulkLobRunning}">
             <table class="table is-narrow is-striped">
               <thead>
                 <th *ngFor="let name of headingList">
@@ -97,7 +99,8 @@
                         class="fas fa-vial"></i></button>
                   </td>
                   <td>
-                    <button class="button is-link is-small" *ngIf="row.url" (click)="openUrl(row.url)">Open&nbsp;<i
+                    <button class="button is-link is-small" *ngIf="row.url"
+                      (click)="openUrl(row.url, row.id)">Open&nbsp;<i
                         class="fas fa-link"></i></button>
                   </td>
                 </tr>

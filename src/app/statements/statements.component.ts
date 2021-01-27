@@ -7,7 +7,7 @@ import { HistoryStatementsComponent } from './history-statements/history-stateme
 
 import { NewStatementsComponent } from './new-statements/new-statements.component';
 
-enum TabNames {
+export enum TabNames {
   NewStatements = 'newStatements',
   HistoryStatements = 'historyStatements',
 }
