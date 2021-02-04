@@ -38,7 +38,7 @@ exports.sendgridEmail = async (req) => {
       // const response = await client.API(request);
       sgMail.send(msg).then(
         () => {
-          success();
+          success('success');
         },
         (error) => {
           console.error(error);
@@ -50,8 +50,7 @@ exports.sendgridEmail = async (req) => {
       );
     } catch (err) {
       console.error(err);
-      failure();
+      failure('error');
     }
-  })
-
+  });
 };

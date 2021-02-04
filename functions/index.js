@@ -1,19 +1,50 @@
 const sendEmail = require('./contact-us');
+const lobRequest = require('./statements');
+
 const functions = require('firebase-functions');
+const admin = require('firebase-admin');
 const cors = require('cors')({ origin: true });
 
-const admin = require('firebase-admin');
 admin.initializeApp();
 
-exports.sendEmail = functions.https.onRequest(async (req, res) => {
+exports.sendEmail = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    const message = await sendEmail.sendgridEmail(req);
+    res.send(JSON.stringify({ message }));
+    res.end();
+  });
+});
+
+exports.postLobRequest = functions.https.onRequest((req, res) => {
   cors(req, res, () => {
-    sendEmail.sendgridEmail(req).then(
-      () => {
-        res.status(200).send();
-      },
-      () => {
-        res.status(400).send({ message: 'general error' });
-      }
-    );
+    lobRequest
+      .lobPostLetter(req)
+      .then((data) => {
+        res.set('Content-Type', 'application/json');
+        res.status(200).send(data);
+        res.end();
+      })
+      .catch((err) => {
+        res.set('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({ message: err }));
+        res.end();
+      });
+  });
+});
+
+exports.getLobRequest = functions.https.onRequest((req, res) => {
+  cors(req, res, () => {
+    lobRequest
+      .lobGetLetter(req)
+      .then((data) => {
+        res.set('Content-Type', 'application/json');
+        res.status(200).send(data);
+        res.end();
+      })
+      .catch((err) => {
+        res.set('Content-Type', 'application/json');
+        res.status(400).send(JSON.stringify({ message: err }));
+        res.end();
+      });
   });
 });
