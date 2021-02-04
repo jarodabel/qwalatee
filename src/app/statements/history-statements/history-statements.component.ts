@@ -16,6 +16,7 @@ export class HistoryStatementsComponent {
   results = [];
   headers = ['created', 'date', 'user', 'id', 'ltrId'];
   headerTitles = ['Date Created', 'Statement Date', 'User', 'Patient Id', 'Statement Id'];
+  env = 'test';
 
   constructor(
     private statementService: StatementService,
@@ -38,7 +39,7 @@ export class HistoryStatementsComponent {
 
   async getLetterObj(row) {
     const res: any = await this.lobService
-      .getLetterObject(row.ltrId)
+      .getLetterObject(this.env, row.ltrId)
       .pipe(take(1))
       .toPromise();
     row.url = res.url;

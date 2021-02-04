@@ -55,7 +55,7 @@ export class UploadCSVComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.reset.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.filename = '';
+      this.filename = undefined;
     });
   }
 
@@ -77,6 +77,7 @@ export class UploadCSVComponent implements OnInit, OnDestroy {
     const reader = new FileReader();
     reader.onload = onload;
     reader.readAsText(file);
+    evt.target.value = '';
   }
 
   extractData(data) {

@@ -1,7 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import * as envData from '../../../../credentials.json';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -15,10 +13,11 @@ export class LobService {
     'Payment',
     'Due',
   ];
-  url = 'https://api.lob.com/v1/letters';
+
+  cloudFnUrl = 'https://us-central1-pdsa-oskee.cloudfunctions.net';
   constructor(private http: HttpClient) {}
 
-  sendLobRequest(template, user) {
+  sendLobRequest(env, template, user) {
     const data = {
       color: false,
       custom_envelope: null,
@@ -47,14 +46,23 @@ export class LobService {
       },
     };
 
-    const options = this.getHeaders();
-
-    return this.http.post(this.url, data, options);
+    // do post with function
+    return this.http.post(
+      `${this.cloudFnUrl}/postLobRequest?env=${env}`,
+      {
+        ...data,
+      },
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+        }),
+      }
+    );
   }
 
-  sendLetter(template, user) {
+  sendLetter(env, template, user) {
     const userObj = this.makeUserForLob(user);
-    return this.sendLobRequest(template, userObj);
+    return this.sendLobRequest(env, template, userObj);
   }
 
   makeUserForLob(user) {
@@ -105,10 +113,18 @@ export class LobService {
     return obj;
   }
 
-  getLetterObject(id) {
-    const options = this.getHeaders();
-    const url = `${this.url}/${id}`;
-    return this.http.get(url, options);
+  getLetterObject(env, id) {
+    return this.http.post(
+      `${this.cloudFnUrl}/getLobRequest?env=${env}`,
+      {
+        id,
+      },
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+        }),
+      }
+    );
   }
 
   private getHtmlRow(data, heading?) {
@@ -130,14 +146,5 @@ export class LobService {
 
   private getHeaderRow() {
     return this.getHtmlRow([...this.headerRow], true);
-  }
-
-  private getHeaders() {
-    return {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: 'Basic ' + btoa(`${envData.lob['public-test']}:`),
-      }),
-    };
   }
 }

@@ -158,7 +158,7 @@ export class NewStatementsComponent implements OnInit {
 
     try {
       res = await this.lobService
-        .sendLetter(TemplateLookup.ChcSekVersion1, row)
+        .sendLetter(this.env, TemplateLookup.ChcSekVersion1, row)
         .pipe(take(1))
         .toPromise();
     } catch {
@@ -216,7 +216,7 @@ export class NewStatementsComponent implements OnInit {
     this.errorMessage = '';
     this.headingList = [];
     this.data = undefined;
-    this.selectedStatement = undefined;
+    // this.selectedStatement = undefined;
     this.env = 'test';
     this.completedRequests = undefined;
     this.bulkLobRunning = false;
