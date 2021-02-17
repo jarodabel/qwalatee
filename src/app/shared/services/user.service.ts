@@ -25,7 +25,7 @@ export class UserService {
     private db: AngularFirestore,
     private store: Store<AppState>
   ) {}
-  userAuth$ = this.afAuth.user.pipe(distinctUntilChanged());
+  userAuth$ = this.afAuth.user;
 
   dbUser$ = this.userAuth$.pipe(
     switchMap((user) => {
@@ -35,6 +35,7 @@ export class UserService {
           .valueChanges()
           .pipe(
             map((userArray: {}[]) => {
+              console.log('wtf')
               return userArray.length
                 ? { ...userArray[0], id: user.uid }
                 : undefined;
