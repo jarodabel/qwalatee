@@ -25,8 +25,8 @@
           <div class="field has-addons">
             <p class="control">
               <button class="button is-small"
-                [ngClass]="{'is-focused is-info': env === 'test'}"
-                (click)="toggleEnv('test')">
+                [ngClass]="{'is-focused is-info': env === 'Test'}"
+                (click)="toggleEnv('Test')">
                 <span class="icon is-small">
                   <i class="fas fa-vial"></i>
                 </span>
@@ -34,9 +34,9 @@
               </button>
             </p>
             <p class="control">
-              <button class="button is-small" [disabled]="true"
-                [ngClass]="{'is-focused is-info': env === 'live'}"
-                (click)="toggleEnv('live')">
+              <button class="button is-small" [disabled]="!(user$|async)?.lobStatementsLive"
+                [ngClass]="{'is-focused is-info': env === 'Live'}"
+                (click)="toggleEnv('Live')">
                 <span class="icon is-small">
                   <i class="fas fa-paper-plane"></i>
                 </span>

@@ -5,7 +5,7 @@ const btoa = require('btoa');
 const _url = 'https://api.lob.com/v1/letters';
 
 const getHeaders = (env) => {
-  const token = env === 'prod' ? '' : functions.config().lob.test_key;
+  const token = env === 'Live' ? functions.config().lob.live_key : functions.config().lob.test_key;
   return {
     headers: {
       'Content-Type': 'application/json',
@@ -23,7 +23,8 @@ exports.lobGetLetter = (req) => {
         throw error;
       }
       const id = req.body.id;
-      const options = getHeaders('test');
+      const env = req.query.env;
+      const options = getHeaders(env);
       const url = `${_url}/${id}`;
 
       axios
@@ -35,6 +36,7 @@ exports.lobGetLetter = (req) => {
           success(obj);
         })
         .catch((error) => {
+          console.log(error)
           if (error.response) {
             console.error(error.response.body);
           }

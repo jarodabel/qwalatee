@@ -31,7 +31,7 @@ export class NewStatementsComponent implements OnInit {
   data;
   selectedStatement = undefined;
   fieldNames = USER_FIELDS;
-  env = 'test';
+  env = 'Test';
   completedRequests;
   bulkLobRunning = false;
   uploadReset = new Subject();
@@ -115,7 +115,7 @@ export class NewStatementsComponent implements OnInit {
   }
 
   sendAll() {
-    this.completedRequests = undefined;
+    this.completedRequests = 0;
     this.bulkLobRunning = true;
 
     this.dataList.forEach((row) => {
@@ -123,7 +123,7 @@ export class NewStatementsComponent implements OnInit {
         if (!this.completedRequests) {
           this.completedRequests = 0;
         }
-        this.completedRequests += 1;
+        this.completedRequests = this.completedRequests + 1;
         if (this.completedRequests === this.dataList.length) {
           this.bulkLobRunning = false;
         }
@@ -158,10 +158,11 @@ export class NewStatementsComponent implements OnInit {
 
     try {
       res = await this.lobService
-        .sendLetter(this.env, TemplateLookup.ChcSekVersion1, row)
+        .sendLetter(this.env, TemplateLookup[this.env], row)
         .pipe(take(1))
         .toPromise();
     } catch {
+      console.log(res)
       this.statementHistory(res, row.id, row.date);
     } finally {
       this.statementHistory(res, row.id, row.date);
@@ -217,7 +218,7 @@ export class NewStatementsComponent implements OnInit {
     this.headingList = [];
     this.data = undefined;
     // this.selectedStatement = undefined;
-    this.env = 'test';
+    this.env = 'Test';
     this.completedRequests = undefined;
     this.bulkLobRunning = false;
     this.uploadReset.next();

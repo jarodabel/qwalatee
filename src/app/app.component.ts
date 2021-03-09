@@ -13,7 +13,7 @@ export class AppComponent implements OnInit {
   @ViewChild('constructionNotification')
   constructionNotification: ElementRef;
 
-  loaded = false;
+  loaded = true;
   constructor(
     private userService: UserService,
     private store: Store<AppState>

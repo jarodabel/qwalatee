@@ -8,6 +8,7 @@ export interface User {
   lastName: string;
   organization: string;
   lobStatements: boolean;
+  lobStatementsLive: boolean;
 }
 
 const defaultState: User = {
@@ -17,6 +18,7 @@ const defaultState: User = {
   lastName: undefined,
   organization: undefined,
   lobStatements: false,
+  lobStatementsLive: false,
 };
 
 export enum HistoryObject {

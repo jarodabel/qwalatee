@@ -5,7 +5,6 @@ import { select, Store } from '@ngrx/store';
 import { of } from 'rxjs';
 import {
   catchError,
-  distinctUntilChanged,
   filter,
   map,
   switchMap,
@@ -35,7 +34,6 @@ export class UserService {
           .valueChanges()
           .pipe(
             map((userArray: {}[]) => {
-              console.log('wtf')
               return userArray.length
                 ? { ...userArray[0], id: user.uid }
                 : undefined;
@@ -57,6 +55,7 @@ export class UserService {
         lastName: _user.lastname,
         organization: _user.organization,
         lobStatements: _user.lob_statements,
+        lobStatementsLive: _user.lob_statements_live,
       };
       this.store.dispatch(setUser(user));
     })
