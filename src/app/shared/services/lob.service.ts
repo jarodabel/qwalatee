@@ -62,7 +62,6 @@ export class LobService {
   }
 
   sendLetter(env, template, user) {
-    console.log(ChcAddress[env])
     const userObj = this.makeUserForLob(user);
     return this.sendLobRequest(env, template, userObj);
   }

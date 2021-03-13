@@ -1,4 +1,4 @@
-import { Component, NgModule, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgModule, OnInit } from '@angular/core';
 
 import { catchError, map, take, tap } from 'rxjs/operators';
 import { TemplateLookup } from '../../types/lob';
@@ -35,6 +35,7 @@ export class NewStatementsComponent implements OnInit {
   completedRequests;
   bulkLobRunning = false;
   uploadReset = new Subject();
+  estimatedCost = '0';
 
   user$ = this.store.pipe(select(selectUser));
 
@@ -73,7 +74,7 @@ export class NewStatementsComponent implements OnInit {
     private orgService: OrganizationService,
     private userService: UserService,
     private statementService: StatementService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
   ) {}
 
   ngOnInit() {
@@ -95,10 +96,12 @@ export class NewStatementsComponent implements OnInit {
       this.headingList = [...headerRow, 'Test', 'Preview'];
       this.fieldNames = headerRow;
       this.dataList = data;
+      this.updateCosts();
     });
   }
 
   uploadData(data) {
+    console.log(JSON.stringify(data[1]));
     this.errorMessage = undefined;
     this.data = data;
     this.checkData();
@@ -118,8 +121,8 @@ export class NewStatementsComponent implements OnInit {
     this.completedRequests = 0;
     this.bulkLobRunning = true;
 
-    this.dataList.forEach((row) => {
-      this.testOne(row).then(() => {
+    this.dataList.forEach((row, i) => {
+      this.testOne(row, i).then(() => {
         if (!this.completedRequests) {
           this.completedRequests = 0;
         }
@@ -153,7 +156,7 @@ export class NewStatementsComponent implements OnInit {
     this.userService.postAccessLog(AccessType.STATEMENTS_TEST_LOAD_LOB, id);
   }
 
-  async testOne(row) {
+  async testOne(row, index) {
     let res: any;
 
     try {
@@ -162,11 +165,10 @@ export class NewStatementsComponent implements OnInit {
         .pipe(take(1))
         .toPromise();
     } catch {
-      console.log(res)
       this.statementHistory(res, row.id, row.date);
     } finally {
       this.statementHistory(res, row.id, row.date);
-      const tableRow = this.dataList.find((item) => item.id === row.id);
+      const tableRow = this.dataList[index];
       tableRow.url = res.url;
     }
   }
@@ -182,7 +184,6 @@ export class NewStatementsComponent implements OnInit {
 
   openUrl(url, id) {
     this.userService.postAccessLog(AccessType.STATEMENTS_TEST_OPEN_LOB, id);
-
     window.open(url, '_blank');
   }
 
@@ -222,5 +223,9 @@ export class NewStatementsComponent implements OnInit {
     this.completedRequests = undefined;
     this.bulkLobRunning = false;
     this.uploadReset.next();
+  }
+
+  private updateCosts() {
+    this.estimatedCost = (Math.round(this.dataList?.length * 0.47 * 100) / 100).toFixed(2) || '0';
   }
 }

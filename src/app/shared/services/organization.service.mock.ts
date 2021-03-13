@@ -4,5 +4,7 @@ export class MockOrganizationService {
   user$ = of();
   org$ = of();
 
-  getUsersOrganization() {}
+  getUsersOrganization() {
+    return of();
+  }
 }

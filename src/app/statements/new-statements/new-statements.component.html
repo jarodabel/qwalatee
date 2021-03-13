@@ -22,10 +22,10 @@
       <div class="tile is-parent">
         <div class="tile is-child box">
           <p class="title">Environment</p>
-          <div class="field has-addons">
+          <div class="field is-grouped">
             <p class="control">
-              <button class="button is-small"
-                [ngClass]="{'is-focused is-info': env === 'Test'}"
+              <button class="button is-small is-outlined"
+                [ngClass]="{'is-focused is-link': env === 'Test'}"
                 (click)="toggleEnv('Test')">
                 <span class="icon is-small">
                   <i class="fas fa-vial"></i>
@@ -34,8 +34,8 @@
               </button>
             </p>
             <p class="control">
-              <button class="button is-small" [disabled]="!(user$|async)?.lobStatementsLive"
-                [ngClass]="{'is-focused is-info': env === 'Live'}"
+              <button class="button is-small is-outlined" [disabled]="!(user$|async)?.lobStatementsLive"
+                [ngClass]="{'is-focused is-link': env === 'Live'}"
                 (click)="toggleEnv('Live')">
                 <span class="icon is-small">
                   <i class="fas fa-paper-plane"></i>
@@ -64,7 +64,7 @@
           <div class="content">
             <ul type="1">
               <li>Statements = {{dataList?.length || 0}}</li>
-              <li>Estimated Cost = {{dataList?.length * 0.47 || 0}}</li>
+              <li>Estimated Cost = {{estimatedCost}}</li>
             </ul>
           </div>
         </div>
@@ -92,10 +92,10 @@
                 </th>
               </thead>
               <tbody>
-                <tr *ngFor="let row of dataList">
+                <tr *ngFor="let row of dataList; let i = index">
                   <td *ngFor="let field of fieldNames">{{row[field]}}</td>
                   <td>
-                    <button class="button is-link is-small" (click)="testOne(row)" [disabled]="row.url">Test&nbsp;<i
+                    <button class="button is-link is-small" (click)="testOne(row, i)" [disabled]="row.url">Test&nbsp;<i
                         class="fas fa-vial"></i></button>
                   </td>
                   <td>
