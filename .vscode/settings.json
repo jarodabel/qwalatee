@@ -3,5 +3,6 @@
   "prettier.singleQuote": true,
   "javascript.preferences.quoteStyle": "single",
   "typescript.preferences.quoteStyle": "single",
+  "js/ts.implicitProjectConfig.experimentalDecorators": true,
   "vsicons.presets.angular": true
 }
