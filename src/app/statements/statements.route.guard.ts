@@ -18,8 +18,9 @@ export class CanActivateService implements CanActivate {
   ) {}
 
   canActivate(): Observable<boolean> | Promise<boolean> {
-    return this.userService.getUser().pipe(
-      map((user) => user? user.lob_statements: false),
+    return this.store.pipe(
+      select(selectUser),
+      map((user) => (user ? user.lobStatements : false)),
       tap((canActivate) => {
         if (!canActivate) {
           this.router.navigate([]);

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, NgModule, OnInit } from '@angular/core';
 
 import { catchError, map, take, tap } from 'rxjs/operators';
-import { TemplateLookup } from '../../types/lob';
+import { LOB_ENV, TemplateLookup } from '../../types/lob';
 
 import * as firebase from 'firebase';
 import { USER_FIELDS } from '../../shared/upload-csv/upload-csv.component';
@@ -74,7 +74,7 @@ export class NewStatementsComponent implements OnInit {
     private orgService: OrganizationService,
     private userService: UserService,
     private statementService: StatementService,
-    private store: Store<AppState>,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit() {
@@ -93,24 +93,28 @@ export class NewStatementsComponent implements OnInit {
       // TODO: should use firebase record
       const headerRow = USER_FIELDS;
 
-      this.headingList = [...headerRow, 'Test', 'Preview'];
+      // TODO: Test
+      this.headingList = ['Create', 'Preview', ...headerRow];
       this.fieldNames = headerRow;
       this.dataList = data;
       this.updateCosts();
     });
   }
 
-  uploadData(data) {
-    console.log(JSON.stringify(data[1]));
+  uploadData({ data, filename }) {
     this.errorMessage = undefined;
     this.data = data;
-    this.checkData();
+    this.checkData(filename);
   }
 
-  checkData() {
+  checkData(filename?) {
     if (this.selectedStatement && this.data) {
       this.validator.checkData([...this.data], this.selectedStatement);
-      this.userService.postAccessLog(AccessType.STATEMENTS_LOAD_FILE, '');
+      const accessType =
+        this.env === LOB_ENV.LIVE
+          ? AccessType.STATEMENTS_LOAD_FILE_LIVE
+          : AccessType.STATEMENTS_LOAD_FILE_TEST;
+      this.userService.postAccessLog(accessType, '', '', filename);
       return;
     }
     this.errorMessage = 'selectStatement';
@@ -122,7 +126,7 @@ export class NewStatementsComponent implements OnInit {
     this.bulkLobRunning = true;
 
     this.dataList.forEach((row, i) => {
-      this.testOne(row, i).then(() => {
+      this.createStatement(row, i).then(() => {
         if (!this.completedRequests) {
           this.completedRequests = 0;
         }
@@ -152,11 +156,17 @@ export class NewStatementsComponent implements OnInit {
       id,
       date
     );
+    console.log(statementHistoryObj);
     this.statementService.postStatementHistory(statementHistoryObj);
-    this.userService.postAccessLog(AccessType.STATEMENTS_TEST_LOAD_LOB, id);
+    const accessType =
+      this.env === LOB_ENV.LIVE
+        ? AccessType.STATEMENTS_CREATE_STATEMENT_LIVE
+        : AccessType.STATEMENTS_CREATE_STATEMENT_TEST;
+    console.log(accessType,id);
+    this.userService.postAccessLog(accessType, id);
   }
 
-  async testOne(row, index) {
+  async createStatement(row, index) {
     let res: any;
 
     try {
@@ -183,7 +193,11 @@ export class NewStatementsComponent implements OnInit {
   }
 
   openUrl(url, id) {
-    this.userService.postAccessLog(AccessType.STATEMENTS_TEST_OPEN_LOB, id);
+    const accessType =
+      this.env === LOB_ENV.LIVE
+        ? AccessType.STATEMENTS_VIEW_STATEMENT_LIVE
+        : AccessType.STATEMENTS_VIEW_STATEMENT_TEST;
+    this.userService.postAccessLog(accessType, id);
     window.open(url, '_blank');
   }
 
@@ -209,6 +223,7 @@ export class NewStatementsComponent implements OnInit {
   }
 
   toggleEnv(env) {
+    this.reset();
     this.env = env;
   }
 
@@ -226,6 +241,7 @@ export class NewStatementsComponent implements OnInit {
   }
 
   private updateCosts() {
-    this.estimatedCost = (Math.round(this.dataList?.length * 0.47 * 100) / 100).toFixed(2) || '0';
+    this.estimatedCost =
+      (Math.round(this.dataList?.length * 0.47 * 100) / 100).toFixed(2) || '0';
   }
 }

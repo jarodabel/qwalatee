@@ -13,6 +13,8 @@ import { ValidationService } from '../../shared/services/validation.service';
 import { MockValidatonService } from '../../shared/services/validation.service.mock';
 import { NewStatementsComponent } from './new-statements.component';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
+import { AccessType } from '../../types/access';
+import { LOB_ENV } from '../../types/lob';
 const mockData = [
   {
     first: 'Jarod',
@@ -124,6 +126,8 @@ describe('NewStatementComponent', () => {
   let fixture: ComponentFixture<NewStatementsComponent>;
   const initialState = { loggedIn: false };
   let validationService;
+  let userService;
+  let statementService;
 
   beforeEach(
     waitForAsync(() => {
@@ -147,6 +151,8 @@ describe('NewStatementComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     validationService = fixture.debugElement.injector.get(ValidationService);
+    userService = fixture.debugElement.injector.get(UserService);
+    statementService = fixture.debugElement.injector.get(StatementService);
   });
 
   afterEach(() => {
@@ -166,7 +172,7 @@ describe('NewStatementComponent', () => {
   it('should reset error message, set data, and check data on upload', () => {
     const data = [...mockData];
     const checkDataSpy = spyOn(component, 'checkData');
-    component.uploadData(data);
+    component.uploadData({data, filename: 'blue'});
     expect(component.errorMessage).toBe(undefined);
     expect(component.data).toEqual(data);
     expect(checkDataSpy).toHaveBeenCalled();
@@ -188,5 +194,35 @@ describe('NewStatementComponent', () => {
     component.checkData();
     expect(spy).toHaveBeenCalled();
     expect(component.errorMessage).toBe(undefined);
-  })
+  });
+
+  fdescribe('access type tracking', () => {
+    let userServiceSpy;
+    beforeEach(()=>{
+      userServiceSpy = spyOn(userService, 'postAccessLog');
+    });
+
+    const envs = [LOB_ENV.TEST, LOB_ENV.LIVE];
+
+    const loadFile = [AccessType.STATEMENTS_LOAD_FILE_TEST, AccessType.STATEMENTS_LOAD_FILE_LIVE];
+    const createStatement = [AccessType.STATEMENTS_CREATE_STATEMENT_TEST, AccessType.STATEMENTS_CREATE_STATEMENT_LIVE];
+    envs.forEach((env, i) => {
+      xit(`should track loading a file with filename - ${env}`, () => {
+        component.env = env;
+        component.selectedStatement = 'statementId';
+        component.data = [...mockData];
+        const filename = 'specialFilename.txt';
+        component.checkData(filename);
+        expect(userServiceSpy).toHaveBeenCalledWith(loadFile[i], '', '', filename);
+      });
+
+      it(`should track creating a statement - ${env}`, async () => {
+        component.env = env;
+        spyOn(component, 'makeStatementHistoryObj').and.returnValue(new Promise((resolve) => {resolve({} as any)}));
+        spyOn(statementService, 'postStatementHistory').and.callFake(()=>{});
+        await component.statementHistory('' as any, '888', '');
+        expect(userServiceSpy).toHaveBeenCalledWith(createStatement[i], '888');
+      })
+    });
+  });
 });

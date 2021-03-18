@@ -16,6 +16,7 @@ import { of } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 import { AppState } from '../../app-state';
 import { selectUser } from '../selectors/user.selectors';
+import { logoutUser } from '../actions/user-actions';
 
 @Component({
   selector: 'app-shell',
@@ -59,7 +60,8 @@ export class ShellComponent {
   hideNavbarMenu() {
     this.navbarBurger.nativeElement.classList.remove('is-active');
     this.navbarBasicMenu.nativeElement.classList.remove('is-active');
-    // this.settingsMenu.nativeElement.classList.remove('is-active');
+    // settings menu
+    this.settingsMenu.nativeElement.classList.remove('is-active');
   }
 
   logIn() {
@@ -76,6 +78,7 @@ export class ShellComponent {
   }
 
   signOut() {
+    this.store.dispatch(logoutUser());
     this.afAuth.auth.signOut();
     this.hideNavbarMenu();
   }

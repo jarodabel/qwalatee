@@ -9,3 +9,8 @@ export enum ChcAddress {
   Test = 'adr_87281a7bf4353efd',
   Live = 'adr_fa369e1dfe50c487',
 }
+
+export enum LOB_ENV {
+  LIVE = 'Live',
+  TEST = 'Test',
+}

@@ -69,7 +69,7 @@ export class UserService {
     this.db.collection('users');
   }
 
-  async postAccessLog(what: AccessType, patientId: string, ltrId = '') {
+  async postAccessLog(what: AccessType, patientId: string, ltrId = '', filename = '') {
     const user = await this.store.pipe(select(selectUser), take(1)).toPromise();
     const obj: AccessObj = {
       created: firebase.firestore.FieldValue.serverTimestamp(),
@@ -77,6 +77,7 @@ export class UserService {
       what,
       patientId,
       ltrId,
+      filename,
     };
     this.db.collection('access').add(obj);
   }

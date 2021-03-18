@@ -96,7 +96,7 @@ export class LobService {
     }
 
     const obj: { [key: string]: any } = {
-      name: `${user.first} ${user.m}, ${user.last}`,
+      name: `${user.first} ${user.m} ${user.last}`,
       add1: user.add1,
       add2: user.add2 || '',
       city: user.city,

@@ -16,7 +16,7 @@
     </div>
     <div id="navbarBasicExample" class="navbar-menu" #navbarBasicMenu>
       <div class="navbar-start">
-        <a class="navbar-item" *ngIf="(user$ | async)" (click)="goToOrg()">
+        <a class="navbar-item" *ngIf="(user$ | async)?.organization" (click)="goToOrg()">
           <span class="icon has-text-info">
             <i class="fas fa-book"></i>
           </span>

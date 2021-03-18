@@ -93,16 +93,22 @@
               </thead>
               <tbody>
                 <tr *ngFor="let row of dataList; let i = index">
-                  <td *ngFor="let field of fieldNames">{{row[field]}}</td>
                   <td>
-                    <button class="button is-link is-small" (click)="testOne(row, i)" [disabled]="row.url">Test&nbsp;<i
-                        class="fas fa-vial"></i></button>
+                    <button class="button is-link is-small" (click)="createStatement(row, i)" [disabled]="row.url">
+                      <ng-container *ngIf="env == 'Test'">
+                        Test&nbsp;<i class="fas fa-vial"></i>
+                      </ng-container>
+                      <ng-container *ngIf="env == 'Live'">
+                        Order&nbsp;<i class="fas fa-envelope-open-text"></i>
+                      </ng-container>
+                    </button>
                   </td>
                   <td>
                     <button class="button is-link is-small" *ngIf="row.url"
                       (click)="openUrl(row.url, row.id)">Open&nbsp;<i
                         class="fas fa-link"></i></button>
                   </td>
+                  <td *ngFor="let field of fieldNames">{{row[field]}}</td>
                 </tr>
               </tbody>
             </table>

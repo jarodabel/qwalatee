@@ -41,14 +41,23 @@ export enum HistoryHeaders {
   USER = 'User ID',
 }
 
+const setUserReducerFn = (state, { type, ...rest }) => {
+  return {
+    ...state,
+    ...rest,
+  };
+};
+
+const logoutUserReducerFn = (state, { type, ...rest }) => {
+  return {
+    ...defaultState,
+  }
+}
+
 const userReducer = createReducer(
   defaultState,
-  on(UserActions.setUser, (state, { type, ...rest }) => {
-    return {
-      ...state,
-      ...rest,
-    };
-  })
+  on(UserActions.setUser, setUserReducerFn),
+  on(UserActions.logoutUser, logoutUserReducerFn),
 );
 
 export function userReducerFn(state: User | undefined, action: Action) {

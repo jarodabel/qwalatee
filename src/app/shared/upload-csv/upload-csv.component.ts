@@ -127,7 +127,12 @@ export class UploadCSVComponent implements OnInit, OnDestroy {
       []
     );
 
-    this.uploadData.emit(userObjects);
+    const dataToEmit = {
+      data: userObjects,
+      filename: this.filename,
+    };
+
+    this.uploadData.emit(dataToEmit);
   }
 
   private merge(keys, values) {
