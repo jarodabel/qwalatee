@@ -156,13 +156,11 @@ export class NewStatementsComponent implements OnInit {
       id,
       date
     );
-    console.log(statementHistoryObj);
     this.statementService.postStatementHistory(statementHistoryObj);
     const accessType =
       this.env === LOB_ENV.LIVE
         ? AccessType.STATEMENTS_CREATE_STATEMENT_LIVE
         : AccessType.STATEMENTS_CREATE_STATEMENT_TEST;
-    console.log(accessType,id);
     this.userService.postAccessLog(accessType, id);
   }
 

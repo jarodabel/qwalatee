@@ -34,6 +34,8 @@ export class LobService {
         id: user.id,
         name: user.name,
         statementDate: user.date,
+        totalCharges: user.totalCharges,
+        totalPayments: user.totalPayments,
       },
       perforated_page: 1,
       return_envelope: true,
@@ -72,11 +74,26 @@ export class LobService {
     let lastRowMessage = '';
     let firstTable;
     let secondTable;
+    let totalCharges = 0.00;
+    let totalPayments = 0.00;
     if (user.charges.length) {
       lastChargeRow = user.charges[user.charges.length - 1];
       lastRowMessage = lastChargeRow[4];
       charges = [...user.charges].map((a) => {
         a.splice(0, 3);
+
+        if (a[2]) {
+          totalCharges += parseFloat(a[2]);
+        }
+        if (a[3]) {
+          totalPayments += parseFloat(a[3]);
+        }
+
+        if (a[1].includes('Claim:')) {
+          return this.getClaimRow(a);
+        } else if (a[1].includes('Your Balance')) {
+          return this.getBalanceRow(a);
+        }
         return this.getHtmlRow(a);
       });
       charges.splice(0, 1);
@@ -86,9 +103,9 @@ export class LobService {
     }
     const breakIndex = 25;
     if (charges.length >= breakIndex) {
-      const firstRows = [this.getHeaderRow(), ...charges.splice(0, breakIndex)];
+      const firstRows = [this.getHeaderRow(), ...charges.slice(0, breakIndex)];
       firstTable = this.getTableWrap('firstTable', firstRows);
-      const secondRows = [this.getHeaderRow(), ...charges.splice(-breakIndex)];
+      const secondRows = [this.getHeaderRow(), ...charges.slice(breakIndex)];
       secondTable = this.getTableWrap('secondTable', secondRows);
     } else {
       const firstRows = [this.getHeaderRow(), ...charges];
@@ -107,6 +124,8 @@ export class LobService {
       date: user.date,
       charges: firstTable,
       statementCode: lastRowMessage,
+      totalPayments: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalPayments),
+      totalCharges: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalCharges),
     };
     if (secondTable) {
       obj.chargesExtended = secondTable;
@@ -128,24 +147,47 @@ export class LobService {
     );
   }
 
-  private getHtmlRow(data, heading?) {
+  private getHtmlRow(data) {
     let res = '<tr>';
-    if (heading) {
-      res += data.map((item) => `<td><strong>${item}</strong></td>`).join('');
-    } else {
-      res += data.map((item) => `<td>${item}</td>`).join('');
-    }
+    res += data.map((item) => `<td>${item}</td>`).join('');
     res += '</tr>';
     return res;
   }
 
+  private getClaimRow(data) {
+    let res = '<tr>';
+    res += data.map((item) => `<td><u>${item}</u></td>`).join('');
+    res += '</tr>';
+    return res;
+  }
+
+  private getBalanceRow(data) {
+    let res = '<tr>';
+    res += data
+      .map((item, i, arr) => {
+        if (arr.length - 1 === i) {
+          return `<td><strong>${item}</strong></td>`;
+        }
+        return `<td>${item}</td>`;
+      })
+      .join('');
+    res += '</tr>';
+    res += '<tr><td colspan="5" style="height: 10px"></td></tr>';
+    return res;
+  }
+
   private getTableWrap(className, data) {
-    return `<table class="${className} charges-table" align="right">${data.join(
+    return `<table style="border-collapse:collapse" class="${className} charges-table" align="right">${data.join(
       ''
     )}</table>`;
   }
 
   private getHeaderRow() {
-    return this.getHtmlRow([...this.headerRow], true);
+    let res = '<tr style="border-bottom: solid black 2px">';
+    res += [...this.headerRow]
+      .map((item) => `<td><strong>${item}</strong></td>`)
+      .join('');
+    res += '</tr>';
+    return res;
   }
 }
