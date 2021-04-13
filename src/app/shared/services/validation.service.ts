@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Subject, throwError } from 'rxjs';
 import { USER_FIELDS } from '../../shared/upload-csv/upload-csv.component';
-
+import firebase from 'firebase/app';
 @Injectable({
   providedIn: 'root',
 })
@@ -10,7 +9,8 @@ export class ValidationService {
   responseSub = new Subject();
   headerFields = [];
 
-  constructor(private db: AngularFirestore) { }
+  fs = firebase.firestore();
+  constructor() { }
 
   checkData(data, statementId) {
     if (!data || !statementId) {
@@ -21,11 +21,10 @@ export class ValidationService {
   }
 
   async validate(data, statementId) {
-    const statement = await this.db
+    const statement = await this.fs
       .collection('statements')
       .doc(statementId)
       .get()
-      .toPromise();
 
     const statementObj = statement.data();
     const headerFields = statementObj

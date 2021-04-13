@@ -5,12 +5,10 @@
       <ul>
         <li [ngClass]="{'is-active': tabNames.Resources === selectedTab}" (click)="tabClicked(tabNames.Resources)">
           <a>Regional Resources</a></li>
-        <li [ngClass]="{'is-active': tabNames.DiaperBank === selectedTab}"
-          (click)="tabClicked(tabNames.DiaperBank)"><a>Diaper Bank</a></li>
+
       </ul>
     </div>
   </div>
   <div class="column is-hidden-mobile is-1"></div>
 </div>
 <base-resources *ngIf="tabNames.Resources === selectedTab"></base-resources>
-<div *ngIf="tabNames.DiaperBank === selectedTab">diapers</div>

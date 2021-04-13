@@ -39,9 +39,10 @@ import { LobService } from './shared/services/lob.service';
 import { OrganizationService } from './shared/services/organization.service';
 import { StatementService } from './shared/services/statement.service';
 import { ResourcesModule } from './resouces/resources.component';
+import { AttributionComponent } from './attribution/attribution.component';
 
 @NgModule({
-  declarations: [AppComponent, HomePageComponent],
+  declarations: [AppComponent, HomePageComponent, AttributionComponent],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     AppRoutingModule,

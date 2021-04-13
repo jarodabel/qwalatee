@@ -1,24 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import {
-  distinctUntilChanged,
-  switchMap,
-  map,
-  take,
-  filter,
-} from 'rxjs/operators';
-import { AngularFirestore } from '@angular/fire/firestore';
-import {
-  faChevronRight,
-} from '@fortawesome/free-solid-svg-icons';
+import { switchMap, map, take, tap } from 'rxjs/operators';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { resetBreadcrumb } from '../shared/actions/shared-actions';
 import { AppState } from '../app-state';
-import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { selectUser } from '../shared/selectors/user.selectors';
 import { User } from '../shared/reducers/user.reducers';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { environment } from '../../environments/environment';
+
 
 @Component({
   selector: 'app-home-page',
@@ -27,7 +19,6 @@ import { User } from '../shared/reducers/user.reducers';
 })
 export class HomePageComponent implements OnInit {
   rightButton = faChevronRight;
-  userAuth$ = this.afAuth.user.pipe(distinctUntilChanged());
   user$ = this.store.pipe(select(selectUser));
 
   username: string;
@@ -35,13 +26,12 @@ export class HomePageComponent implements OnInit {
     switchMap((user: User) =>
       this.db.collection('organization').doc(user.organization).get()
     ),
-    map((a) => ({ id: a.id, ...a.data() }))
+    map((a) => ({ id: a.id, ...a }))
   );
 
   blogPosts$;
 
   constructor(
-    private afAuth: AngularFireAuth,
     private db: AngularFirestore,
     private router: Router,
     private store: Store<AppState>,
@@ -61,8 +51,10 @@ export class HomePageComponent implements OnInit {
   fetchBlogPosts() {
     this.blogPosts$ = this.http
       .get(
-        `https://www.googleapis.com/blogger/v3/blogs/3276881001512562819/posts?key=${environment .blogger}`
+        `https://www.googleapis.com/blogger/v3/blogs/3276881001512562819/posts?key=${environment.blogger}`
       )
-      .pipe(map((a: { items: any }) => a.items));
+      .pipe(
+        map((a: { items: any }) => a.items)
+      );
   }
 }

@@ -29,7 +29,7 @@ export class LobService {
       merge_variables: {
         amtDue: user.amtDue,
         charges: user.charges,
-        chargesExtended: user.chargesExtended,
+        chargesExtended: user.chargesExtended || null,
         statement_code: user.statementCode,
         id: user.id,
         name: user.name,

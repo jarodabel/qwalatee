@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { AppState } from '../app-state';
 import { selectUser } from '../shared/selectors/user.selectors';
-import { UserService } from '../shared/services/user.service';
 
 @Injectable()
 export class CanActivateService implements CanActivate {
@@ -14,7 +13,6 @@ export class CanActivateService implements CanActivate {
   constructor(
     private store: Store<AppState>,
     private router: Router,
-    private userService: UserService
   ) {}
 
   canActivate(): Observable<boolean> | Promise<boolean> {

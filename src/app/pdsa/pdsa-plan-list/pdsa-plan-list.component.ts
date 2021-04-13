@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, map, take, tap } from 'rxjs/operators';
 import { AngularFirestore } from '@angular/fire/firestore';
-import * as firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../app-state';
 import { PdsaService } from '../../shared/services/pdsa.service';
@@ -56,7 +56,7 @@ export class PdsaPlanListComponent implements OnInit {
           .get()
       ),
       map((pdsas) =>
-        pdsas.docs.map((pdsa) => ({ id: pdsa.id, ...pdsa.data() }))
+        pdsas.docs.map((pdsa) => ({ id: pdsa.id, ...pdsa }))
       )
     );
   }

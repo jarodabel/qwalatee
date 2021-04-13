@@ -4,20 +4,18 @@ import {
   ActivatedRouteSnapshot,
   RouterStateSnapshot,
 } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
-
+import firebase from 'firebase/app'
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
   constructor(
-    private afAuth: AngularFireAuth,
   ) {}
   async canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Promise<boolean> {
-    const user = await this.afAuth.auth.currentUser;
+    const user = await firebase.auth().currentUser;
     const isLoggedIn = !!user;
 
     return isLoggedIn;

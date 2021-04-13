@@ -3,7 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
 import { take, map } from 'rxjs/operators';
-import * as firebase from 'firebase/app';
+import firebase from 'firebase/app';
 
 const defaultForm = { plan: '', do: '', study: '', act: '' };
 const documentFields = [
@@ -47,7 +47,7 @@ export class PdsaTabsComponent implements OnInit {
       .get()
       .pipe(
         map((pdsas) =>
-          pdsas.docs.map((pdsa) => ({ id: pdsa.id, ...pdsa.data() }))
+          pdsas.docs.map((pdsa) => ({ id: pdsa.id, ...pdsa }))
         )
       );
   }

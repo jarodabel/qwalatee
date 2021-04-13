@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, NgModule, OnInit } from '@angular/core';
 import { catchError, map, take, tap } from 'rxjs/operators';
 import { LOB_ENV, TemplateLookup } from '../../types/lob';
 
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
 import { USER_FIELDS } from '../../shared/upload-csv/upload-csv.component';
 import { of, Subject } from 'rxjs';
 import { select, Store } from '@ngrx/store';
@@ -36,6 +36,7 @@ export class NewStatementsComponent implements OnInit {
   bulkLobRunning = false;
   uploadReset = new Subject();
   estimatedCost = '0';
+  filename = '';
 
   user$ = this.store.pipe(select(selectUser));
 
@@ -104,6 +105,7 @@ export class NewStatementsComponent implements OnInit {
   uploadData({ data, filename }) {
     this.errorMessage = undefined;
     this.data = data;
+    this.filename = filename;
     this.checkData(filename);
   }
 
@@ -210,6 +212,7 @@ export class NewStatementsComponent implements OnInit {
       environment: this.env,
       user: user.id,
       date,
+      uploadId: this.filename,
     };
     if (res.error) {
       obj.status = 'error';
@@ -240,6 +243,6 @@ export class NewStatementsComponent implements OnInit {
 
   private updateCosts() {
     this.estimatedCost =
-      (Math.round(this.dataList?.length * 0.47 * 100) / 100).toFixed(2) || '0';
+      (Math.round(this.dataList?.length * 0.57 * 100) / 100).toFixed(2) || '0';
   }
 }

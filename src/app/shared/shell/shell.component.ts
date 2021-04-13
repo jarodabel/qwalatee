@@ -11,7 +11,7 @@ import {
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import * as firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import { of } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 import { AppState } from '../../app-state';
@@ -28,15 +28,13 @@ export class ShellComponent {
   @ViewChild('navbarBurger') navbarBurger: ElementRef;
   @ViewChild('settingsMenu') settingsMenu: ElementRef;
 
-  userAuth$ = this.afAuth.user.pipe(distinctUntilChanged());
-
   user$ = this.store.pipe(select(selectUser));
 
   org$ = this.user$.pipe(
     switchMap((userInfo: any) =>
       this.db.collection('organization').doc(userInfo.organization).get()
     ),
-    map((a) => ({ id: a.id, ...a.data() }))
+    map((a) => ({ id: a.id, ...a }))
   );
 
   constructor(
@@ -65,7 +63,7 @@ export class ShellComponent {
   }
 
   logIn() {
-    this.afAuth.auth
+    firebase.auth()
       .signInWithPopup(new firebase.auth.GoogleAuthProvider())
       .then(
         (a) => {
@@ -79,7 +77,7 @@ export class ShellComponent {
 
   signOut() {
     this.store.dispatch(logoutUser());
-    this.afAuth.auth.signOut();
+    firebase.auth().signOut();
     this.hideNavbarMenu();
   }
 

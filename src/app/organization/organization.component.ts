@@ -7,6 +7,7 @@ import { SharedModule } from '../shared/shared.module';
 import { Store } from '@ngrx/store';
 import { addBreadcrumb } from '../shared/actions/shared-actions';
 import { AppState } from '../app-state';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'organization-page',
@@ -35,7 +36,7 @@ export class OrganizationComponent implements OnInit {
       map((locations) =>
         locations.docs.map((location) => ({
           id: location.id,
-          ...location.data(),
+          ...location,
         }))
       )
     );
@@ -56,6 +57,6 @@ export class OrganizationComponent implements OnInit {
 @NgModule({
   declarations: [OrganizationComponent],
   exports: [],
-  imports: [CommonModule, SharedModule],
+  imports: [CommonModule, SharedModule, ReactiveFormsModule],
 })
 export class OrganizationModule {}

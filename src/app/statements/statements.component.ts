@@ -6,10 +6,13 @@ import { SharedModule } from '../shared/shared.module';
 import { HistoryStatementsComponent } from './history-statements/history-statements.component';
 
 import { NewStatementsComponent } from './new-statements/new-statements.component';
+import { UploadHistoryComponent } from './upload-history/upload-history.component';
 
 export enum TabNames {
   NewStatements = 'newStatements',
   HistoryStatements = 'historyStatements',
+  UploadHistory = 'uploadHistory',
+  AllActivity = 'allActivity',
 }
 
 @Component({
@@ -30,6 +33,7 @@ export class StatementsComponent {
     StatementsComponent,
     NewStatementsComponent,
     HistoryStatementsComponent,
+    UploadHistoryComponent,
   ],
   exports: [],
   imports: [CommonModule, SharedModule, BrowserModule, FormsModule],

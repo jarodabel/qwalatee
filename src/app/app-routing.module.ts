@@ -13,6 +13,7 @@ import { MessagesComponent } from './messages/messages.component';
 import { StatementsComponent } from './statements/statements.component';
 import { CanActivateService } from './statements/statements.route.guard';
 import { ResourcesComponent } from './resouces/resources.component';
+import { AttributionComponent } from './attribution/attribution.component';
 
 const routes: Routes = [
   {
@@ -73,6 +74,10 @@ const routes: Routes = [
     canActivate: [CanActivateService],
     component: StatementsComponent,
     path: 'statements',
+  },
+  {
+    component: AttributionComponent,
+    path: 'attribution',
   },
   {
     path: '**',

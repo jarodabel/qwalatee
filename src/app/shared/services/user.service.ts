@@ -14,7 +14,7 @@ import {
 import { AppState } from '../../app-state';
 import { setUser } from '../actions/user-actions';
 import { selectUser } from '../selectors/user.selectors';
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
 import { AccessObj, AccessType } from '../../types/access';
 
 @Injectable()

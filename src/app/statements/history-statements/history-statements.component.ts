@@ -15,13 +15,19 @@ export class HistoryStatementsComponent {
   loading = false;
   results = [];
   headers = ['created', 'date', 'user', 'id', 'ltrId'];
-  headerTitles = ['Date Created', 'Statement Date', 'User', 'Patient Id', 'Statement Id'];
+  headerTitles = [
+    'Date Created',
+    'Statement Date',
+    'User',
+    'Patient Id',
+    'Statement Id',
+  ];
   env = 'test';
 
   constructor(
     private statementService: StatementService,
     private lobService: LobService,
-    private userService: UserService,
+    private userService: UserService
   ) {}
 
   async getPropertyById(id) {
@@ -30,10 +36,10 @@ export class HistoryStatementsComponent {
     }
     this.loading = true;
     this.results = [];
-    this.results = await this.statementService
-      .getStatementsById(id)
-      .pipe(map((stmts) => stmts.docs.map((stmt) => ({ ...stmt.data() }))))
-      .toPromise();
+    // this.results = await this.statementService
+    //   .getStatementsById(id)
+    //   .pipe(map((stmts) => stmts.docs.map((stmt) => ({ ...stmt.() }))))
+    //   .toPromise();
     this.userService.postAccessLog(AccessType.STATEMENTS_HISTORY_SEARCH, id);
   }
 
@@ -43,12 +49,19 @@ export class HistoryStatementsComponent {
       .pipe(take(1))
       .toPromise();
     row.url = res.url;
-    this.userService.postAccessLog(AccessType.STATEMENTS_HISTORY_LOAD_LOB, row.id, row.ltrId);
-
+    this.userService.postAccessLog(
+      AccessType.STATEMENTS_HISTORY_LOAD_LOB,
+      row.id,
+      row.ltrId
+    );
   }
 
-  openLetter(url, id, ltrId){
-    this.userService.postAccessLog(AccessType.STATEMENTS_HISTORY_OPEN_LOB, id, ltrId);
+  openLetter(url, id, ltrId) {
+    this.userService.postAccessLog(
+      AccessType.STATEMENTS_HISTORY_OPEN_LOB,
+      id,
+      ltrId
+    );
 
     window.open(url, '_blank');
   }

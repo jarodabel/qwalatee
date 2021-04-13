@@ -31,7 +31,7 @@ export class PdsaComponent implements OnInit {
       switchMap((params) =>
         this.db.collection('pdsa').doc(params.pdsaId).get()
       ),
-      map((a) => ({ id: a.id, ...a.data() }))
+      map((a) => ({ id: a.id, ...a }))
     );
   }
 }

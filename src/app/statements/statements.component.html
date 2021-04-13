@@ -3,10 +3,16 @@
   <div class="column">
     <div class="tabs is-toggle">
       <ul>
-        <li [ngClass]="{'is-active': tabNames.NewStatements === selectedTab}" (click)="tabClicked(tabNames.NewStatements)">
+        <li [ngClass]="{'is-active': tabNames.NewStatements === selectedTab}"
+          (click)="tabClicked(tabNames.NewStatements)">
           <a>New Statements</a></li>
+        <li [ngClass]="{'is-active': tabNames.UploadHistory === selectedTab}"
+          (click)="tabClicked(tabNames.UploadHistory)">
+          <a>Upload History</a></li>
         <li [ngClass]="{'is-active': tabNames.HistoryStatements === selectedTab}"
           (click)="tabClicked(tabNames.HistoryStatements)"><a>Statement History</a></li>
+        <li [ngClass]="{'is-active': tabNames.AllActivity === selectedTab}"
+          (click)="tabClicked(tabNames.AllActivity)"><a>All Activity</a></li>
       </ul>
     </div>
   </div>
@@ -14,3 +20,4 @@
 </div>
 <new-statements *ngIf="tabNames.NewStatements === selectedTab"></new-statements>
 <history-statements *ngIf="tabNames.HistoryStatements === selectedTab"></history-statements>
+<upload-history *ngIf="tabNames.UploadHistory === selectedTab"></upload-history>
