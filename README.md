@@ -27,6 +27,4 @@ todo
 - add 10 second wait to "open" button 
 
 - test bulk upload
-- loading indicator
-- throttle bulk upload
 - add patient id to statement
