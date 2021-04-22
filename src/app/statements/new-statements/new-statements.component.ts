@@ -1,11 +1,19 @@
 import { ChangeDetectorRef, Component, NgModule, OnInit } from '@angular/core';
 
-import { catchError, map, take, tap } from 'rxjs/operators';
+import {
+  catchError,
+  concatMap,
+  ignoreElements,
+  map,
+  mergeMap,
+  take,
+  tap,
+} from 'rxjs/operators';
 import { LOB_ENV, TemplateLookup } from '../../types/lob';
 
 import firebase from 'firebase/app';
 import { USER_FIELDS } from '../../shared/upload-csv/upload-csv.component';
-import { of, Subject } from 'rxjs';
+import { from, merge, Observable, of, Subject, timer } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 import { selectUser } from '../../shared/selectors/user.selectors';
 import { AppState } from '../../app-state';
@@ -16,6 +24,7 @@ import { StatementService } from '../../shared/services/statement.service';
 import { User } from '../../shared/reducers/user.reducers';
 import { UserService } from '../../shared/services/user.service';
 import { AccessType } from '../../types/access';
+import { DocumentReference } from '@angular/fire/firestore';
 
 @Component({
   selector: 'new-statements',
@@ -28,11 +37,13 @@ export class NewStatementsComponent implements OnInit {
   errorMessage: string;
   headingList: string[];
   dataList: any[];
+  mostRecentUploadDoc: DocumentReference;
   data;
   selectedStatement = undefined;
   fieldNames = USER_FIELDS;
   env = 'Test';
   completedRequests;
+  failedRequests;
   bulkLobRunning = false;
   uploadReset = new Subject();
   estimatedCost = '0';
@@ -109,35 +120,23 @@ export class NewStatementsComponent implements OnInit {
     this.checkData(filename);
   }
 
-  checkData(filename?) {
+  async checkData(filename?) {
     if (this.selectedStatement && this.data) {
       this.validator.checkData([...this.data], this.selectedStatement);
       const accessType =
         this.env === LOB_ENV.LIVE
           ? AccessType.STATEMENTS_LOAD_FILE_LIVE
           : AccessType.STATEMENTS_LOAD_FILE_TEST;
-      this.userService.postAccessLog(accessType, '', '', filename);
+      this.mostRecentUploadDoc = await this.userService.postAccessLog(
+        accessType,
+        '',
+        '',
+        filename
+      );
       return;
     }
     this.errorMessage = 'selectStatement';
     this.dataList = undefined;
-  }
-
-  sendAll() {
-    this.completedRequests = 0;
-    this.bulkLobRunning = true;
-
-    this.dataList.forEach((row, i) => {
-      this.createStatement(row, i).then(() => {
-        if (!this.completedRequests) {
-          this.completedRequests = 0;
-        }
-        this.completedRequests = this.completedRequests + 1;
-        if (this.completedRequests === this.dataList.length) {
-          this.bulkLobRunning = false;
-        }
-      });
-    });
   }
 
   areYouSure() {
@@ -158,28 +157,24 @@ export class NewStatementsComponent implements OnInit {
       id,
       date
     );
-    this.statementService.postStatementHistory(statementHistoryObj);
+    await this.statementService.postStatementHistory(statementHistoryObj);
     const accessType =
       this.env === LOB_ENV.LIVE
         ? AccessType.STATEMENTS_CREATE_STATEMENT_LIVE
         : AccessType.STATEMENTS_CREATE_STATEMENT_TEST;
-    this.userService.postAccessLog(accessType, id);
+    await this.userService.postAccessLog(accessType, id);
   }
 
-  async createStatement(row, index) {
+  async createOne(row, index) {
     let res: any;
 
     try {
-      res = await this.lobService
-        .sendLetter(this.env, TemplateLookup[this.env], row)
-        .pipe(take(1))
-        .toPromise();
+      res = await this.createStatementPromise(row);
     } catch {
       this.statementHistory(res, row.id, row.date);
     } finally {
       this.statementHistory(res, row.id, row.date);
-      const tableRow = this.dataList[index];
-      tableRow.url = res.url;
+      row.url = res.url;
     }
   }
 
@@ -212,7 +207,8 @@ export class NewStatementsComponent implements OnInit {
       environment: this.env,
       user: user.id,
       date,
-      uploadId: this.filename,
+      filename: this.filename,
+      uploadId: this.mostRecentUploadDoc.id,
     };
     if (res.error) {
       obj.status = 'error';
@@ -234,7 +230,6 @@ export class NewStatementsComponent implements OnInit {
     this.errorMessage = '';
     this.headingList = [];
     this.data = undefined;
-    // this.selectedStatement = undefined;
     this.env = 'Test';
     this.completedRequests = undefined;
     this.bulkLobRunning = false;
@@ -244,5 +239,63 @@ export class NewStatementsComponent implements OnInit {
   private updateCosts() {
     this.estimatedCost =
       (Math.round(this.dataList?.length * 0.57 * 100) / 100).toFixed(2) || '0';
+  }
+
+  private sendAll() {
+    this.completedRequests = 0;
+    this.failedRequests = 0;
+    this.bulkLobRunning = true;
+
+    const promise = (row, i) =>
+      new Promise(
+        (async (resolve, reject) => {
+          console.log('start', i, row.id);
+          let res;
+          try {
+            res = await this.createStatementPromise(row);
+            row.url = res.url;
+            console.log('success', i, row.id);
+          } catch (err) {
+            res = err;
+            this.failedRequests = this.failedRequests + 1;
+            console.log('error', i, row.id);
+          }
+
+          await this.statementHistory(res, row.id, row.date);
+          this.completedRequests = this.completedRequests + 1;
+          if (this.completedRequests === this.dataList.length) {
+            this.bulkLobRunning = false;
+          }
+
+          resolve();
+        }).bind(this)
+      );
+
+    from([...this.dataList])
+      .pipe(
+        mergeMap(
+          (row, i) => merge(promise(row, i), timer(0).pipe(ignoreElements())),
+          undefined,
+          3
+        )
+      )
+      .subscribe(
+        (s) => {
+          console.log(s);
+          console.log('all done');
+          console.log('success', this.completedRequests - this.failedRequests);
+          console.log('error', this.failedRequests);
+        },
+        (err) => {
+          console.log('error', err);
+        }
+      );
+  }
+
+  private createStatementPromise(row) {
+    return this.lobService
+      .sendLetter(this.env, TemplateLookup[this.env], row)
+      .pipe(take(1))
+      .toPromise();
   }
 }

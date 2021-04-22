@@ -75,11 +75,14 @@
         <div class="tile is-child box is-12">
           <!-- LOADING INDICATOR -->
           <progress class="progress is-danger" [value]="completedRequests"
-            [max]="dataList?.length || 0" *ngIf="bulkLobRunning">10%</progress>
+            [max]="dataList?.length || 0" *ngIf="bulkLobRunning"></progress>
           <p class="title">Results
 
             <button [disabled]="!dataList?.length || bulkLobRunning" class="button is-danger is-small is-pulled-right"
-              (click)="areYouSure()">Send All</button>
+              (click)="areYouSure()">
+              <ng-container *ngIf="env == 'Test'">Test Batch ({{dataList?.length || 0}})</ng-container>
+              <ng-container *ngIf="env == 'Live'">Run Batch ({{dataList?.length || 0}})</ng-container>
+            </button>
             <button [disabled]="!dataList?.length || bulkLobRunning" class="button is-small is-pulled-right"
               (click)="reset()">Clear</button>
           </p>
@@ -94,7 +97,7 @@
               <tbody>
                 <tr *ngFor="let row of dataList; let i = index">
                   <td>
-                    <button class="button is-link is-small" (click)="createStatement(row, i)" [disabled]="row.url">
+                    <button class="button is-link is-small" (click)="createOne(row, i)" [disabled]="row.url">
                       <ng-container *ngIf="env == 'Test'">
                         Test&nbsp;<i class="fas fa-vial"></i>
                       </ng-container>

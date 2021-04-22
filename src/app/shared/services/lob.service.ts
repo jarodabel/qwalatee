@@ -49,7 +49,6 @@ export class LobService {
       },
     };
 
-    // do post with function
     return this.http.post(
       `${this.cloudFnUrl}/postLobRequest?env=${env}`,
       {

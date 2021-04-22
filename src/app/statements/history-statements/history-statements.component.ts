@@ -1,4 +1,5 @@
-import { Component, NgModule } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { map, take } from 'rxjs/operators';
 import { LobService } from '../../shared/services/lob.service';
 import { StatementService } from '../../shared/services/statement.service';
@@ -10,7 +11,7 @@ import { AccessType } from '../../types/access';
   templateUrl: './history-statements.component.html',
   styleUrls: ['./history-statements.component.scss'],
 })
-export class HistoryStatementsComponent {
+export class HistoryStatementsComponent implements OnInit {
   searchTerm = '';
   loading = false;
   results = [];
@@ -27,8 +28,13 @@ export class HistoryStatementsComponent {
   constructor(
     private statementService: StatementService,
     private lobService: LobService,
-    private userService: UserService
+    private userService: UserService,
+    private route: ActivatedRoute
   ) {}
+
+  ngOnInit() {
+    this.checkForUploadId();
+  }
 
   async getPropertyById(id) {
     if (!id) {
@@ -36,10 +42,10 @@ export class HistoryStatementsComponent {
     }
     this.loading = true;
     this.results = [];
-    // this.results = await this.statementService
-    //   .getStatementsById(id)
-    //   .pipe(map((stmts) => stmts.docs.map((stmt) => ({ ...stmt.() }))))
-    //   .toPromise();
+    const results = await this.statementService.getStatementsById(id);
+
+    this.results = results.docs.map((stmt) => ({ ...stmt.data() }));
+
     this.userService.postAccessLog(AccessType.STATEMENTS_HISTORY_SEARCH, id);
   }
 
@@ -64,5 +70,28 @@ export class HistoryStatementsComponent {
     );
 
     window.open(url, '_blank');
+  }
+
+  private async checkForUploadId() {
+    const params = await this.route.paramMap.pipe(take(1)).toPromise();
+    const uploadId = params.get('uploadId');
+
+    if (uploadId) {
+      this.fetchStatementsForUploadId(uploadId);
+    }
+  }
+
+  private async fetchStatementsForUploadId(id: string) {
+    if (!id) {
+      return;
+    }
+    this.loading = true;
+    this.results = [];
+
+    const results = await this.statementService.getStatementsByUploadId(
+      id
+    );
+    this.results = results.docs.map((stmt) => ({ ...stmt.data() }));
+    this.userService.postAccessLog(AccessType.STATEMENTS_HISTORY_BATCH_LOAD, id);
   }
 }

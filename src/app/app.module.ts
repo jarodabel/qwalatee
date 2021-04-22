@@ -40,6 +40,7 @@ import { OrganizationService } from './shared/services/organization.service';
 import { StatementService } from './shared/services/statement.service';
 import { ResourcesModule } from './resouces/resources.component';
 import { AttributionComponent } from './attribution/attribution.component';
+import { statementReducerFn } from './shared/reducers/statement.reducers';
 
 @NgModule({
   declarations: [AppComponent, HomePageComponent, AttributionComponent],
@@ -66,6 +67,7 @@ import { AttributionComponent } from './attribution/attribution.component';
     StoreModule.forRoot({
       breadcrumbs: breadcrumbReducerFn,
       user: userReducerFn,
+      statements: statementReducerFn,
     }),
     StoreDevtoolsModule.instrument({
       maxAge: 25, // Retains last 25 states

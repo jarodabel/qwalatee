@@ -25,3 +25,8 @@ todo
 - only some people have prod LOB access
 - test lob service
 - add 10 second wait to "open" button 
+
+- test bulk upload
+- loading indicator
+- throttle bulk upload
+- add patient id to statement

@@ -14,6 +14,9 @@ import { StatementsComponent } from './statements/statements.component';
 import { CanActivateService } from './statements/statements.route.guard';
 import { ResourcesComponent } from './resouces/resources.component';
 import { AttributionComponent } from './attribution/attribution.component';
+import { NewStatementsComponent } from './statements/new-statements/new-statements.component';
+import { UploadHistoryComponent } from './statements/upload-history/upload-history.component';
+import { HistoryStatementsComponent } from './statements/history-statements/history-statements.component';
 
 const routes: Routes = [
   {
@@ -74,6 +77,34 @@ const routes: Routes = [
     canActivate: [CanActivateService],
     component: StatementsComponent,
     path: 'statements',
+    children: [
+      {
+        path: '',
+        redirectTo: 'upload-batch',
+        pathMatch: 'full'
+      },
+      {
+        component: NewStatementsComponent,
+        path: 'upload-batch',
+      },
+      {
+        component: UploadHistoryComponent,
+        path: 'upload-history',
+      },
+      {
+        component: HistoryStatementsComponent,
+        path: 'statement-history/:uploadId',
+      },
+      {
+        component: HistoryStatementsComponent,
+        path: 'statement-history',
+      },
+      {
+        component: undefined,
+        path: 'activity',
+        redirectTo: '',
+      }
+    ],
   },
   {
     component: AttributionComponent,

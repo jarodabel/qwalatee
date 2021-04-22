@@ -196,7 +196,7 @@ describe('NewStatementComponent', () => {
     expect(component.errorMessage).toBe(undefined);
   });
 
-  fdescribe('access type tracking', () => {
+  describe('access type tracking', () => {
     let userServiceSpy;
     beforeEach(()=>{
       userServiceSpy = spyOn(userService, 'postAccessLog');
@@ -225,4 +225,14 @@ describe('NewStatementComponent', () => {
       })
     });
   });
+
+  describe('batch', () => {
+    let batch;
+    beforeEach(() => {
+      batch = [];
+    })
+    it('should work', () => {
+      component.dataList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    })
+  })
 });

@@ -3,22 +3,18 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { select, Store } from '@ngrx/store';
 import { of } from 'rxjs';
-import {
-  catchError,
-  filter,
-  map,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs/operators';
+import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { AppState } from '../../app-state';
 import { setUser } from '../actions/user-actions';
 import { selectUser } from '../selectors/user.selectors';
 import firebase from 'firebase/app';
 import { AccessObj, AccessType } from '../../types/access';
+import { User } from '../reducers/user.reducers';
 
 @Injectable()
 export class UserService {
+  fs = firebase.firestore();
+
   constructor(
     public afAuth: AngularFireAuth,
     private db: AngularFirestore,
@@ -27,27 +23,25 @@ export class UserService {
   userAuth$ = this.afAuth.user;
 
   dbUser$ = this.userAuth$.pipe(
-    switchMap((user) => {
-      if (user) {
-        return this.db
-          .collection('users', (ref) => ref.where('email', '==', user.email))
-          .valueChanges()
-          .pipe(
-            map((userArray: {}[]) => {
-              return userArray.length
-                ? { ...userArray[0], id: user.uid }
-                : undefined;
-            }),
-            catchError((error) => {
-              console.error('cannot find user', error);
-              return of(undefined);
-            })
-          );
+    switchMap(async (user) => {
+      if (!user) {
+        return undefined;
       }
-      return of(undefined);
+      const query = await this.fs
+        .collection('users')
+        .where('email', '==', user.email)
+        .get();
+
+      const matchingUsers = query.docs;
+
+      if (!matchingUsers || !matchingUsers.length) {
+        return undefined;
+      }
+
+      return { ...matchingUsers[0].data(), id: user.uid };
     }),
-    filter((user) => user),
-    tap((_user) => {
+    filter((user: any) => user),
+    tap((_user: any) => {
       const user = {
         email: _user.email,
         id: _user.id,
@@ -66,10 +60,15 @@ export class UserService {
   }
 
   getAllUsers() {
-    this.db.collection('users');
+    return this.fs.collection('users').get();
   }
 
-  async postAccessLog(what: AccessType, patientId: string, ltrId = '', filename = '') {
+  async postAccessLog(
+    what: AccessType,
+    patientId: string,
+    ltrId = '',
+    filename = ''
+  ) {
     const user = await this.store.pipe(select(selectUser), take(1)).toPromise();
     const obj: AccessObj = {
       created: firebase.firestore.FieldValue.serverTimestamp(),
@@ -79,6 +78,6 @@ export class UserService {
       ltrId,
       filename,
     };
-    this.db.collection('access').add(obj);
+    return this.db.collection('access').add(obj);
   }
 }

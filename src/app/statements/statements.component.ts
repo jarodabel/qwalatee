@@ -1,7 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, NgModule } from '@angular/core';
+import { Component, NgModule, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppState } from '../app-state';
+import { setAllUsers } from '../shared/actions/statement.actions';
+import { UploadEventPipe } from '../shared/pipes/upload-event.pipe';
+import { UseramePipe } from '../shared/pipes/user-name-pipe.pipe';
+import { UserService } from '../shared/services/user.service';
 import { SharedModule } from '../shared/shared.module';
 import { HistoryStatementsComponent } from './history-statements/history-statements.component';
 
@@ -20,11 +27,25 @@ export enum TabNames {
   templateUrl: './statements.component.html',
   styleUrls: ['statements.component.scss'],
 })
-export class StatementsComponent {
+export class StatementsComponent implements OnInit {
   tabNames = TabNames;
-  selectedTab = TabNames.NewStatements;
-  tabClicked(clicked) {
-    this.selectedTab = clicked;
+
+  constructor(
+    private userService: UserService,
+    private store: Store<AppState>,
+  ) {}
+
+  ngOnInit() {
+    this.getAllUsers();
+  }
+
+  async getAllUsers() {
+    const usersQuerySnapshot = await this.userService.getAllUsers();
+    const users = usersQuerySnapshot.docs.map((item) => ({
+      id: item.id,
+      ...item.data(),
+    }));
+    this.store.dispatch(setAllUsers({ users }));
   }
 }
 
@@ -34,8 +55,10 @@ export class StatementsComponent {
     NewStatementsComponent,
     HistoryStatementsComponent,
     UploadHistoryComponent,
+    UploadEventPipe,
+    UseramePipe,
   ],
-  exports: [],
+  exports: [UploadEventPipe, UseramePipe],
   imports: [CommonModule, SharedModule, BrowserModule, FormsModule],
 })
 export class StatementsModule {}
