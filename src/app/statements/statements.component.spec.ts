@@ -1,5 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { StatementsComponent, TabNames } from './statements.component';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { provideMockStore } from '@ngrx/store/testing';
+import { FirebaseMock } from '../shared/services/firebase.mock';
+import { UserServiceMock } from '../shared/services/user.service.mock';
+import { StatementsComponent } from './statements.component';
 
 describe('StatementComponent', () => {
   let component: StatementsComponent;
@@ -8,7 +12,7 @@ describe('StatementComponent', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [StatementsComponent],
+        declarations: [provideMockStore, UserServiceMock],
       }).compileComponents();
     })
   );
@@ -21,10 +25,5 @@ describe('StatementComponent', () => {
 
   it('should create', () => {
     expect(component).toBeDefined();
-  });
-
-  it('should change clicked tab', () => {
-    component.tabClicked('blue');
-    expect(component.selectedTab).toBe('blue');
   });
 });

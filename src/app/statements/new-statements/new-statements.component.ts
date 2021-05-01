@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, NgModule, OnInit } from '@angular/core';
+import { Component, NgModule, OnInit } from '@angular/core';
 
 import {
   catchError,
@@ -249,16 +249,13 @@ export class NewStatementsComponent implements OnInit {
     const promise = (row, i) =>
       new Promise(
         (async (resolve, reject) => {
-          console.log('start', i, row.id);
           let res;
           try {
             res = await this.createStatementPromise(row);
             row.url = res.url;
-            console.log('success', i, row.id);
           } catch (err) {
             res = err;
             this.failedRequests = this.failedRequests + 1;
-            console.log('error', i, row.id);
           }
 
           await this.statementHistory(res, row.id, row.date);

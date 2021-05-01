@@ -15,8 +15,6 @@ How to add a new user
   - user object needs properties 
 
 todo
-- record upload file names
-  - list all file names and when they were uploaded and by what user
 
 - test all button
 - test all loader
@@ -27,4 +25,23 @@ todo
 - add 10 second wait to "open" button 
 
 - test bulk upload
-- add patient id to statement
+
+
+
+- upload file
+  - each statement as object
+  - record count with each upload history
+  - 
+
+
+- activity
+  - list the status of all pending statements
+  - total in flight
+  - total delivered
+  - total waiting for printing
+
+
+- search
+  - show a results message
+  - update searchable keys
+  

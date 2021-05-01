@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { LobService } from '../../shared/services/lob.service';
 import { MockLobService } from '../../shared/services/lob.service.mock';
 import { OrganizationService } from '../../shared/services/organization.service';
@@ -12,9 +11,11 @@ import { UserServiceMock } from '../../shared/services/user.service.mock';
 import { ValidationService } from '../../shared/services/validation.service';
 import { MockValidatonService } from '../../shared/services/validation.service.mock';
 import { NewStatementsComponent } from './new-statements.component';
-import { provideMockStore, MockStore } from '@ngrx/store/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 import { AccessType } from '../../types/access';
 import { LOB_ENV } from '../../types/lob';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { FirebaseMock } from '../../shared/services/firebase.mock';
 const mockData = [
   {
     first: 'Jarod',
@@ -129,22 +130,21 @@ describe('NewStatementComponent', () => {
   let userService;
   let statementService;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [NewStatementsComponent],
-        providers: [
-          { provide: ValidationService, useClass: MockValidatonService },
-          { provide: LobService, useClass: MockLobService },
-          { provide: OrganizationService, useClass: MockOrganizationService },
-          { provide: UserService, useClass: UserServiceMock },
-          { provide: StatementService, useClass: StatementServiceMock },
-          HttpClient,
-          provideMockStore({ initialState }),
-        ],
-      }).compileComponents();
-    })
-  );
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [NewStatementsComponent],
+      providers: [
+        { provide: AngularFirestore, useClass: FirebaseMock },
+        { provide: ValidationService, useClass: MockValidatonService },
+        { provide: LobService, useClass: MockLobService },
+        { provide: OrganizationService, useClass: MockOrganizationService },
+        { provide: UserService, useClass: UserServiceMock },
+        { provide: StatementService, useClass: StatementServiceMock },
+        HttpClient,
+        provideMockStore({ initialState }),
+      ],
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NewStatementsComponent);
@@ -172,7 +172,7 @@ describe('NewStatementComponent', () => {
   it('should reset error message, set data, and check data on upload', () => {
     const data = [...mockData];
     const checkDataSpy = spyOn(component, 'checkData');
-    component.uploadData({data, filename: 'blue'});
+    component.uploadData({ data, filename: 'blue' });
     expect(component.errorMessage).toBe(undefined);
     expect(component.data).toEqual(data);
     expect(checkDataSpy).toHaveBeenCalled();
@@ -198,14 +198,20 @@ describe('NewStatementComponent', () => {
 
   describe('access type tracking', () => {
     let userServiceSpy;
-    beforeEach(()=>{
+    beforeEach(() => {
       userServiceSpy = spyOn(userService, 'postAccessLog');
     });
 
     const envs = [LOB_ENV.TEST, LOB_ENV.LIVE];
 
-    const loadFile = [AccessType.STATEMENTS_LOAD_FILE_TEST, AccessType.STATEMENTS_LOAD_FILE_LIVE];
-    const createStatement = [AccessType.STATEMENTS_CREATE_STATEMENT_TEST, AccessType.STATEMENTS_CREATE_STATEMENT_LIVE];
+    const loadFile = [
+      AccessType.STATEMENTS_LOAD_FILE_TEST,
+      AccessType.STATEMENTS_LOAD_FILE_LIVE,
+    ];
+    const createStatement = [
+      AccessType.STATEMENTS_CREATE_STATEMENT_TEST,
+      AccessType.STATEMENTS_CREATE_STATEMENT_LIVE,
+    ];
     envs.forEach((env, i) => {
       xit(`should track loading a file with filename - ${env}`, () => {
         component.env = env;
@@ -213,16 +219,25 @@ describe('NewStatementComponent', () => {
         component.data = [...mockData];
         const filename = 'specialFilename.txt';
         component.checkData(filename);
-        expect(userServiceSpy).toHaveBeenCalledWith(loadFile[i], '', '', filename);
+        expect(userServiceSpy).toHaveBeenCalledWith(
+          loadFile[i],
+          '',
+          '',
+          filename
+        );
       });
 
       it(`should track creating a statement - ${env}`, async () => {
         component.env = env;
-        spyOn(component, 'makeStatementHistoryObj').and.returnValue(new Promise((resolve) => {resolve({} as any)}));
-        spyOn(statementService, 'postStatementHistory').and.callFake(()=>{});
+        spyOn(component, 'makeStatementHistoryObj').and.returnValue(
+          new Promise((resolve) => {
+            resolve({} as any);
+          })
+        );
+        spyOn(statementService, 'postStatementHistory').and.callFake(() => {});
         await component.statementHistory('' as any, '888', '');
         expect(userServiceSpy).toHaveBeenCalledWith(createStatement[i], '888');
-      })
+      });
     });
   });
 
@@ -230,9 +245,9 @@ describe('NewStatementComponent', () => {
     let batch;
     beforeEach(() => {
       batch = [];
-    })
+    });
     it('should work', () => {
       component.dataList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    })
-  })
+    });
+  });
 });

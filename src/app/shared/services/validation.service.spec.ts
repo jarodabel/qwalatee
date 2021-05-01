@@ -1,9 +1,9 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { firestore } from 'firebase';
+import firebase from 'firebase/app';
 import { Observable, of } from 'rxjs';
 import { last } from 'rxjs/operators';
-import { FirebaseMock } from './firebase.mock.spec';
+import { FirebaseMock } from './firebase.mock';
 import { ValidationService } from './validation.service';
 
 describe('Validation Service', () => {
@@ -11,9 +11,9 @@ describe('Validation Service', () => {
   let db: FirebaseMock;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [ValidationService, { provide: AngularFirestore, useClass: FirebaseMock }] });
+    TestBed.configureTestingModule({ providers: [ValidationService] });
     service = TestBed.inject(ValidationService);
-    db = TestBed.inject(AngularFirestore) as any;
+    service.fs = new FirebaseMock() as any;
   });
 
   describe('checkData', () => {

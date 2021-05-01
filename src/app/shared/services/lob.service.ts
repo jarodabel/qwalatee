@@ -5,22 +5,16 @@ import { ChcAddress } from '../../types/lob';
   providedIn: 'root',
 })
 export class LobService {
-  headerRow = [
-    // 'Claim #',
-    // 'Date',
-    'Date',
-    'Service',
-    'Charge',
-    'Payment',
-    'Due',
-  ];
+  headerRow = ['Date', 'Service', 'Charge', 'Paid', 'Due'];
+  statementCodes = [];
+  excessTables = [];
 
   cloudFnUrl = 'https://us-central1-pdsa-oskee.cloudfunctions.net';
   constructor(private http: HttpClient) {}
 
   sendLobRequest(env, template, user) {
     const data = {
-      color: false,
+      color: true,
       custom_envelope: null,
       double_sided: true,
       description: 'CHCSEK Statement',
@@ -29,7 +23,7 @@ export class LobService {
       merge_variables: {
         amtDue: user.amtDue,
         charges: user.charges,
-        chargesExtended: user.chargesExtended || null,
+        excessTableIds: user.excessTableIds || null,
         statement_code: user.statementCode,
         id: user.id,
         name: user.name,
@@ -49,6 +43,12 @@ export class LobService {
       },
     };
 
+    if (user.excessTableIds) {
+      user.excessTableIds.split(',').forEach((id) => {
+        data.merge_variables[id] = user[id];
+      });
+    }
+
     return this.http.post(
       `${this.cloudFnUrl}/postLobRequest?env=${env}`,
       {
@@ -64,23 +64,19 @@ export class LobService {
 
   sendLetter(env, template, user) {
     const userObj = this.makeUserForLob(user);
+    this.reset();
     return this.sendLobRequest(env, template, userObj);
   }
 
   makeUserForLob(user) {
     let charges = [];
-    let lastChargeRow: string;
-    let lastRowMessage = '';
+    let statementCodeMessage = '';
     let firstTable;
-    let secondTable;
-    let totalCharges = 0.00;
-    let totalPayments = 0.00;
+    let totalCharges = 0.0;
+    let totalPayments = 0.0;
     if (user.charges.length) {
-      lastChargeRow = user.charges[user.charges.length - 1];
-      lastRowMessage = lastChargeRow[4];
       charges = [...user.charges].map((a) => {
         a.splice(0, 3);
-
         if (a[2]) {
           totalCharges += parseFloat(a[2]);
         }
@@ -92,20 +88,24 @@ export class LobService {
           return this.getClaimRow(a);
         } else if (a[1].includes('Your Balance')) {
           return this.getBalanceRow(a);
+        } else if (a[1].includes('****')) {
+          this.personalStatementCodeGroup(a[1]);
+          return this.getPayOnlineRow(a);
         }
         return this.getHtmlRow(a);
       });
-      charges.splice(0, 1);
-      charges.splice(charges.length - 1, 1);
-      // due column
-      // charges.splice(charges.length - 1, 1);
+
+      statementCodeMessage =
+        `<strong>` +
+        this.statementCodes.join('</strong>, <strong>') +
+        '</strong>';
     }
     const breakIndex = 25;
     if (charges.length >= breakIndex) {
       const firstRows = [this.getHeaderRow(), ...charges.slice(0, breakIndex)];
       firstTable = this.getTableWrap('firstTable', firstRows);
-      const secondRows = [this.getHeaderRow(), ...charges.slice(breakIndex)];
-      secondTable = this.getTableWrap('secondTable', secondRows);
+      const remainingRows = [...charges.slice(breakIndex)];
+      this.buildTablesForRemainingRows(remainingRows);
     } else {
       const firstRows = [this.getHeaderRow(), ...charges];
       firstTable = this.getTableWrap('firstTable', firstRows);
@@ -122,12 +122,27 @@ export class LobService {
       id: user.id,
       date: user.date,
       charges: firstTable,
-      statementCode: lastRowMessage,
-      totalPayments: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalPayments),
-      totalCharges: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalCharges),
+      statementCode: statementCodeMessage,
+      totalPayments: new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(totalPayments),
+      totalCharges: new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(totalCharges),
     };
-    if (secondTable) {
-      obj.chargesExtended = secondTable;
+
+    if (this.excessTables.length) {
+      const ids = [];
+      this.excessTables.forEach((chunk, i) => {
+        const key = `excessTable${i}`;
+        obj[key] = chunk;
+        ids.push(key);
+      });
+      obj.excessTableIds = ids.join(',');
+    } else {
+      obj.excessTableIds = null;
     }
     return obj;
   }
@@ -146,6 +161,12 @@ export class LobService {
     );
   }
 
+  private personalStatementCodeGroup(row) {
+    const rowParts = row.split('-');
+    const code = rowParts[1].replace('****', '').trim();
+    this.statementCodes.push(code);
+  }
+
   private getHtmlRow(data) {
     let res = '<tr>';
     res += data.map((item) => `<td>${item}</td>`).join('');
@@ -155,7 +176,15 @@ export class LobService {
 
   private getClaimRow(data) {
     let res = '<tr>';
-    res += data.map((item) => `<td><u>${item}</u></td>`).join('');
+    res += data
+      .map((_item) => {
+        let item = _item;
+        if (item.includes('Claim:')) {
+          item = item.replace(':', ': ');
+        }
+        return `<td><strong><u>${item}</u></strong></td>`;
+      })
+      .join('');
     res += '</tr>';
     return res;
   }
@@ -171,7 +200,6 @@ export class LobService {
       })
       .join('');
     res += '</tr>';
-    res += '<tr><td colspan="5" style="height: 10px"></td></tr>';
     return res;
   }
 
@@ -188,5 +216,58 @@ export class LobService {
       .join('');
     res += '</tr>';
     return res;
+  }
+
+  private blankSpacerRow() {
+    return '<tr><td colspan="5" style="height: 10px"></td></tr>';
+  }
+
+  private getPayOnlineRow(row) {
+    return (
+      `<tr><td colspan="5"><stron>${row[1]}</strong></td></tr>` +
+      this.blankSpacerRow()
+    );
+  }
+
+  private reset() {
+    this.statementCodes.length = 0;
+    this.excessTables.length = 0;
+  }
+
+  private buildTablesForRemainingRows(remainingRows) {
+    const characterLimit = 2900;
+
+    // chunk remaining rows based on total character length
+    const tempTable = [];
+    let characterCount = 0;
+
+    const excessChunks = [];
+
+    for (let i = 0; i < remainingRows.length; i++) {
+      const row = remainingRows[i];
+      const characters = row.length;
+      if (characterCount + characters < characterLimit) {
+        tempTable.push(row);
+      } else {
+        if (excessChunks.length === 0) {
+          excessChunks.push([this.getHeaderRow(), ...tempTable]);
+        } else {
+          excessChunks.push([...tempTable]);
+        }
+        tempTable.length = 0;
+        characterCount = 0;
+        tempTable.push(row);
+      }
+      characterCount += characters;
+
+      // handle last table
+      if (i === remainingRows.length - 1) {
+        excessChunks.push([...tempTable]);
+      }
+    }
+
+    excessChunks.forEach((chunk, i) => {
+      this.excessTables.push(this.getTableWrap(`excessTable${i}`, chunk));
+    });
   }
 }
