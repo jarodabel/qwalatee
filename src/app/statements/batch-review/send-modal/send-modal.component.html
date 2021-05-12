@@ -1,0 +1,52 @@
+<div class="modal" [ngClass]="{'is-active': showModal}" *ngIf="modalType === modalTypes.MailConfirmation">
+  <div class="modal-background"></div>
+  <div class="modal-content is-white">
+    <div class="box">
+      <div class="tags has-addons is-right">
+        <span class="tag is-dark">LOB Environment</span>
+        <span class="tag is-info">{{env}}</span>
+      </div>
+      <h1 class="title">Send Statements</h1>
+      <h2 class="subtitle"></h2>
+      <br>
+
+      <div class="buttons">
+        <button class="button is-link is-small" (click)="selectAll()">Select All</button>
+        <button class="button is-small" (click)="unselectAll()">Unselect All</button>
+      </div>
+      <div class="buttons is-right">
+        <button class="button is-link is-small" (click)="createStatements()"
+          [disabled]="!selectedCount || pending">Create Statements
+          ({{selectedCount}})</button>
+      </div>
+
+      <progress *ngIf="!records.length || pending" class="progress is-large is-link" max="100">60%</progress>
+
+      <div class="table-container" *ngIf="records?.length">
+        <table class="table is-fullwidth is-striped">
+          <thead>
+            <th *ngFor="let heading of headings">
+              {{heading}}
+            </th>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of records; let i = index">
+              <td>
+                <input type="checkbox" [checked]='row.selected' (change)="rowSelected(row)" [disabled]="row.url">
+              </td>
+              <td>
+                <button class="button is-small is-link" [disabled]="!row.url" (click)="openUrl(row.url, row.id)">
+                  <span class="icon">
+                    <i class="fas fa-file-alt"></i>
+                  </span>
+                </button>
+              </td>
+              <td *ngFor="let field of fieldNames">{{row[field]}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <button class="modal-close is-large" aria-label="close" (click)="done.emit()"></button>
+</div>

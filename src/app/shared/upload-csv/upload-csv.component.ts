@@ -9,37 +9,8 @@ import {
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PatientRecord } from '../../types/data-models';
-export const USER_FIELDS = [
-  'first',
-  'm',
-  'last',
-  'date',
-  'id',
-  'amtDue',
-  'firstGuar',
-  'mGuar',
-  'lastGuar',
-  'add1',
-  'add2',
-  'city',
-  'state',
-  'zip',
-  'fac',
-  'facAdd1',
-  'facAdd2',
-  'facCity',
-  'facState',
-  'facZip',
-  'company',
-  'unknown1',
-  'unknown2',
-  'unknown3',
-  'unknown4',
-  'unknown5',
-  'unknown6',
-  'unknown7',
-  'billNum',
-];
+import { UploadService, USER_FIELDS } from '../services/upload.service';
+
 @Component({
   selector: 'upload-csv',
   templateUrl: './upload-csv.component.html',
@@ -52,6 +23,7 @@ export class UploadCSVComponent implements OnInit, OnDestroy {
   reset: Subject<undefined>;
   destroy$ = new Subject();
   filename = '';
+  constructor(private uploadService: UploadService) {}
 
   ngOnInit() {
     this.reset.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -67,7 +39,9 @@ export class UploadCSVComponent implements OnInit, OnDestroy {
   handleFileSelect(evt) {
     const onload = (event) => {
       const csv = event.target.result; // Content of CSV file
-      this.extractData(csv);
+      this.uploadData.emit({ filename: this.filename, data: csv });
+      // this.uploadService.upload(this.filename, csv)
+      // this.extractData(csv);
     };
     onload.bind(this);
 
@@ -80,7 +54,7 @@ export class UploadCSVComponent implements OnInit, OnDestroy {
     evt.target.value = '';
   }
 
-  extractData(data) {
+  private extractData(data) {
     const breaks = 'ecwPtStatement';
     const allTextLines = data.split(/\n/);
     const firstBreakPoint = allTextLines.indexOf(breaks);
@@ -133,13 +107,6 @@ export class UploadCSVComponent implements OnInit, OnDestroy {
     };
 
     this.uploadData.emit(dataToEmit);
-  }
-
-  private merge(keys, values) {
-    return keys.reduce(
-      (obj, key, index) => ({ ...obj, [key]: values[index] }),
-      {}
-    );
   }
 
   private csvToArray(text) {

@@ -41,6 +41,8 @@ import { StatementService } from './shared/services/statement.service';
 import { ResourcesModule } from './resouces/resources.component';
 import { AttributionComponent } from './attribution/attribution.component';
 import { statementReducerFn } from './shared/reducers/statement.reducers';
+import { UploadService } from './shared/services/upload.service';
+import { BatchManagementService } from './shared/services/batch-management.service';
 
 @NgModule({
   declarations: [AppComponent, HomePageComponent, AttributionComponent],
@@ -78,7 +80,17 @@ import { statementReducerFn } from './shared/reducers/statement.reducers';
     MessagesModudle,
     StatementsModule,
   ],
-  providers: [PdsaService, UserService, ValidationService, LobService, CanActivateService, OrganizationService, StatementService],
+  providers: [
+    PdsaService,
+    UserService,
+    ValidationService,
+    LobService,
+    CanActivateService,
+    OrganizationService,
+    StatementService,
+    UploadService,
+    BatchManagementService,
+  ],
   bootstrap: [AppComponent],
   exports: [],
 })

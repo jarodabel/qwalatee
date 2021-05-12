@@ -1,13 +1,13 @@
-export enum TemplateKeys {
-  ChcSekVersion1 = 'ChcSekVersion1',
-}
+// export enum TemplateKeys {
+//   ChcSekVersion1 = 'ChcSekVersion1',
+// }
 export enum TemplateLookup {
-  Test = 'tmpl_d3e294dd9f44979',
-  Live = 'tmpl_ade774c44bdc5aa',
+  Test = 'tmpl_80703dffb3b4cb3',
+  Live = '',
 }
 export enum ChcAddress {
-  Test = 'adr_87281a7bf4353efd',
-  Live = 'adr_fa369e1dfe50c487',
+  Test = 'adr_c8d9ac8d6813d156',
+  Live = '',
 }
 
 export enum LOB_ENV {

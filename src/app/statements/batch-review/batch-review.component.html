@@ -1,0 +1,81 @@
+<div class="columns">
+  <div class="column is-hidden-mobile is-1"></div>
+  <div class="column is-10">
+    <div class="tile is-ancestor" *ngIf="!(pendingBatches$ | async) == '{}'">
+      <div class="tile is-parent">
+        <div class="tile is-child box">
+          <p class="title">Nothing Pending</p>
+          <p class="subtitle">
+            Great job, you are all caught up
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="tile is-ancestor" *ngIf="(pendingBatches$ | async) != '{}'">
+      <div class="tile is-parent">
+        <div class="tile is-child box">
+          <p class="title">Batches Needing Review</p>
+        </div>
+      </div>
+    </div>
+    <div class="tile is-ancestor" *ngFor="let obj of (pendingBatches$ | async) | keyvalue">
+      <div class="tile is-parent">
+        <div class="tile is-child box">
+          <p class="subtitle"><strong>{{obj.value[0].dateCreated.toDate() | date}}</strong></p>
+          <div class="content">
+            <table>
+              <thead>
+                <tr>
+                  <th>Count</th>
+                  <th>Filename</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody *ngFor="let batch of obj.value">
+                <tr>
+                  <td>{{batch.count}}</td>
+                  <td>{{batch.filename}}</td>
+                  <td>
+                    <button class="button is-link is-light is-small" (click)="sendConfirmation(batch)">
+                      <span>Send</span>
+                      <span class="icon">
+                        <i class="fas fa-file-invoice"></i>
+                      </span>
+                    </button>
+                  </td>
+                  <td>
+                    <button class="button is-danger is-light is-small" (click)="deleteConfirmation(batch)">
+                      <span>Delete</span>
+                      <span class="icon">
+                        <i class=" fas fa-trash-alt"></i>
+                      </span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-1"></div>
+</div>
+
+<div class="modal" [ngClass]="{'is-active': showModal}" *ngIf="modalType === modalTypes.DeleteConfirmation">
+  <div class="modal-background"></div>
+  <div class="modal-content is-white">
+    <div class="box">
+      <h1 class="title">Delete - Are You Sure?</h1>
+      <h2 class="subtitle">This cannot be undone.</h2>
+      <div class="buttons is-right">
+        <button class="button is-info is-light" (click)="reset()" [ngClass]="{'is-loading': pending}">Cancel</button>
+        <button class="button is-danger" (click)="delete()" [ngClass]="{'is-loading': pending}">Delete</button>
+      </div>
+    </div>
+  </div>
+  <button class="modal-close is-large" aria-label="close" (click)="reset()"></button>
+</div>
+
+<send-modal [showModal]="showModal" [modalType]="modalType" [uploadId]="currentBatchId" (done)="reset()"></send-modal>

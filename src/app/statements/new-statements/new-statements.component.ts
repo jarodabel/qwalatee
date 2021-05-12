@@ -12,7 +12,6 @@ import {
 import { LOB_ENV, TemplateLookup } from '../../types/lob';
 
 import firebase from 'firebase/app';
-import { USER_FIELDS } from '../../shared/upload-csv/upload-csv.component';
 import { from, merge, Observable, of, Subject, timer } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 import { selectUser } from '../../shared/selectors/user.selectors';
@@ -25,6 +24,7 @@ import { User } from '../../shared/reducers/user.reducers';
 import { UserService } from '../../shared/services/user.service';
 import { AccessType } from '../../types/access';
 import { DocumentReference } from '@angular/fire/firestore';
+import { USER_FIELDS } from '../../shared/services/upload.service';
 
 @Component({
   selector: 'new-statements',
@@ -242,51 +242,7 @@ export class NewStatementsComponent implements OnInit {
   }
 
   private sendAll() {
-    this.completedRequests = 0;
-    this.failedRequests = 0;
-    this.bulkLobRunning = true;
 
-    const promise = (row, i) =>
-      new Promise(
-        (async (resolve, reject) => {
-          let res;
-          try {
-            res = await this.createStatementPromise(row);
-            row.url = res.url;
-          } catch (err) {
-            res = err;
-            this.failedRequests = this.failedRequests + 1;
-          }
-
-          await this.statementHistory(res, row.id, row.date);
-          this.completedRequests = this.completedRequests + 1;
-          if (this.completedRequests === this.dataList.length) {
-            this.bulkLobRunning = false;
-          }
-
-          resolve();
-        }).bind(this)
-      );
-
-    from([...this.dataList])
-      .pipe(
-        mergeMap(
-          (row, i) => merge(promise(row, i), timer(0).pipe(ignoreElements())),
-          undefined,
-          3
-        )
-      )
-      .subscribe(
-        (s) => {
-          console.log(s);
-          console.log('all done');
-          console.log('success', this.completedRequests - this.failedRequests);
-          console.log('error', this.failedRequests);
-        },
-        (err) => {
-          console.log('error', err);
-        }
-      );
   }
 
   private createStatementPromise(row) {

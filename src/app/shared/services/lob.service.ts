@@ -74,7 +74,7 @@ export class LobService {
     let firstTable;
     let totalCharges = 0.0;
     let totalPayments = 0.0;
-    if (user.charges.length) {
+    if (user.charges?.length) {
       charges = [...user.charges].map((a) => {
         a.splice(0, 3);
         if (a[2]) {
@@ -100,7 +100,7 @@ export class LobService {
         this.statementCodes.join('</strong>, <strong>') +
         '</strong>';
     }
-    const breakIndex = 25;
+    const breakIndex = 24;
     if (charges.length >= breakIndex) {
       const firstRows = [this.getHeaderRow(), ...charges.slice(0, breakIndex)];
       firstTable = this.getTableWrap('firstTable', firstRows);
@@ -111,6 +111,9 @@ export class LobService {
       firstTable = this.getTableWrap('firstTable', firstRows);
     }
 
+    const dateParts = user.date.split('-');
+    const formattedDate = `${dateParts[1]}-${dateParts[2]}-${dateParts[0]}`;
+
     const obj: { [key: string]: any } = {
       name: `${user.first} ${user.m} ${user.last}`,
       add1: user.add1,
@@ -120,8 +123,8 @@ export class LobService {
       zip: user.zip,
       amtDue: user.amtDue,
       id: user.id,
-      date: user.date,
-      charges: firstTable,
+      date: formattedDate,
+      charges: null,
       statementCode: statementCodeMessage,
       totalPayments: new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -133,17 +136,17 @@ export class LobService {
       }).format(totalCharges),
     };
 
-    if (this.excessTables.length) {
-      const ids = [];
-      this.excessTables.forEach((chunk, i) => {
-        const key = `excessTable${i}`;
-        obj[key] = chunk;
-        ids.push(key);
-      });
-      obj.excessTableIds = ids.join(',');
-    } else {
+    // if (this.excessTables.length) {
+    //   const ids = [];
+    //   this.excessTables.forEach((chunk, i) => {
+    //     const key = `excessTable${i}`;
+    //     obj[key] = chunk;
+    //     ids.push(key);
+    //   });
+    //   obj.excessTableIds = ids.join(',');
+    // } else {
       obj.excessTableIds = null;
-    }
+    // }
     return obj;
   }
 
@@ -204,7 +207,7 @@ export class LobService {
   }
 
   private getTableWrap(className, data) {
-    return `<table style="border-collapse:collapse" class="${className} charges-table" align="right">${data.join(
+    return `<table style="border-collapse:collapse" class="${className} charges-table font-12" align="right">${data.join(
       ''
     )}</table>`;
   }

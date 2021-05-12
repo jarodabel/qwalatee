@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject, throwError } from 'rxjs';
-import { USER_FIELDS } from '../../shared/upload-csv/upload-csv.component';
 import firebase from 'firebase/app';
+import { USER_FIELDS } from './upload.service';
 @Injectable({
   providedIn: 'root',
 })

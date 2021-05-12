@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, NgModule, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AppState } from '../app-state';
 import { setAllUsers } from '../shared/actions/statement.actions';
@@ -10,10 +9,13 @@ import { UploadEventPipe } from '../shared/pipes/upload-event.pipe';
 import { UseramePipe } from '../shared/pipes/user-name-pipe.pipe';
 import { UserService } from '../shared/services/user.service';
 import { SharedModule } from '../shared/shared.module';
+import { BatchReviewComponent } from './batch-review/batch-review.component';
+import { BatchUploadComponent } from './batch-upload/batch-upload.component';
 import { HistoryStatementsComponent } from './history-statements/history-statements.component';
 
 import { NewStatementsComponent } from './new-statements/new-statements.component';
 import { UploadHistoryComponent } from './upload-history/upload-history.component';
+import { SendModalComponent } from './batch-review/send-modal/send-modal.component';
 
 export enum TabNames {
   NewStatements = 'newStatements',
@@ -32,7 +34,7 @@ export class StatementsComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private store: Store<AppState>,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit() {
@@ -51,12 +53,15 @@ export class StatementsComponent implements OnInit {
 
 @NgModule({
   declarations: [
+    BatchReviewComponent,
+    BatchUploadComponent,
     StatementsComponent,
     NewStatementsComponent,
     HistoryStatementsComponent,
     UploadHistoryComponent,
     UploadEventPipe,
     UseramePipe,
+    SendModalComponent,
   ],
   exports: [UploadEventPipe, UseramePipe],
   imports: [CommonModule, SharedModule, BrowserModule, FormsModule],

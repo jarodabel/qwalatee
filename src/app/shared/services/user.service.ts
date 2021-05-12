@@ -3,7 +3,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { select, Store } from '@ngrx/store';
 import { of } from 'rxjs';
-import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { AppState } from '../../app-state';
 import { setUser } from '../actions/user-actions';
 import { selectUser } from '../selectors/user.selectors';
@@ -23,6 +23,7 @@ export class UserService {
   userAuth$ = this.afAuth.user;
 
   dbUser$ = this.userAuth$.pipe(
+    distinctUntilChanged(),
     switchMap(async (user) => {
       if (!user) {
         return undefined;
@@ -40,18 +41,18 @@ export class UserService {
 
       return { ...matchingUsers[0].data(), id: user.uid };
     }),
-    filter((user: any) => user),
-    tap((_user: any) => {
+    map((_user: any) => {
       const user = {
-        email: _user.email,
-        id: _user.id,
-        firstName: _user.firstname,
-        lastName: _user.lastname,
-        organization: _user.organization,
-        lobStatements: _user.lob_statements,
-        lobStatementsLive: _user.lob_statements_live,
+        email: _user?.email,
+        id: _user?.id,
+        firstName: _user?.firstname,
+        lastName: _user?.lastname,
+        organization: _user?.organization,
+        lobStatements: _user?.lob_statements,
+        lobStatementsLive: _user?.lob_statements_live,
       };
       this.store.dispatch(setUser(user));
+      return user;
     })
   );
 

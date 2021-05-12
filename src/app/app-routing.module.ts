@@ -17,6 +17,8 @@ import { AttributionComponent } from './attribution/attribution.component';
 import { NewStatementsComponent } from './statements/new-statements/new-statements.component';
 import { UploadHistoryComponent } from './statements/upload-history/upload-history.component';
 import { HistoryStatementsComponent } from './statements/history-statements/history-statements.component';
+import { BatchUploadComponent } from './statements/batch-upload/batch-upload.component';
+import { BatchReviewComponent } from './statements/batch-review/batch-review.component';
 
 const routes: Routes = [
   {
@@ -85,7 +87,15 @@ const routes: Routes = [
       },
       {
         component: NewStatementsComponent,
+        path: 'upload-batch-old',
+      },
+      {
+        component: BatchUploadComponent,
         path: 'upload-batch',
+      },
+      {
+        component: BatchReviewComponent,
+        path: 'review-batch',
       },
       {
         component: UploadHistoryComponent,
