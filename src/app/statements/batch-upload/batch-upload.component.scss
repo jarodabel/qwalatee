@@ -1,0 +1,16 @@
+.status {
+  font-size: 16px;
+  color: darkgrey;
+}
+
+.upload-status-list:last-child {
+  .status {
+    font-size: 24px;
+    color: hsl(141, 53%, 31%);
+    font-weight: bold;
+  }
+}
+
+.has-text-success-dark {
+  color: hsl(141, 53%, 31%)
+}

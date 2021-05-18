@@ -18,8 +18,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { UploadCSVComponent } from './upload-csv/upload-csv.component';
+import { CheckboxComponent } from './checkbox/checkbox.component';
 
-const components = [ShellComponent, DeleteButtonComponent, BreadcrumbsComponent, UploadCSVComponent];
+const components = [ShellComponent, DeleteButtonComponent, BreadcrumbsComponent, UploadCSVComponent, CheckboxComponent];
 
 const modules = [
   CommonModule,

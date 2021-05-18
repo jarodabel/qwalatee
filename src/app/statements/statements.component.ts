@@ -16,6 +16,8 @@ import { HistoryStatementsComponent } from './history-statements/history-stateme
 import { NewStatementsComponent } from './new-statements/new-statements.component';
 import { UploadHistoryComponent } from './upload-history/upload-history.component';
 import { SendModalComponent } from './batch-review/send-modal/send-modal.component';
+import { BatchReviewDetailsComponent } from './batch-review/batch-review-details/batch-review-details.component';
+import { ReviewPdfComponent } from './batch-review/review-pdf/review-pdf.component';
 
 export enum TabNames {
   NewStatements = 'newStatements',
@@ -62,6 +64,8 @@ export class StatementsComponent implements OnInit {
     UploadEventPipe,
     UseramePipe,
     SendModalComponent,
+    BatchReviewDetailsComponent,
+    ReviewPdfComponent
   ],
   exports: [UploadEventPipe, UseramePipe],
   imports: [CommonModule, SharedModule, BrowserModule, FormsModule],

@@ -61,21 +61,43 @@ export enum UploadSteps {
   UploadError = 'Upload Error',
   UploadRecordsBeginning = 'Beginning Statement Upload',
   UploadingRecord = 'Record Upload',
+  UpdateUploadObject = 'Updating Upload Object',
+  UpdateUploadObjectDone = 'Updating Upload Object Complete',
+  UpdateUploadObjectError = 'Updating Upload Object Error',
+
   Complete = 'Batch Upload Is Complete',
 }
+
+type ReviewStatement = {
+  user: string;
+  recordId: string;
+  approved: boolean;
+};
+
+type ReviewStatements = {
+  one: ReviewStatement;
+  two: ReviewStatement;
+  three: ReviewStatement;
+};
 
 export type UploadObject = {
   count: number;
   dateCreated: firebase.firestore.Timestamp;
   filename: string;
-  hasBeenMailed: boolean;
+  id: string;
+  reviewStatements: ReviewStatements;
+  reviewApprovedBy: string;
+  reviewIsComplete: boolean;
+  mailHasStarted: boolean;
+  mailHasErrors: boolean;
+  mailComplete: boolean;
 };
 
 @Injectable({
   providedIn: 'root',
 })
 export class UploadService {
-  uploadStatus$ = new Subject();
+  uploadStatus$ = new Subject<UploadSteps>();
   fs = firebase.firestore();
 
   constructor(private userService: UserService) {}
@@ -104,13 +126,21 @@ export class UploadService {
 
     // upload records for this batch
     await this.uploadRecords(uploadDbObject.id, parsedData);
+    // upload check records for review
+    try {
+      await this.establishCheckRecords(uploadDbObject.id, parsedData);
+    } catch (err) {
+      throw err;
+    }
     // mark upload complete in access table
     this.userService.postAccessLog(
       AccessType.STATEMENTS_BATCH_UPLOADED,
-      undefined,
+      '',
       undefined,
       filename
     );
+
+    this.uploadStatus$.next(UploadSteps.Complete);
   }
 
   parseUpload(rawData) {
@@ -165,12 +195,57 @@ export class UploadService {
     const dateCreated = firebase.firestore.FieldValue.serverTimestamp();
     const count = data.length;
 
+    const reviewStatementTemplate = {
+      user: null,
+      recordId: '',
+      approved: false,
+    };
     return {
       count,
       dateCreated,
       filename,
-      hasBeenMailed: false,
+      reviewStatements: {
+        one: { ...reviewStatementTemplate },
+        two: { ...reviewStatementTemplate },
+        three: { ...reviewStatementTemplate },
+      },
+      reviewApprovedBy: null,
+      reviewIsComplete: false,
+      mailHasStarted: false,
+      mailHasErrors: false,
+      mailComplete: false,
     };
+  }
+
+  establishCheckRecords(id, records) {
+    return new Promise((resolve, reject) => {
+      this.uploadStatus$.next(UploadSteps.UpdateUploadObject);
+
+      const chargesArr = [...records].sort(
+        (a, b) => Object.keys(a.charges).length - Object.keys(b.charges).length
+      );
+      const len = chargesArr.length;
+      const max = chargesArr[len - 1];
+      const min = chargesArr[0];
+      const med = chargesArr[Math.round(len / 2)];
+
+      this.fs
+        .collection('uploads')
+        .doc(id)
+        .update({
+          'reviewStatements.one.recordId': min.recordId,
+          'reviewStatements.two.recordId': med.recordId,
+          'reviewStatements.three.recordId': max.recordId,
+        })
+        .then((res) => {
+          this.uploadStatus$.next(UploadSteps.UpdateUploadObjectDone);
+          resolve(res);
+        })
+        .catch((err) => {
+          this.uploadStatus$.next(UploadSteps.UpdateUploadObjectError);
+          reject(new Error(ValidationErrorTypes.Upload_GeneralError));
+        });
+    });
   }
 
   verifyMostRecentUpload() {}
@@ -233,7 +308,6 @@ export class UploadService {
       this.uploadStatus$.next(UploadSteps.UploadBegin);
 
       const dbObject = this.createUploadObject(filename, dataObj);
-
       this.fs
         .collection('uploads')
         .add(dbObject)
@@ -247,33 +321,47 @@ export class UploadService {
     });
   }
 
-  uploadRecords(uploadId, records) {
+  uploadRecords(uploadId, _records) {
     return new Promise((resolve, reject) => {
-      const batch = this.fs.batch();
       this.uploadStatus$.next(UploadSteps.UploadRecordsBeginning);
 
-      records.forEach((_record, i) => {
-        this.uploadStatus$.next(UploadSteps.UploadingRecord);
-        const doc = this.fs.collection('statement-records').doc();
-        const record = { ..._record, uploadId };
-        delete record.charges;
-        // const charges = record.charges;
-        // if we want to keep charges / display them on the statement here is where we will have to save them to the db.
-        batch.set(doc, record);
+      const records = [..._records];
+      // TODO: test this
+      const chunks = [];
+      while (records.length > 0) {
+        chunks.push(records.splice(0, 499));
+      }
+
+      const promises = chunks.map((chunk, chunkIndex) => {
+        const batch = this.fs.batch();
+        chunk.forEach((_record, i) => {
+          this.uploadStatus$.next(UploadSteps.UploadingRecord);
+          const charges = _record.charges.reduce((acc, cur, i) => {
+            acc[i] = cur;
+            return acc;
+          }, {});
+
+          const record = { ..._record, uploadId, charges };
+          const recordDoc = this.fs.collection('statement-records').doc();
+
+          const index = chunkIndex * 500 + i;
+          _records[index].recordId = recordDoc.id;
+
+          batch.set(recordDoc, record);
+        });
+        return batch.commit();
       });
-      batch
-        .commit()
+
+      Promise.all(promises)
         .then(() => {
           this.uploadStatus$.next(UploadSteps.UploadComplete);
-          this.uploadStatus$.next(UploadSteps.Complete);
           resolve('');
         })
         .catch((err) => {
+          console.error(err);
           this.uploadStatus$.next(UploadSteps.UploadError);
           reject(new Error(ValidationErrorTypes.Upload_GeneralError));
         });
     });
   }
-
-
 }

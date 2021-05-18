@@ -22,6 +22,7 @@ export class BatchUploadComponent implements OnInit, OnDestroy {
   uploadPending = false;
   showUploadFlow = false;
   recordsUploaded = 0;
+  filename = '';
   uploadStatus = [];
   uploadReset = new Subject();
   uploadSteps = UploadSteps;
@@ -41,27 +42,28 @@ export class BatchUploadComponent implements OnInit, OnDestroy {
           }
           return of(x).pipe(delay(100));
         }),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
-      .subscribe((message) => {
+      .subscribe((message: UploadSteps) => {
         if (message === UploadSteps.UploadingRecord) {
           this.recordsUploaded += 1;
         } else {
           this.uploadStatus.push(message);
         }
 
-        if(message === UploadSteps.Complete) {
+        if (message === UploadSteps.Complete) {
           this.uploadPending = false;
         }
         this.cdr.detectChanges();
       });
   }
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   uploadData({ data, filename }) {
+    this.filename = filename;
     this.uploadStatus.length = 0;
     this.showUploadFlow = true;
     this.uploadPending = true;
@@ -73,8 +75,11 @@ export class BatchUploadComponent implements OnInit, OnDestroy {
   }
 
   reset() {
+    this.filename = '';
     this.uploadStatus.length = 0;
     this.recordsUploaded = 0;
+    this.uploadPending = false;
+    this.showUploadFlow = false;
     this.uploadReset.next();
   }
 }

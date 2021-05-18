@@ -18,28 +18,19 @@ todo
 
 - test all button
 - test all loader
-- very clear pending requests
 
 - only some people have prod LOB access
 - test lob service
 - add 10 second wait to "open" button 
 
-- test bulk upload
-
-
-
 - upload file
-  - each statement as object
-  - record count with each upload history
-  - 
-
+  - during upload disable review button
 
 - activity
   - list the status of all pending statements
   - total in flight
   - total delivered
   - total waiting for printing
-
 
 - search
   - show a results message

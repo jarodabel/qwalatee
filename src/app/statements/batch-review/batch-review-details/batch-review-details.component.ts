@@ -2,15 +2,21 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
+  OnDestroy,
   OnInit,
   Output,
-  SimpleChange,
   SimpleChanges,
 } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { from, merge, of, timer } from 'rxjs';
-import { ignoreElements, mergeMap, take } from 'rxjs/operators';
+import { from, merge, of, Subject, timer } from 'rxjs';
+import {
+  ignoreElements,
+  mergeMap,
+  switchMap,
+  take,
+  takeUntil,
+  withLatestFrom,
+} from 'rxjs/operators';
 import { AppState } from '../../../app-state';
 import { User } from '../../../shared/reducers/user.reducers';
 import { selectUser } from '../../../shared/selectors/user.selectors';
@@ -20,31 +26,26 @@ import {
 } from '../../../shared/services/batch-management.service';
 import { LobService } from '../../../shared/services/lob.service';
 import { StatementService } from '../../../shared/services/statement.service';
-import { USER_FIELDS } from '../../../shared/services/upload.service';
+import {
+  UploadObject,
+  USER_FIELDS,
+} from '../../../shared/services/upload.service';
 import { UserService } from '../../../shared/services/user.service';
 import { AccessType } from '../../../types/access';
-import { LOB_ENV, TemplateLookup } from '../../../types/lob';
+import { TemplateLookup } from '../../../types/lob';
 import { ModalType } from '../batch-review.component';
 import firebase from 'firebase/app';
+import { ActivatedRoute } from '@angular/router';
+import { selectUploadObjectById } from '../../../shared/selectors/statements.selectors';
+
+// const reviewList = [[], {}, {}, {}];
 
 @Component({
-  selector: 'send-modal',
-  templateUrl: './send-modal.component.html',
-  styleUrls: ['./send-modal.component.scss'],
+  selector: 'app-batch-review-details',
+  templateUrl: './batch-review-details.component.html',
+  styleUrls: ['./batch-review-details.component.scss'],
 })
-export class SendModalComponent implements OnInit, OnChanges {
-  @Input()
-  modalType: ModalType;
-  @Input()
-  showModal: boolean;
-  @Input()
-  uploadId: string;
-  @Input()
-  env: Env = Env.Test;
-  @Input()
-  filename: string;
-  @Output() done: EventEmitter<any> = new EventEmitter();
-
+export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
   modalTypes = ModalType;
   pending = false;
   headings = ['', '', ...USER_FIELDS].splice(0, 8);
@@ -53,27 +54,56 @@ export class SendModalComponent implements OnInit, OnChanges {
   records = [];
   completedRequests = 0;
   failedRequests = 0;
+  uploadId: string;
+  missingUploadId = false;
+  env = Env.Test;
+  filename: string;
+  uploadObj: UploadObject;
+  reviewList: any[] = [];
+  reviewInProgress = false;
+  currentLtrId: string;
 
   user$ = this.store.pipe(select(selectUser));
+  destroy$ = new Subject();
+
+  routeParams$ = this.route.params;
+  uploadObject$ = this.routeParams$.pipe(
+    switchMap(({ uploadId }) =>
+      this.store.select(selectUploadObjectById(uploadId))
+    )
+  );
 
   constructor(
     private batchManagementService: BatchManagementService,
     private lobService: LobService,
     private statementService: StatementService,
     private userService: UserService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    if (this.uploadId) {
-      this.populateRecords();
-    }
+    this.batchManagementService
+      .getPendingBatches()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
+    this.routeParams$.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      this.uploadId = params.uploadId;
+      this.filename = '';
+      if (this.uploadId) {
+        this.populateRecords();
+      } else {
+        this.missingUploadId = true;
+      }
+    });
+    this.uploadObject$.pipe(takeUntil(this.destroy$)).subscribe((obj) => {
+      this.uploadObj = obj;
+      this.reviewListFn();
+    });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.uploadId?.currentValue) {
-      this.populateRecords();
-    }
+  ngOnDestroy(): void {
+    this.destroy$.next();
   }
 
   populateRecords() {
@@ -98,7 +128,7 @@ export class SendModalComponent implements OnInit, OnChanges {
   }
 
   selectAll() {
-    this.records.forEach((row) => (row.selected = true && !row.url));
+    this.records.forEach((row) => (row.selected = true && !row.ltrId));
     this.count();
   }
 
@@ -117,9 +147,14 @@ export class SendModalComponent implements OnInit, OnChanges {
         ? AccessType.STATEMENTS_VIEW_STATEMENT_LIVE
         : AccessType.STATEMENTS_VIEW_STATEMENT_TEST;
     this.userService.postAccessLog(accessType, id);
-    this.lobService.getLetterObject('test', id).pipe(take(1)).toPromise().then((res: any) => {
-      window.open(res.url, '_blank');
-    })
+    this.lobService
+      // TODO: need to update function to accept Test or Live, not test or live
+      .getLetterObject('test', id)
+      .pipe(take(1))
+      .toPromise()
+      .then((res: any) => {
+        window.open(res.url, '_blank');
+      });
   }
 
   createStatements(partialRecords) {
@@ -226,18 +261,120 @@ export class SendModalComponent implements OnInit, OnChanges {
       row.ltrId = res.id;
       row.selected = false;
       this.batchManagementService
-      .setRecordAsTestView(record.recordId, res.id)
-      .then(() => {
+        .setRecordAsTestView(record.recordId, res.id)
+        .then(() => {
+          resolve('');
+        })
+        .catch((err) => {
+          console.log(err);
+          reject();
+        });
+    });
+  }
 
-        resolve('');
-      })
-      .catch((err) => {
-        console.log(err);
-        reject();
-      });
+  getRecordForReview(reviewIndex) {
+    let recordId;
+    if (reviewIndex === 0) {
+      recordId = this.uploadObj.reviewStatements.one.recordId;
+    } else if (reviewIndex === 1) {
+      recordId = this.uploadObj.reviewStatements.two.recordId;
+    } else if (reviewIndex === 2) {
+      recordId = this.uploadObj.reviewStatements.three.recordId;
+    }
 
+    return this.records.find((record) => record.recordId === recordId);
+  }
 
-    })
+  reviewListFn() {
+    const isChecked = (index) => {
+      if (index === 0) {
+        return (
+          this.uploadObj?.reviewStatements &&
+          this.uploadObj.reviewStatements.one?.approved
+        );
+      } else if (index === 1) {
+        return (
+          this.uploadObj?.reviewStatements &&
+          this.uploadObj.reviewStatements.two?.approved
+        );
+      } else if (index === 2) {
+        return (
+          this.uploadObj?.reviewStatements &&
+          this.uploadObj.reviewStatements.three?.approved
+        );
+      } else if (index === 3) {
+        return this.uploadObj?.reviewIsComplete;
+      } else if (index === 4) {
+        return this.uploadObj?.mailHasStarted;
+      } else if (index === 5) {
+        return this.uploadObj?.mailComplete;
+      }
+      return false;
+    };
+    const isDisabled = (index) => {
+      if (isChecked(index)) {
+        return true;
+      }
+      return !isChecked(index - 1);
+    };
+    const list = [
+      [
+        {
+          disabled: false,
+          checked: isChecked(0),
+          title: 'Review 1',
+        },
+        {
+          disabled: isDisabled(1),
+          checked: isChecked(1),
+          title: 'Review 2',
+        },
+        {
+          disabled: isDisabled(2),
+          checked: isChecked(2),
+          title: 'Review 3',
+        },
+      ],
+      {
+        disabled: isDisabled(3),
+        checked: isChecked(3),
+        title: 'Mailing Approved',
+      },
+      {
+        disabled: isDisabled(4),
+        checked: isChecked(4),
+        title: 'Mailing In Progress',
+      },
+      {
+        disabled: isDisabled(5),
+        checked: isChecked(5),
+        title: 'Mailing Complete',
+      },
+    ];
+    this.reviewList = list;
+    console.log(list);
+  }
 
+  async reviewStepClicked(index) {
+    const record = this.getRecordForReview(index);
+    let res;
+    let ltrId;
+    if (!record.ltrId) {
+      res = await this.lobService
+        .sendLetter(this.env, TemplateLookup[this.env], record)
+        .pipe(take(1)).toPromise();
+      ltrId = res.ltrId;
+    } else {
+      ltrId = record.ltrId;
+    }
+
+    if(!ltrId){
+      throw new Error("there was an error find ltrId");
+      return;
+    }
+
+    this.reviewInProgress = true;
+    this.currentLtrId = ltrId
+    console.log('here', ltrId);
   }
 }

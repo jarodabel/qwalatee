@@ -1,0 +1,15 @@
+.batches-table {
+  tr {
+    td:nth-child(1) {
+      width: 10%;
+    }
+
+    td:nth-child(2) {
+      width: 50%;
+    }
+
+    td:nth-child(3) {
+      width: 30%;
+    }
+  }
+}

@@ -1,6 +1,6 @@
 <div class="columns">
-  <div class="column is-hidden-mobile is-1" ></div>
-  <div class="column is-8">
+  <div class="column is-hidden-mobile is-1"></div>
+  <div class="column is-6">
     <div class="tile is-ancestor" *ngIf="!uploadPending && !showUploadFlow">
       <div class="tile is-parent">
         <div class="tile is-child box">
@@ -9,20 +9,36 @@
         </div>
       </div>
     </div>
-    <div class="tile is-ancestor" *ngIf="uploadPending || showUploadFlow" >
+    <div class="tile is-ancestor" *ngIf="uploadPending || showUploadFlow">
       <div class="tile is-parent">
         <div class="tile is-child box">
           <p class="title" *ngIf="uploadPending">Upload Pending</p>
           <p class="title" *ngIf="!uploadPending">Upload Complete</p>
-          <!-- <progress class="progress is-large is-info" max="100" *ngIf="uploadPending">60%</progress>
-          <progress class="progress is-large is-info" max="100" *ngIf="!uploadPending">100%</progress> -->
-          <div *ngFor="let item of uploadStatus" class="content is-normal ml-2">
+          <p class="subtitle">Filename: {{filename}}</p>
+          <div *ngFor="let item of uploadStatus" class="upload-status-list is-normal ml-2">
             <div [ngSwitch]="item">
               <ng-container *ngSwitchCase="uploadSteps.UploadRecordsBeginning">
-                <h3>Records Uploaded {{recordsUploaded}}</h3>
+                <div class='status'>Records Uploaded {{recordsUploaded}}</div>
+              </ng-container>
+              <ng-container *ngSwitchCase="uploadSteps.Complete">
+                <div class="status">Batch Upload Is Complete</div>
+                <div class="buttons is-right">
+                  <button class="button has-text-success-dark is-outlined is-small" (click)="reset()">
+                    <span class="icon">
+                      <i class="fa fa-undo-alt"></i>
+                    </span>
+                    <span>New Upload</span>
+                  </button>
+                  <button class="button has-text-success-dark is-outlined is-small" [routerLink]="['/statements/review-batch']">
+                    <span class="icon">
+                      <i class="fa fa-arrow-right"></i>
+                    </span>
+                    <span>Review</span>
+                  </button>
+                </div>
               </ng-container>
               <ng-container *ngSwitchDefault>
-                <h3>{{item}}</h3>
+                <div class='status'>{{item}}</div>
               </ng-container>
             </div>
           </div>

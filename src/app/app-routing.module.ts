@@ -19,6 +19,7 @@ import { UploadHistoryComponent } from './statements/upload-history/upload-histo
 import { HistoryStatementsComponent } from './statements/history-statements/history-statements.component';
 import { BatchUploadComponent } from './statements/batch-upload/batch-upload.component';
 import { BatchReviewComponent } from './statements/batch-review/batch-review.component';
+import { BatchReviewDetailsComponent } from './statements/batch-review/batch-review-details/batch-review-details.component';
 
 const routes: Routes = [
   {
@@ -92,6 +93,11 @@ const routes: Routes = [
       {
         component: BatchUploadComponent,
         path: 'upload-batch',
+      },
+      {
+        pathMatch: 'full',
+        component: BatchReviewDetailsComponent,
+        path: 'review-batch/:uploadId',
       },
       {
         component: BatchReviewComponent,

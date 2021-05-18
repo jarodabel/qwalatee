@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { from, Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { AppState } from '../../app-state';
+import { setUploads } from '../../shared/actions/statement.actions';
 import { BatchManagementService } from '../../shared/services/batch-management.service';
 import {
   UploadObject,
@@ -18,43 +21,25 @@ export enum ModalType {
   styleUrls: ['./batch-review.component.scss'],
 })
 export class BatchReviewComponent implements OnInit {
-  pendingBatches$: Observable<{[key:string]:UploadObject[]}> = of({});
+  pendingBatches$: Observable<{[key:string]:UploadObject[]}> = of({} as any);
   modalTypes = ModalType;
   modalType: ModalType;
   showModal = false;
   pending = false;
   env = 'Test';
   currentBatchId: string;
+  filename: string;
 
-  constructor(private uploadService: UploadService, private batchManagementService: BatchManagementService) {}
+  constructor(private batchManagementService: BatchManagementService, private store: Store<AppState>) {}
 
   ngOnInit(): void {
-    this.pendingBatches$ = from(this.batchManagementService.getPendingBatches()).pipe(
-      map((snapshot) => {
-        const res = [];
-        snapshot.forEach((doc) => {
-          res.push({ id: doc.id, ...doc.data() });
-        });
-        return res as UploadObject[];
-      }),
-      map((uploads) => {
-        const res = uploads.reduce((acc, cur) => {
-          const date = new Date(cur.dateCreated.seconds * 1000);
-          const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-          if(!acc[key]){
-            acc[key] = [];
-          }
-          acc[key].push(cur);
-          return acc;
-        }, {});
-        return res;
-      }),
-    );
+    this.pendingBatches$ = this.batchManagementService.getPendingBatches();
   }
 
   sendConfirmation(batch) {
     this.modalType = ModalType.MailConfirmation;
     this.currentBatchId = batch.id;
+    this.filename = batch.filename;
     this.toggleModal();
   }
 
@@ -84,6 +69,7 @@ export class BatchReviewComponent implements OnInit {
 
   reset() {
     this.currentBatchId = undefined;
+    this.filename = undefined;
     this.pending = false;
     this.toggleModal();
   }

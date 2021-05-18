@@ -1,0 +1,116 @@
+<div class="columns">
+  <div class="column is-hidden-mobile is-1"></div>
+  <div class="column is-10">
+    <div class="tile is-ancestor">
+      <div class="tile is-vertical is-3">
+        <div class="tile">
+          <div class="tile is-parent is-vertical">
+            <div class="tile is-child box side-bar">
+              <aside class="menu">
+                <p class="menu-label">
+                  Review
+                </p>
+                <ul class="menu-list">
+                  <li *ngFor="let item of reviewList; index as i;">
+                    <ng-container *ngIf="i == 0">
+                      <ul >
+                        <li *ngFor="let child of item; index as c;">
+                          <a [ngClass]="{'disabled': child.disabled}" (click)="reviewStepClicked(c)">
+                            <checkbox [checked]="child.checked">
+                            </checkbox>
+                            <span>{{child.title}}</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </ng-container>
+                    <a *ngIf="i != 0" [ngClass]="{'disabled': item.disabled}" (click)="reviewStepClicked()">
+                      <checkbox [checked]="item.checked"></checkbox>
+                      <span>{{item.title}}</span>
+                    </a>
+                  </li>
+                </ul>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tile is-parent" *ngIf="!reviewInProgress">
+        <div class="tile is-child box">
+          <div class="content">
+
+            <!-- <h1 class="title">Send Statements</h1> -->
+            <!-- <h2 class="subtitle">{{filename}}</h2> -->
+            <!-- <div class="tags has-addons ">
+              <span class="tag is-dark">LOB Environment</span>
+              <span class="tag is-info">{{env}}</span>
+            </div> -->
+
+            <!-- <br> -->
+            <nav class="level">
+              <!-- Left side -->
+              <div class="level-left">
+                <div class="buttons">
+                  <button class="button is-outlined is-small" (click)="selectAll()">
+                    <span class="icon">
+                      <i class="far fa-check-square"></i>
+                    </span>
+                    <span>Select All</span>
+                  </button>
+                  <button class="button is-outlined is-small" (click)="unselectAll()">
+                    <span class="icon">
+                      <i class="far fa-square"></i>
+                    </span>
+                    <span>Unselect All</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right side -->
+              <div class="level-right">
+                <div class="buttons">
+                  <button class="button is-link is-outlined is-small" (click)="startStatements()"
+                    [disabled]="!selectedCount || pending">
+                    <span class="icon">
+                      <i class="fas fa-mail-bulk"></i>
+                    </span>
+                    <span>Create Statements ({{selectedCount}})</span>
+                  </button>
+                </div>
+              </div>
+            </nav>
+            <progress *ngIf="!records.length || pending" class="progress is-large is-link" max="100">60%</progress>
+
+            <div class="table-container" *ngIf="records?.length">
+              <table class="table is-narrow is-fullwidth is-striped is-hoverable statement-table ">
+                <thead>
+                  <th *ngFor="let heading of headings">
+                    {{heading}}
+                  </th>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of records; let i = index">
+                    <td>
+                      <input type="checkbox" [checked]='row.selected' (change)="rowSelected(row)"
+                        [disabled]="row.ltrId">
+                    </td>
+                    <td>
+                      <span class="icon statement-icon" [ngClass]="{'disabled': !row.ltrId}"
+                        (click)="openUrl(row.ltrId)">
+                        <i class="fas fa-file-alt"></i>
+                      </span>
+                    </td>
+                    <td *ngFor="let field of fieldNames">{{row[field]}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tile is-parent " *ngIf="reviewInProgress">
+        <review-pdf [ltrId]="currentLtrId"></review-pdf>
+      </div>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-1"></div>
+</div>

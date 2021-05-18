@@ -22,8 +22,10 @@ export class LobService {
       file: template,
       merge_variables: {
         amtDue: user.amtDue,
-        charges: user.charges,
-        excessTableIds: user.excessTableIds || null,
+        firstTable: user.firstTable,
+        secondTable: user.secondTable || null,
+        thirdTable: user.thirdTable || null,
+        fourthTable: user.fourthTable || null,
         statement_code: user.statementCode,
         id: user.id,
         name: user.name,
@@ -72,9 +74,12 @@ export class LobService {
     let charges = [];
     let statementCodeMessage = '';
     let firstTable;
+    let secondTable;
+    let thirdTable;
+    let fourthTable;
     let totalCharges = 0.0;
     let totalPayments = 0.0;
-    if (user.charges?.length) {
+    if (user.charges.length) {
       charges = [...user.charges].map((a) => {
         a.splice(0, 3);
         if (a[2]) {
@@ -100,16 +105,46 @@ export class LobService {
         this.statementCodes.join('</strong>, <strong>') +
         '</strong>';
     }
-    const breakIndex = 24;
-    if (charges.length >= breakIndex) {
-      const firstRows = [this.getHeaderRow(), ...charges.slice(0, breakIndex)];
+
+    const baseIndex = 21;
+    const tableMax = 30;
+
+    const chargesCount = charges.length;
+
+    if (chargesCount >= baseIndex) {
+      const firstRows = [this.getHeaderRow(), ...charges.slice(0, tableMax)];
       firstTable = this.getTableWrap('firstTable', firstRows);
-      const remainingRows = [...charges.slice(breakIndex)];
-      this.buildTablesForRemainingRows(remainingRows);
     } else {
       const firstRows = [this.getHeaderRow(), ...charges];
       firstTable = this.getTableWrap('firstTable', firstRows);
     }
+
+    // second table > 51
+    if (chargesCount > baseIndex + tableMax) {
+      const rows = [
+        this.getHeaderRow(),
+        ...charges.slice(tableMax, tableMax * 2),
+      ];
+      secondTable = this.getTableWrap('secondTable', rows);
+    }
+
+    // // third table
+    // if (chargesCount > tableMax * 2) {
+    //   const rows = [
+    //     this.getHeaderRow(),
+    //     ...charges.slice(tableMax * 2, tableMax * 3),
+    //   ];
+    //   thirdTable = this.getTableWrap('thirdTable', rows);
+    // }
+
+    // // fourth table
+    // if (chargesCount > tableMax * 3) {
+    //   const rows = [
+    //     this.getHeaderRow(),
+    //     ...charges.slice(tableMax * 3, tableMax * 4),
+    //   ];
+    //   fourthTable = this.getTableWrap('fourthTable', rows);
+    // }
 
     const dateParts = user.date.split('-');
     const formattedDate = `${dateParts[1]}-${dateParts[2]}-${dateParts[0]}`;
@@ -124,7 +159,7 @@ export class LobService {
       amtDue: user.amtDue,
       id: user.id,
       date: formattedDate,
-      charges: null,
+      firstTable,
       statementCode: statementCodeMessage,
       totalPayments: new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -136,17 +171,15 @@ export class LobService {
       }).format(totalCharges),
     };
 
-    // if (this.excessTables.length) {
-    //   const ids = [];
-    //   this.excessTables.forEach((chunk, i) => {
-    //     const key = `excessTable${i}`;
-    //     obj[key] = chunk;
-    //     ids.push(key);
-    //   });
-    //   obj.excessTableIds = ids.join(',');
-    // } else {
-      obj.excessTableIds = null;
-    // }
+    if (secondTable) {
+      obj.secondTable = secondTable;
+    }
+    if (thirdTable) {
+      obj.thirdTable = thirdTable;
+    }
+    if (fourthTable) {
+      obj.fourthTable = fourthTable;
+    }
     return obj;
   }
 
@@ -227,7 +260,7 @@ export class LobService {
 
   private getPayOnlineRow(row) {
     return (
-      `<tr><td colspan="5"><stron>${row[1]}</strong></td></tr>` +
+      `<tr><td colspan="5"><strong>${row[1]}</strong></td></tr>` +
       this.blankSpacerRow()
     );
   }

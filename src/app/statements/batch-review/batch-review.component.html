@@ -23,12 +23,11 @@
         <div class="tile is-child box">
           <p class="subtitle"><strong>{{obj.value[0].dateCreated.toDate() | date}}</strong></p>
           <div class="content">
-            <table>
+            <table class="batches-table">
               <thead>
                 <tr>
                   <th>Count</th>
                   <th>Filename</th>
-                  <th></th>
                   <th></th>
                 </tr>
               </thead>
@@ -37,20 +36,21 @@
                   <td>{{batch.count}}</td>
                   <td>{{batch.filename}}</td>
                   <td>
-                    <button class="button is-link is-light is-small" (click)="sendConfirmation(batch)">
-                      <span>Send</span>
-                      <span class="icon">
-                        <i class="fas fa-file-invoice"></i>
-                      </span>
-                    </button>
-                  </td>
-                  <td>
-                    <button class="button is-danger is-light is-small" (click)="deleteConfirmation(batch)">
-                      <span>Delete</span>
-                      <span class="icon">
-                        <i class=" fas fa-trash-alt"></i>
-                      </span>
-                    </button>
+                    <div class="buttons is-right">
+                      <button class="button is-link is-light is-small"
+                        [routerLink]="[batch.id]">
+                        <span>Review</span>
+                        <span class="icon">
+                          <i class="fas fa-file-invoice"></i>
+                        </span>
+                      </button>
+                      <button class="button is-danger is-light is-small" (click)="deleteConfirmation(batch)">
+                        <span>Delete</span>
+                        <span class="icon">
+                          <i class=" fas fa-trash-alt"></i>
+                        </span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -78,4 +78,5 @@
   <button class="modal-close is-large" aria-label="close" (click)="reset()"></button>
 </div>
 
-<send-modal [showModal]="showModal" [modalType]="modalType" [uploadId]="currentBatchId" (done)="reset()"></send-modal>
+<send-modal *ngIf="showModal" [showModal]="showModal" [modalType]="modalType" [uploadId]="currentBatchId"
+  [filename]="filename" (done)="reset()"></send-modal>

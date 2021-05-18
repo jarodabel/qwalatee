@@ -1,3 +1,7 @@
+.side-bar {
+  max-height: 50vh;
+}
+
 .statement-table {
   font-size: 12px;
 }
@@ -12,7 +16,12 @@
   color: lightgray;
 }
 
-.statement-table  tr td:first-child {
+.statement-table tr td:first-child {
   text-align: center;
   vertical-align: middle;
+}
+
+a.disabled {
+  pointer-events: none;
+  color: darkgrey
 }

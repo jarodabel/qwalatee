@@ -2,28 +2,50 @@
   <div class="modal-background"></div>
   <div class="modal-content is-white">
     <div class="box">
+      <h1 class="title">Send Statements</h1>
+      <h2 class="subtitle">{{filename}}</h2>
       <div class="tags has-addons is-right">
         <span class="tag is-dark">LOB Environment</span>
         <span class="tag is-info">{{env}}</span>
       </div>
-      <h1 class="title">Send Statements</h1>
-      <h2 class="subtitle"></h2>
+
       <br>
+      <nav class="level">
+        <!-- Left side -->
+        <div class="level-left">
+          <div class="buttons">
+            <button class="button is-outlined is-small" (click)="selectAll()">
+              <span class="icon">
+                <i class="far fa-check-square"></i>
+              </span>
+              <span>Select All</span>
+            </button>
+            <button class="button is-outlined is-small" (click)="unselectAll()">
+              <span class="icon">
+                <i class="far fa-square"></i>
+              </span>
+              <span>Unselect All</span>
+            </button>
+          </div>
+        </div>
 
-      <div class="buttons">
-        <button class="button is-link is-small" (click)="selectAll()">Select All</button>
-        <button class="button is-small" (click)="unselectAll()">Unselect All</button>
-      </div>
-      <div class="buttons is-right">
-        <button class="button is-link is-small" (click)="createStatements()"
-          [disabled]="!selectedCount || pending">Create Statements
-          ({{selectedCount}})</button>
-      </div>
-
+        <!-- Right side -->
+        <div class="level-right">
+          <div class="buttons">
+            <button class="button is-link is-outlined is-small" (click)="startStatements()"
+              [disabled]="!selectedCount || pending">
+              <span class="icon">
+                <i class="fas fa-mail-bulk"></i>
+              </span>
+              <span>Create Statements ({{selectedCount}})</span>
+            </button>
+          </div>
+        </div>
+      </nav>
       <progress *ngIf="!records.length || pending" class="progress is-large is-link" max="100">60%</progress>
 
       <div class="table-container" *ngIf="records?.length">
-        <table class="table is-fullwidth is-striped">
+        <table class="table is-narrow is-fullwidth is-striped is-hoverable statement-table ">
           <thead>
             <th *ngFor="let heading of headings">
               {{heading}}
@@ -32,14 +54,12 @@
           <tbody>
             <tr *ngFor="let row of records; let i = index">
               <td>
-                <input type="checkbox" [checked]='row.selected' (change)="rowSelected(row)" [disabled]="row.url">
+                <input type="checkbox" [checked]='row.selected' (change)="rowSelected(row)" [disabled]="row.ltrId">
               </td>
               <td>
-                <button class="button is-small is-link" [disabled]="!row.url" (click)="openUrl(row.url, row.id)">
-                  <span class="icon">
-                    <i class="fas fa-file-alt"></i>
-                  </span>
-                </button>
+                <span class="icon statement-icon" [ngClass]="{'disabled': !row.ltrId}" (click)="openUrl(row.ltrId)">
+                  <i class="fas fa-file-alt"></i>
+                </span>
               </td>
               <td *ngFor="let field of fieldNames">{{row[field]}}</td>
             </tr>

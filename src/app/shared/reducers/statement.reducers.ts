@@ -1,5 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import * as StatementActions from '../actions/statement.actions';
+import { UploadObject } from '../services/upload.service';
 
 export type OrganizationUser = {
   email: string,
@@ -12,10 +13,12 @@ export type OrganizationUser = {
 
 export interface Statements {
   users: OrganizationUser[];
+  uploads: UploadObject[];
 }
 
 const defaultState: Statements = {
   users: [],
+  uploads: [],
 }
 
 const setAllUsersFn = (state, { type, ...rest }) => {
@@ -25,9 +28,17 @@ const setAllUsersFn = (state, { type, ...rest }) => {
   };
 };
 
+const setUploadsFn = (state, { type, ...rest }) => {
+  return {
+    ...state,
+    ...rest,
+  }
+}
+
 const statementReducer = createReducer(
   defaultState,
   on(StatementActions.setAllUsers, setAllUsersFn),
+  on(StatementActions.setUploads, setUploadsFn)
 )
 
 export function statementReducerFn(state: Statements, action){

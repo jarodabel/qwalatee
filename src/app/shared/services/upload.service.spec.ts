@@ -4,6 +4,8 @@ import 'firebase/firestore';
 import { environment } from '../../../environments/environment';
 
 import { UploadService, ValidationErrorTypes } from './upload.service';
+import { UserService } from './user.service';
+import { UserServiceMock } from './user.service.mock';
 
 const fs = require('fs');
 const path = require('path');
@@ -28,7 +30,9 @@ describe('UploadServiceService', () => {
   });
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [{ provide: UserService, useValue: jest.fn() }],
+    });
     service = TestBed.inject(UploadService);
   });
 
@@ -101,6 +105,12 @@ describe('UploadServiceService', () => {
       res = service.parseUpload(rawData);
     });
     it('should do an upload and return success', (done) => {
+      const fake: any = () => {
+        return {
+          add: new Promise((resolve, rej) => {resolve('')}),
+        }
+      };
+      jest.spyOn(service.fs, 'collection').mockReturnValue(fake);
       service.uploadToDb(filename, res).then((response) => {
         expect(response).toBe('');
         done();
