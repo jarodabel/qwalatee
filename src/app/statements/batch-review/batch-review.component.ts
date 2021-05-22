@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { from, Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { AppState } from '../../app-state';
 import { setUploads } from '../../shared/actions/statement.actions';
 import { BatchManagementService } from '../../shared/services/batch-management.service';
@@ -21,7 +22,9 @@ export enum ModalType {
   styleUrls: ['./batch-review.component.scss'],
 })
 export class BatchReviewComponent implements OnInit {
-  pendingBatches$: Observable<{[key:string]:UploadObject[]}> = of({} as any);
+  pendingBatches$: Observable<{ [key: string]: UploadObject[] }> = of(
+    {} as any
+  );
   modalTypes = ModalType;
   modalType: ModalType;
   showModal = false;
@@ -29,8 +32,11 @@ export class BatchReviewComponent implements OnInit {
   env = 'Test';
   currentBatchId: string;
   filename: string;
+  page: string;
 
-  constructor(private batchManagementService: BatchManagementService, private store: Store<AppState>) {}
+  constructor(
+    private batchManagementService: BatchManagementService,
+  ) {}
 
   ngOnInit(): void {
     this.pendingBatches$ = this.batchManagementService.getPendingBatches();

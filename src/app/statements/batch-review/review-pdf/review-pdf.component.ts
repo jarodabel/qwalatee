@@ -1,36 +1,78 @@
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
-import { take } from 'rxjs/operators';
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { select, Store } from '@ngrx/store';
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
+import { AppState } from '../../../app-state';
+import { updateUploadRecordApproved } from '../../../shared/actions/statement.actions';
+import { selectUser } from '../../../shared/selectors/user.selectors';
 import { LobService } from '../../../shared/services/lob.service';
-// import * as pdfjsLib from 'pdfjs-dist';
+import { StatementService } from '../../../shared/services/statement.service';
 
 @Component({
   selector: 'review-pdf',
   templateUrl: './review-pdf.component.html',
   styleUrls: ['./review-pdf.component.scss'],
 })
-export class ReviewPdfComponent implements OnInit, OnChanges {
-  @Input()
+export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
   ltrId: string;
   pdf: any;
   pageNumber: number;
-  loadingPagePending = false;
+  numPages: number;
   pageNumPending: number;
+  loadingPagePending = false;
+  canApprove = false;
+  viewedPages: number[] = [];
 
-  constructor(private lobService: LobService) {}
+  routeParams$ = this.route.params;
+  routeParentParams$ = this.route.parent.params;
+  currentUser = this.store.pipe(select(selectUser));
+  destroy$ = new Subject();
 
-  ngOnInit(): void {}
+  constructor(
+    private lobService: LobService,
+    private statementService: StatementService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private store: Store<AppState>
+  ) {}
 
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
-    if (changes.ltrId.currentValue !== changes.ltrId.previousValue) {
-      this.getPdfUrl();
-    }
+  ngOnInit(): void {
+    // this.getLtrId();
+    this.routeParams$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.init();
+    })
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    console.log(changes)
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  init(){
+    this.pageNumber = undefined;
+    this.numPages = undefined;
+    this.pageNumPending = undefined;
+    this.loadingPagePending = false;
+    this.canApprove = false;
+    this.clearCanvas();
+    this.getLtrId();
+  }
+
+  clearCanvas() {
+    const canvas = document.getElementById('the-canvas') as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  async getLtrId() {
+    const params = await this.routeParams$.pipe(take(1)).toPromise();
+    this.ltrId = params.ltrId;
+    this.getPdfUrl();
   }
 
   getPdfUrl() {
@@ -40,8 +82,12 @@ export class ReviewPdfComponent implements OnInit, OnChanges {
       .pipe(take(1))
       .toPromise()
       .then((res: any) => {
-        console.log(res.url);
-        this.loadPdf(res.url);
+        this.loadingPagePending = true;
+
+        setTimeout(() => {
+          // doing this because sometimes the document in "lob land" hasn't been written, even though they gave us a url
+          this.loadPdf(res.url);
+        }, 4000);
       });
   }
 
@@ -58,7 +104,9 @@ export class ReviewPdfComponent implements OnInit, OnChanges {
     loadingTask.promise.then(
       (pdf) => {
         this.pdf = pdf;
+        this.numPages = this.pdf.numPages;
         this.pageNumber = 1;
+        this.viewedPages.push(1);
         this.renderPdfPage();
       },
       (reason) => {
@@ -67,12 +115,11 @@ export class ReviewPdfComponent implements OnInit, OnChanges {
       }
     );
   }
+
   renderPdfPage() {
     // Fetch the first page
     this.loadingPagePending = true;
     this.pdf.getPage(this.pageNumber).then((page) => {
-      console.log('Page loaded');
-
       const scale = 1.1;
       const viewport = page.getViewport({ scale });
 
@@ -89,8 +136,6 @@ export class ReviewPdfComponent implements OnInit, OnChanges {
       };
       const renderTask = page.render(renderContext);
       renderTask.promise.then(() => {
-        console.log('Page rendered');
-
         this.loadingPagePending = false;
         if (this.pageNumPending !== null) {
           // New page rendering is pending
@@ -112,6 +157,7 @@ export class ReviewPdfComponent implements OnInit, OnChanges {
       return;
     }
     this.pageNumber++;
+    this.pageViewed(this.pageNumber);
     this.queueRenderPage();
   }
   previousPage() {
@@ -120,5 +166,35 @@ export class ReviewPdfComponent implements OnInit, OnChanges {
     }
     this.pageNumber--;
     this.queueRenderPage();
+  }
+  pageViewed(num) {
+    if (this.viewedPages.includes(num)) {
+      return;
+    }
+    this.viewedPages.push(num);
+    if (this.viewedPages.length === this.numPages) {
+      this.canApprove = true;
+    }
+  }
+
+  async markAsApproved() {
+    // update record object as approved
+    // route to review-batch
+    const params = await this.routeParams$.pipe(take(1)).toPromise();
+    const parent = await this.routeParentParams$.pipe(take(1)).toPromise();
+    const user = await this.currentUser.pipe(take(1)).toPromise();
+    const uploadId = parent.uploadId;
+    const reviewIdentifier = params.reviewNumber;
+    const update = {
+      [`reviewStatements.${reviewIdentifier}.approved`]: true,
+      [`reviewStatements.${reviewIdentifier}.user`]: user.id,
+    }
+
+    this.statementService.updateUploadRecord(uploadId, update).then((res) => {
+      // this.store.dispatch(updateUploadRecordApproved({uploadId, reviewIdentifier, userId: user.id}));
+      this.router.navigate(['../../'], {relativeTo: this.route})
+    }).catch((err) => {
+      console.error(err)
+    });
   }
 }

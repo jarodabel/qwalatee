@@ -1,44 +1,38 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { from, merge, of, Subject, timer } from 'rxjs';
-import {
-  ignoreElements,
-  mergeMap,
-  switchMap,
-  take,
-  takeUntil,
-  withLatestFrom,
-} from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { AppState } from '../../../app-state';
-import { User } from '../../../shared/reducers/user.reducers';
 import { selectUser } from '../../../shared/selectors/user.selectors';
 import {
   BatchManagementService,
   Env,
 } from '../../../shared/services/batch-management.service';
 import { LobService } from '../../../shared/services/lob.service';
-import { StatementService } from '../../../shared/services/statement.service';
 import {
   UploadObject,
   USER_FIELDS,
 } from '../../../shared/services/upload.service';
-import { UserService } from '../../../shared/services/user.service';
-import { AccessType } from '../../../types/access';
 import { TemplateLookup } from '../../../types/lob';
 import { ModalType } from '../batch-review.component';
-import firebase from 'firebase/app';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { selectUploadObjectById } from '../../../shared/selectors/statements.selectors';
+import { StatementService } from '../../../shared/services/statement.service';
 
-// const reviewList = [[], {}, {}, {}];
+export enum ReviewIdentifiers {
+  one,
+  two,
+  three,
+}
+
+enum StepTitles {
+  REVIEW_1 = 'Review 1',
+  REVIEW_2 = 'Review 2',
+  REVIEW_3 = 'Review 3',
+  MAILING_APPROVED = 'Mailing Approved',
+  MAILING_IN_PROGRESS = 'Mailing In Progress',
+  MAILING_COMPLETE = 'Mailing Complete',
+}
 
 @Component({
   selector: 'app-batch-review-details',
@@ -48,20 +42,17 @@ import { selectUploadObjectById } from '../../../shared/selectors/statements.sel
 export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
   modalTypes = ModalType;
   pending = false;
-  headings = ['', '', ...USER_FIELDS].splice(0, 8);
-  fieldNames = [...USER_FIELDS].splice(0, 6);
-  selectedCount = 0;
   records = [];
-  completedRequests = 0;
-  failedRequests = 0;
   uploadId: string;
   missingUploadId = false;
   env = Env.Test;
   filename: string;
   uploadObj: UploadObject;
   reviewList: any[] = [];
-  reviewInProgress = false;
   currentLtrId: string;
+  currentStep;
+  userId;
+  hasPermission = false;
 
   user$ = this.store.pipe(select(selectUser));
   destroy$ = new Subject();
@@ -75,11 +66,11 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private batchManagementService: BatchManagementService,
-    private lobService: LobService,
     private statementService: StatementService,
-    private userService: UserService,
+    private lobService: LobService,
     private store: Store<AppState>,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -100,14 +91,24 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
       this.uploadObj = obj;
       this.reviewListFn();
     });
+
+    this.user$
+      .pipe(
+        tap((a) => {
+          this.userId = a.id;
+          this.hasPermission = a?.lobStatementsLive;
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
+    this.destroy$.complete();
   }
 
   populateRecords() {
-    this.selectedCount = 0;
     this.batchManagementService
       .getRecordsByUploadId(this.uploadId)
       .then((snapshot) => {
@@ -115,161 +116,16 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
         snapshot.forEach((doc) => {
           res.push({ recordId: doc.id, ...doc.data(), selected: false });
         });
-        this.records = res;
+        this.records = res.sort((a, b) => {
+          if (a.last > b.last) return 1;
+          if (b.last > a.last) return -1;
+          return 0;
+        });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log('error', err);
         this.records = [];
       });
-  }
-
-  rowSelected(row) {
-    row.selected = true;
-    this.count();
-  }
-
-  selectAll() {
-    this.records.forEach((row) => (row.selected = true && !row.ltrId));
-    this.count();
-  }
-
-  unselectAll() {
-    this.records.forEach((row) => (row.selected = false));
-    this.count();
-  }
-
-  count() {
-    this.selectedCount = this.records.filter((row) => row.selected).length || 0;
-  }
-
-  openUrl(id) {
-    const accessType =
-      this.env === Env.Live
-        ? AccessType.STATEMENTS_VIEW_STATEMENT_LIVE
-        : AccessType.STATEMENTS_VIEW_STATEMENT_TEST;
-    this.userService.postAccessLog(accessType, id);
-    this.lobService
-      // TODO: need to update function to accept Test or Live, not test or live
-      .getLetterObject('test', id)
-      .pipe(take(1))
-      .toPromise()
-      .then((res: any) => {
-        window.open(res.url, '_blank');
-      });
-  }
-
-  createStatements(partialRecords) {
-    const promise = (row, i) =>
-      new Promise(
-        (async (resolve, reject) => {
-          let res;
-          try {
-            res = await this.lobService
-              .sendLetter(this.env, TemplateLookup[this.env], row)
-              .pipe(take(1))
-              .toPromise();
-
-            await this.updateRecord(row, res);
-          } catch (err) {
-            res = err;
-            this.failedRequests = this.failedRequests + 1;
-          }
-
-          await this.statementHistory(res, row.id, row.date, row.uploadId);
-          this.completedRequests = this.completedRequests + 1;
-          if (this.completedRequests === records.length) {
-            this.pending = false;
-            this.count();
-          }
-
-          resolve();
-        }).bind(this)
-      );
-
-    const records = [...partialRecords].map((record) => ({
-      ...record,
-      charges: Object.keys(record.charges).map((key) => record.charges[key]),
-    }));
-
-    from(records)
-      .pipe(
-        mergeMap(
-          (row, i) => merge(promise(row, i), timer(0).pipe(ignoreElements())),
-          undefined,
-          3
-        )
-      )
-      .subscribe(
-        (s) => {
-          console.log('success', this.completedRequests - this.failedRequests);
-          console.log('error', this.failedRequests);
-        },
-        (err) => {
-          console.log('error', err);
-        }
-      );
-  }
-
-  startStatements() {
-    this.pending = true;
-    this.completedRequests = 0;
-    this.failedRequests = 0;
-
-    const selectedRecords = [...this.records].filter((row) => row.selected);
-    this.createStatements(selectedRecords);
-  }
-
-  async statementHistory(res, id, date, uploadId) {
-    const statementHistoryObj = await this.makeStatementHistoryObj(
-      res,
-      id,
-      date,
-      uploadId
-    );
-    await this.statementService.postStatementHistory(statementHistoryObj);
-    const accessType =
-      this.env === Env.Live
-        ? AccessType.STATEMENTS_CREATE_STATEMENT_LIVE
-        : AccessType.STATEMENTS_CREATE_STATEMENT_TEST;
-    await this.userService.postAccessLog(accessType, id);
-  }
-
-  async makeStatementHistoryObj(res, id, date, uploadId) {
-    const user: User = await this.user$.pipe(take(1)).toPromise();
-    const obj = {
-      created: firebase.firestore.FieldValue.serverTimestamp(),
-      id,
-      ltrId: '',
-      status: undefined,
-      environment: this.env,
-      user: user.id,
-      date,
-      uploadId,
-    };
-    if (res.error) {
-      obj.status = 'error';
-      return obj;
-    }
-    obj.status = 'success';
-    obj.ltrId = res.id;
-    return obj;
-  }
-
-  updateRecord(record, res) {
-    return new Promise((resolve, reject) => {
-      const row = this.records.find((rec) => rec.recordId === record.recordId);
-      row.url = res.url;
-      row.ltrId = res.id;
-      row.selected = false;
-      this.batchManagementService
-        .setRecordAsTestView(record.recordId, res.id)
-        .then(() => {
-          resolve('');
-        })
-        .catch((err) => {
-          console.log(err);
-          reject();
-        });
-    });
   }
 
   getRecordForReview(reviewIndex) {
@@ -318,63 +174,105 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
       return !isChecked(index - 1);
     };
     const list = [
-      [
-        {
-          disabled: false,
-          checked: isChecked(0),
-          title: 'Review 1',
-        },
-        {
-          disabled: isDisabled(1),
-          checked: isChecked(1),
-          title: 'Review 2',
-        },
-        {
-          disabled: isDisabled(2),
-          checked: isChecked(2),
-          title: 'Review 3',
-        },
-      ],
+      {
+        disabled: false,
+        checked: isChecked(0),
+        title: StepTitles.REVIEW_1,
+      },
+      {
+        disabled: isDisabled(1),
+        checked: isChecked(1),
+        title: StepTitles.REVIEW_2,
+      },
+      {
+        disabled: isDisabled(2),
+        checked: isChecked(2),
+        title: StepTitles.REVIEW_3,
+      },
       {
         disabled: isDisabled(3),
         checked: isChecked(3),
-        title: 'Mailing Approved',
+        title: StepTitles.MAILING_APPROVED,
       },
       {
         disabled: isDisabled(4),
         checked: isChecked(4),
-        title: 'Mailing In Progress',
+        title: StepTitles.MAILING_IN_PROGRESS,
       },
       {
         disabled: isDisabled(5),
         checked: isChecked(5),
-        title: 'Mailing Complete',
+        title: StepTitles.MAILING_COMPLETE,
       },
     ];
-    this.reviewList = list;
-    console.log(list);
+    this.reviewList = [[list[0], list[1], list[2]], list[3], list[4], list[5]];
+    this.currentStep = [...list].find((step) => step.checked && !step.disabled);
+  }
+
+  mapCharges(record) {
+    return {
+      ...record,
+      charges: Object.keys(record.charges).map((key) => record.charges[key]),
+    };
   }
 
   async reviewStepClicked(index) {
     const record = this.getRecordForReview(index);
     let res;
     let ltrId;
+
     if (!record.ltrId) {
       res = await this.lobService
-        .sendLetter(this.env, TemplateLookup[this.env], record)
-        .pipe(take(1)).toPromise();
-      ltrId = res.ltrId;
+        .sendLetter(this.env, TemplateLookup[this.env], this.mapCharges(record))
+        .pipe(take(1))
+        .toPromise();
+      ltrId = res.id;
     } else {
       ltrId = record.ltrId;
     }
 
-    if(!ltrId){
-      throw new Error("there was an error find ltrId");
+    if (!ltrId) {
+      throw new Error('there was an error finding ltrId');
       return;
     }
 
-    this.reviewInProgress = true;
-    this.currentLtrId = ltrId
-    console.log('here', ltrId);
+    this.router.navigate([ReviewIdentifiers[index], ltrId], {
+      relativeTo: this.route,
+    });
+  }
+
+  mailStepClicked(index) {}
+
+  async sendAll() {
+    this.pending = true;
+    console.log('send it');
+    const update = {
+      'reviewIsComplete': true,
+      'reviewApprovedBy': this.userId,
+    }
+
+    this.statementService.updateUploadRecord(this.uploadId, update).then((res) => {
+      // this.store.dispatch(updateUploadRecordApproved({uploadId, reviewIdentifier, userId: user.id}));
+      // this.router.navigate(['../../'], {relativeTo: this.route})
+    }).catch((err) => {
+      console.error(err)
+    });
+    // update live statement template
+    // update live statement template id
+    // convert "mail functions" to shared
+    // update firestore object
+    // update review list
+  }
+
+  areYouSure() {
+    if (!this.records) {
+      return;
+    }
+    const answer = confirm(
+      `Are you sure? Confirmation will mail ${this.records.length} statements. THIS CANNOT BE UNDONE`
+    );
+    if (answer) {
+      this.sendAll();
+    }
   }
 }

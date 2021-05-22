@@ -20,6 +20,8 @@ import { HistoryStatementsComponent } from './statements/history-statements/hist
 import { BatchUploadComponent } from './statements/batch-upload/batch-upload.component';
 import { BatchReviewComponent } from './statements/batch-review/batch-review.component';
 import { BatchReviewDetailsComponent } from './statements/batch-review/batch-review-details/batch-review-details.component';
+import { ReviewPdfComponent } from './statements/batch-review/review-pdf/review-pdf.component';
+import { BatchExploreComponent } from './statements/batch-explore/batch-explore.component';
 
 const routes: Routes = [
   {
@@ -74,7 +76,7 @@ const routes: Routes = [
   },
   {
     path: 'messages',
-    component: MessagesComponent
+    component: MessagesComponent,
   },
   {
     canActivate: [CanActivateService],
@@ -84,7 +86,7 @@ const routes: Routes = [
       {
         path: '',
         redirectTo: 'upload-batch',
-        pathMatch: 'full'
+        pathMatch: 'full',
       },
       {
         component: NewStatementsComponent,
@@ -95,13 +97,32 @@ const routes: Routes = [
         path: 'upload-batch',
       },
       {
-        pathMatch: 'full',
+        component: BatchExploreComponent,
+        path: 'explore-batch/:uploadId',
+      },
+      {
+        component: BatchReviewComponent,
+        path: 'explore-batch',
+        data: {
+          page: 'explore',
+        },
+      },
+      {
         component: BatchReviewDetailsComponent,
         path: 'review-batch/:uploadId',
+        children: [
+          {
+            component: ReviewPdfComponent,
+            path: ':reviewNumber/:ltrId',
+          },
+        ],
       },
       {
         component: BatchReviewComponent,
         path: 'review-batch',
+        data: {
+          page: 'review',
+        },
       },
       {
         component: UploadHistoryComponent,
@@ -119,7 +140,7 @@ const routes: Routes = [
         component: undefined,
         path: 'activity',
         redirectTo: '',
-      }
+      },
     ],
   },
   {

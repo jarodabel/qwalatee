@@ -79,8 +79,10 @@ export class LobService {
     let fourthTable;
     let totalCharges = 0.0;
     let totalPayments = 0.0;
+    let checkForNoBill = false;
+    let claimLength = 0;
     if (user.charges.length) {
-      charges = [...user.charges].map((a) => {
+      charges = [...user.charges].map((a, i) => {
         a.splice(0, 3);
         if (a[2]) {
           totalCharges += parseFloat(a[2]);
@@ -90,13 +92,25 @@ export class LobService {
         }
 
         if (a[1].includes('Claim:')) {
+          checkForNoBill = true;
+          claimLength = 1;
+
           return this.getClaimRow(a);
         } else if (a[1].includes('Your Balance')) {
+          checkForNoBill = false;
+          claimLength = null;
+
           return this.getBalanceRow(a);
         } else if (a[1].includes('****')) {
           this.personalStatementCodeGroup(a[1]);
-          return this.getPayOnlineRow(a);
+          return;
+          // return this.getPayOnlineRow(a);
         }
+        // check for no bill or dummy code here
+        if (checkForNoBill && !a[2] && !a[3] && !a[4]) {
+          return;
+        }
+        claimLength += 1;
         return this.getHtmlRow(a);
       });
 
@@ -108,25 +122,35 @@ export class LobService {
 
     const baseIndex = 21;
     const tableMax = 30;
+    const thirdPageExtraRows = 0;
 
     const chargesCount = charges.length;
 
     if (chargesCount >= baseIndex) {
       const firstRows = [this.getHeaderRow(), ...charges.slice(0, tableMax)];
       firstTable = this.getTableWrap('firstTable', firstRows);
+
+      const remaining = [
+        ...charges.slice(tableMax, tableMax * 2 + thirdPageExtraRows),
+      ];
+      let rows = [];
+      if (remaining.length > 0) {
+        rows = [this.getHeaderRow(), ...remaining];
+      }
+      secondTable = this.getTableWrap('secondTable', rows);
     } else {
       const firstRows = [this.getHeaderRow(), ...charges];
       firstTable = this.getTableWrap('firstTable', firstRows);
     }
 
     // second table > 51
-    if (chargesCount > baseIndex + tableMax) {
-      const rows = [
-        this.getHeaderRow(),
-        ...charges.slice(tableMax, tableMax * 2),
-      ];
-      secondTable = this.getTableWrap('secondTable', rows);
-    }
+    // if (chargesCount > baseIndex) {
+    //   const rows = [
+    //     this.getHeaderRow(),
+    //     ...charges.slice(tableMax, tableMax * 2),
+    //   ];
+    //   secondTable = this.getTableWrap('secondTable', rows);
+    // }
 
     // // third table
     // if (chargesCount > tableMax * 2) {
@@ -259,8 +283,9 @@ export class LobService {
   }
 
   private getPayOnlineRow(row) {
+    const message = row[1].replaceAll('****', '');
     return (
-      `<tr><td colspan="5"><strong>${row[1]}</strong></td></tr>` +
+      `<tr><td colspan="5"><strong>${message}</strong></td></tr>` +
       this.blankSpacerRow()
     );
   }

@@ -39,7 +39,11 @@ export class StatementService {
       .get();
   }
 
-  getAccessObjById(id: string){
+  getAccessObjById(id: string) {
     return this.fs.collection('access').doc(id).get();
+  }
+
+  updateUploadRecord(id: string, update) {
+    return this.fs.collection('uploads').doc(id).update(update);
   }
 }

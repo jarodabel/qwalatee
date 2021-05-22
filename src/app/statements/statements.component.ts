@@ -18,6 +18,7 @@ import { UploadHistoryComponent } from './upload-history/upload-history.componen
 import { SendModalComponent } from './batch-review/send-modal/send-modal.component';
 import { BatchReviewDetailsComponent } from './batch-review/batch-review-details/batch-review-details.component';
 import { ReviewPdfComponent } from './batch-review/review-pdf/review-pdf.component';
+import { BatchExploreComponent } from './batch-explore/batch-explore.component';
 
 export enum TabNames {
   NewStatements = 'newStatements',
@@ -65,7 +66,8 @@ export class StatementsComponent implements OnInit {
     UseramePipe,
     SendModalComponent,
     BatchReviewDetailsComponent,
-    ReviewPdfComponent
+    ReviewPdfComponent,
+    BatchExploreComponent
   ],
   exports: [UploadEventPipe, UseramePipe],
   imports: [CommonModule, SharedModule, BrowserModule, FormsModule],

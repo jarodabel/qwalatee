@@ -139,17 +139,7 @@ export class NewStatementsComponent implements OnInit {
     this.dataList = undefined;
   }
 
-  areYouSure() {
-    if (!this.dataList) {
-      return;
-    }
-    const answer = confirm(
-      `Are you sure? Confirmation will mail ${this.dataList.length} statements. THIS CANNOT BE UNDONE`
-    );
-    if (answer) {
-      this.sendAll();
-    }
-  }
+
 
   async statementHistory(res, id, date) {
     const statementHistoryObj = await this.makeStatementHistoryObj(

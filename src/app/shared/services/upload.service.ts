@@ -3,6 +3,7 @@ import firebase from 'firebase/app';
 import { of, Subject } from 'rxjs';
 import { AccessType } from '../../types/access';
 import { PatientRecord } from '../../types/data-models';
+import { StatementService } from './statement.service';
 import { UserService } from './user.service';
 
 export const USER_FIELDS = [
@@ -100,7 +101,7 @@ export class UploadService {
   uploadStatus$ = new Subject<UploadSteps>();
   fs = firebase.firestore();
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private statementService: StatementService) {}
 
   async upload(filename, rawData) {
     try {
@@ -229,14 +230,12 @@ export class UploadService {
       const min = chargesArr[0];
       const med = chargesArr[Math.round(len / 2)];
 
-      this.fs
-        .collection('uploads')
-        .doc(id)
-        .update({
-          'reviewStatements.one.recordId': min.recordId,
-          'reviewStatements.two.recordId': med.recordId,
-          'reviewStatements.three.recordId': max.recordId,
-        })
+      const update = {
+        'reviewStatements.one.recordId': min.recordId,
+        'reviewStatements.two.recordId': med.recordId,
+        'reviewStatements.three.recordId': max.recordId,
+      }
+      this.statementService.updateUploadRecord(id, update)
         .then((res) => {
           this.uploadStatus$.next(UploadSteps.UpdateUploadObjectDone);
           resolve(res);
