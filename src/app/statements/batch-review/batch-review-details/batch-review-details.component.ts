@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { Subject } from 'rxjs';
-import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { combineLatest, Subject } from 'rxjs';
+import { map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { AppState } from '../../../app-state';
 import { selectUser } from '../../../shared/selectors/user.selectors';
 import {
@@ -13,16 +13,18 @@ import {
   UploadObject,
   USER_FIELDS,
 } from '../../../shared/services/upload.service';
-import { TemplateLookup } from '../../../types/lob';
+import { AddressOverwrite, LOB_ENV, TemplateLookup } from '../../../types/lob';
 import { ModalType } from '../batch-review.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { selectUploadObjectById } from '../../../shared/selectors/statements.selectors';
 import { StatementService } from '../../../shared/services/statement.service';
+import { BatchSharedComponent } from '../../batch-shared/batch-shared.component';
+import { UserService } from '../../../shared/services/user.service';
 
 export enum ReviewIdentifiers {
-  one,
-  two,
-  three,
+  one = 'one',
+  two = 'two',
+  three = 'three',
 }
 
 enum StepTitles {
@@ -34,30 +36,38 @@ enum StepTitles {
   MAILING_COMPLETE = 'Mailing Complete',
 }
 
+type StepObject = {
+  title: string;
+  id: ReviewIdentifiers;
+};
+
 @Component({
   selector: 'app-batch-review-details',
   templateUrl: './batch-review-details.component.html',
   styleUrls: ['./batch-review-details.component.scss'],
 })
-export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
+export class BatchReviewDetailsComponent
+  extends BatchSharedComponent
+  implements OnInit, OnDestroy {
   modalTypes = ModalType;
   pending = false;
   records = [];
   uploadId: string;
   missingUploadId = false;
-  env = Env.Test;
   filename: string;
   uploadObj: UploadObject;
   reviewList: any[] = [];
+  allSteps = [];
   currentLtrId: string;
-  currentStep;
+  currentStep: StepObject = { title: '', id: undefined };
   userId;
   hasPermission = false;
+  showEmptyMessage = false;
+  stepTitles = StepTitles;
 
   user$ = this.store.pipe(select(selectUser));
   destroy$ = new Subject();
 
-  routeParams$ = this.route.params;
   uploadObject$ = this.routeParams$.pipe(
     switchMap(({ uploadId }) =>
       this.store.select(selectUploadObjectById(uploadId))
@@ -65,19 +75,30 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
   );
 
   constructor(
-    private batchManagementService: BatchManagementService,
-    private statementService: StatementService,
-    private lobService: LobService,
-    private store: Store<AppState>,
-    private route: ActivatedRoute,
+    batchManagementService: BatchManagementService,
+    statementService: StatementService,
+    lobService: LobService,
+    userService: UserService,
+    store: Store<AppState>,
+    route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    super(
+      batchManagementService,
+      lobService,
+      statementService,
+      userService,
+      store,
+      route
+    );
+  }
 
   ngOnInit(): void {
     this.batchManagementService
       .getPendingBatches()
       .pipe(takeUntil(this.destroy$))
       .subscribe();
+
     this.routeParams$.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.uploadId = params.uploadId;
       this.filename = '';
@@ -87,6 +108,7 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
         this.missingUploadId = true;
       }
     });
+
     this.uploadObject$.pipe(takeUntil(this.destroy$)).subscribe((obj) => {
       this.uploadObj = obj;
       this.reviewListFn();
@@ -130,15 +152,18 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
 
   getRecordForReview(reviewIndex) {
     let recordId;
-    if (reviewIndex === 0) {
+
+    if (reviewIndex === ReviewIdentifiers.one) {
       recordId = this.uploadObj.reviewStatements.one.recordId;
-    } else if (reviewIndex === 1) {
+    } else if (reviewIndex === ReviewIdentifiers.two) {
       recordId = this.uploadObj.reviewStatements.two.recordId;
-    } else if (reviewIndex === 2) {
+    } else if (reviewIndex === ReviewIdentifiers.three) {
       recordId = this.uploadObj.reviewStatements.three.recordId;
     }
 
-    return this.records.find((record) => record.recordId === recordId);
+    const foundRecord = this.records.find((record) => record.recordId === recordId);
+
+    return JSON.parse(JSON.stringify(foundRecord));
   }
 
   reviewListFn() {
@@ -168,6 +193,12 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
       return false;
     };
     const isDisabled = (index) => {
+      if (index === 0) {
+        return (
+          this.uploadObj?.reviewStatements &&
+          this.uploadObj.reviewStatements.one?.approved
+        );
+      }
       if (isChecked(index)) {
         return true;
       }
@@ -175,19 +206,22 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
     };
     const list = [
       {
-        disabled: false,
+        disabled: isDisabled(0),
         checked: isChecked(0),
         title: StepTitles.REVIEW_1,
+        id: ReviewIdentifiers.one,
       },
       {
         disabled: isDisabled(1),
         checked: isChecked(1),
         title: StepTitles.REVIEW_2,
+        id: ReviewIdentifiers.two,
       },
       {
         disabled: isDisabled(2),
         checked: isChecked(2),
         title: StepTitles.REVIEW_3,
+        id: ReviewIdentifiers.three,
       },
       {
         disabled: isDisabled(3),
@@ -206,7 +240,8 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
       },
     ];
     this.reviewList = [[list[0], list[1], list[2]], list[3], list[4], list[5]];
-    this.currentStep = [...list].find((step) => step.checked && !step.disabled);
+    this.allSteps = [...list];
+    this.setCurrentStep();
   }
 
   mapCharges(record) {
@@ -221,9 +256,17 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
     let res;
     let ltrId;
 
+    const recordCopy = Object.assign({}, record);
+    const recordWithCharges = this.mapCharges(recordCopy);
+
     if (!record.ltrId) {
       res = await this.lobService
-        .sendLetter(this.env, TemplateLookup[this.env], this.mapCharges(record))
+        .sendLetter(
+          this.env,
+          TemplateLookup[this.env],
+          recordWithCharges,
+          AddressOverwrite[this.env]
+        )
         .pipe(take(1))
         .toPromise();
       ltrId = res.id;
@@ -241,27 +284,40 @@ export class BatchReviewDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  mailStepClicked(index) {}
+  mailStepClicked(index) {
+    this.router.navigate(['statements/review-batch', this.uploadId]);
+    this.setCurrentStep();
+  }
+
+  setCurrentStep() {
+    this.currentStep = [...this.allSteps].find(
+      (step) => !step.checked && !step.disabled
+    ) || { title: '', id: '' };
+    this.showEmptyMessage = [
+      ReviewIdentifiers.one,
+      ReviewIdentifiers.two,
+      ReviewIdentifiers.three,
+    ].includes(this.currentStep.id);
+  }
 
   async sendAll() {
     this.pending = true;
     console.log('send it');
     const update = {
-      'reviewIsComplete': true,
-      'reviewApprovedBy': this.userId,
-    }
+      reviewIsComplete: true,
+      reviewApprovedBy: this.userId,
+      mailHasStarted: true,
+    };
 
-    this.statementService.updateUploadRecord(this.uploadId, update).then((res) => {
-      // this.store.dispatch(updateUploadRecordApproved({uploadId, reviewIdentifier, userId: user.id}));
-      // this.router.navigate(['../../'], {relativeTo: this.route})
-    }).catch((err) => {
-      console.error(err)
-    });
-    // update live statement template
-    // update live statement template id
-    // convert "mail functions" to shared
-    // update firestore object
-    // update review list
+    this.env = LOB_ENV.LIVE;
+    this.startStatements(this.records);
+
+    this.statementService
+      .updateUploadRecord(this.uploadId, update)
+      .then((res) => {})
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   areYouSure() {

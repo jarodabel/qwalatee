@@ -2,6 +2,7 @@
   <div class="column is-hidden-mobile is-1"></div>
   <div class="column is-10">
     <div class="tile is-ancestor">
+
       <div class="tile is-vertical is-3">
         <div class="tile">
           <div class="tile is-parent is-vertical">
@@ -16,7 +17,7 @@
                       <ul>
                         <li *ngFor="let child of item; index as c;">
                           <a [ngClass]="{'disabled': child.disabled && !child.checked, 'is-active': !child.disabled && !child.checked}"
-                            (click)="reviewStepClicked(c)">
+                            (click)="reviewStepClicked(child.id)">
                             <checkbox [checked]="child.checked">
                             </checkbox>
                             <span>{{child.title}}</span>
@@ -37,7 +38,14 @@
           </div>
         </div>
       </div>
-      <div class="tile is-parent" *ngIf="!myOutlet.isActivated">
+      <div class="tile is-parent" *ngIf="!myOutlet.isActivated && showEmptyMessage">
+        <div class="tile is-child box">
+          <div class="content">
+            <h4>Select next step in Review sidebar</h4>
+          </div>
+        </div>
+      </div>
+      <div class="tile is-parent" *ngIf="!myOutlet.isActivated && currentStep.title === stepTitles.MAILING_APPROVED">
         <div class="tile is-child box">
           <progress *ngIf="!records.length || pending" class="progress is-small is-link" max="100">60%</progress>
 
@@ -51,7 +59,6 @@
             <h1>Approve Batch For Mailing</h1>
             <p>Mailing will start immediately and <strong>cannot be undone</strong></p>
             <p><strong>{{records?.length}}</strong> Statements To Be Sent</p>
-
             <nav class="level">
               <div class="level-left"></div>
               <div class="level-right">
@@ -64,8 +71,20 @@
                 </div>
               </div>
             </nav>
-
           </div>
+        </div>
+      </div>
+      <div class="tile is-parent" *ngIf="!myOutlet.isActivated && currentStep.title === stepTitles.MAILING_IN_PROGRESS">
+        <div class="tile is-child box">
+          <h3>Mailing In Progress</h3>
+          <h4>Do not close this window.</h4>
+          <progress *ngIf="!records.length || pending" class="progress is-small is-link" max="100">60%</progress>
+        </div>
+      </div>
+      <div class="tile is-parent" *ngIf="!myOutlet.isActivated && currentStep.title === stepTitles.MAILING_COMPLETE">
+        <div class="tile is-child box">
+          <h3>Mailing Has Been Started</h3>
+          <h4>Upload, Explore, or Review another batch file</h4>
         </div>
       </div>
       <router-outlet #myOutlet="outlet"></router-outlet>

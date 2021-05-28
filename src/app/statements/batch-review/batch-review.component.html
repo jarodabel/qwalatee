@@ -1,7 +1,7 @@
 <div class="columns">
   <div class="column is-hidden-mobile is-1"></div>
   <div class="column is-10">
-    <div class="tile is-ancestor" *ngIf="!(pendingBatches$ | async) == '{}'">
+    <div class="tile is-ancestor" *ngIf="((pendingBatches$ | async) | json) == '{}'">
       <div class="tile is-parent">
         <div class="tile is-child box">
           <p class="title">Nothing Pending</p>
@@ -11,10 +11,11 @@
         </div>
       </div>
     </div>
-    <div class="tile is-ancestor" *ngIf="(pendingBatches$ | async) != '{}'">
+    <div class="tile is-ancestor" *ngIf="((pendingBatches$ | async) | json) != '{}'">
       <div class="tile is-parent">
         <div class="tile is-child box">
-          <p class="title">Batches Needing Review</p>
+          <p class="title" *ngIf="routeData !== 'history'">Batches Needing Review</p>
+          <!-- <p class="title" *ngIf="routeData !== 'history'">View Previous Batches (Under Construction)</p> -->
         </div>
       </div>
     </div>
@@ -37,14 +38,16 @@
                   <td>{{batch.filename}}</td>
                   <td>
                     <div class="buttons is-right">
-                      <button class="button is-link is-light is-small"
+                      <button class="button is-light is-small"
+                        [ngClass]="{'is-link': routeData === 'review', 'is-success': routeData === 'explore' || routeData === 'history'}"
                         [routerLink]="[batch.id]">
-                        <span>Review</span>
+                        <span *ngIf="routeData === 'review'">Review</span>
+                        <span *ngIf="routeData === 'explore' || routeData === 'history'">Explore</span>
                         <span class="icon">
                           <i class="fas fa-file-invoice"></i>
                         </span>
                       </button>
-                      <button class="button is-danger is-light is-small" (click)="deleteConfirmation(batch)">
+                      <button class="button is-danger is-light is-small" (click)="deleteConfirmation(batch)" *ngIf="routeData !== 'history'" >
                         <span>Delete</span>
                         <span class="icon">
                           <i class=" fas fa-trash-alt"></i>

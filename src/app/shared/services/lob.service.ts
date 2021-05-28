@@ -12,7 +12,7 @@ export class LobService {
   cloudFnUrl = 'https://us-central1-pdsa-oskee.cloudfunctions.net';
   constructor(private http: HttpClient) {}
 
-  sendLobRequest(env, template, user) {
+  sendLobRequest(env, template, user, overWriteAddress?) {
     const data = {
       color: true,
       custom_envelope: null,
@@ -45,6 +45,10 @@ export class LobService {
       },
     };
 
+    if (overWriteAddress) {
+      data.to = overWriteAddress;
+    }
+
     if (user.excessTableIds) {
       user.excessTableIds.split(',').forEach((id) => {
         data.merge_variables[id] = user[id];
@@ -64,10 +68,10 @@ export class LobService {
     );
   }
 
-  sendLetter(env, template, user) {
+  sendLetter(env, template, user, overWriteAddress?) {
     const userObj = this.makeUserForLob(user);
     this.reset();
-    return this.sendLobRequest(env, template, userObj);
+    return this.sendLobRequest(env, template, userObj, overWriteAddress);
   }
 
   makeUserForLob(user) {

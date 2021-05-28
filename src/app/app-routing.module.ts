@@ -125,6 +125,13 @@ const routes: Routes = [
         },
       },
       {
+        component: BatchReviewComponent,
+        path: 'review-history',
+        data: {
+          page: 'history',
+        },
+      },
+      {
         component: UploadHistoryComponent,
         path: 'upload-history',
       },

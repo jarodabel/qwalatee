@@ -15,10 +15,10 @@ import { HistoryStatementsComponent } from './history-statements/history-stateme
 
 import { NewStatementsComponent } from './new-statements/new-statements.component';
 import { UploadHistoryComponent } from './upload-history/upload-history.component';
-import { SendModalComponent } from './batch-review/send-modal/send-modal.component';
 import { BatchReviewDetailsComponent } from './batch-review/batch-review-details/batch-review-details.component';
 import { ReviewPdfComponent } from './batch-review/review-pdf/review-pdf.component';
 import { BatchExploreComponent } from './batch-explore/batch-explore.component';
+import { BatchSharedComponent } from './batch-shared/batch-shared.component';
 
 export enum TabNames {
   NewStatements = 'newStatements',
@@ -64,10 +64,10 @@ export class StatementsComponent implements OnInit {
     UploadHistoryComponent,
     UploadEventPipe,
     UseramePipe,
-    SendModalComponent,
     BatchReviewDetailsComponent,
     ReviewPdfComponent,
-    BatchExploreComponent
+    BatchExploreComponent,
+    BatchSharedComponent,
   ],
   exports: [UploadEventPipe, UseramePipe],
   imports: [CommonModule, SharedModule, BrowserModule, FormsModule],

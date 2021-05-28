@@ -8,6 +8,7 @@ import { updateUploadRecordApproved } from '../../../shared/actions/statement.ac
 import { selectUser } from '../../../shared/selectors/user.selectors';
 import { LobService } from '../../../shared/services/lob.service';
 import { StatementService } from '../../../shared/services/statement.service';
+import { LOB_ENV } from '../../../types/lob';
 
 @Component({
   selector: 'review-pdf',
@@ -77,8 +78,7 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
 
   getPdfUrl() {
     this.lobService
-      // TODO: need to update function to accept Test or Live, not test or live
-      .getLetterObject('test', this.ltrId)
+      .getLetterObject(LOB_ENV.TEST, this.ltrId)
       .pipe(take(1))
       .toPromise()
       .then((res: any) => {
@@ -191,7 +191,6 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.statementService.updateUploadRecord(uploadId, update).then((res) => {
-      // this.store.dispatch(updateUploadRecordApproved({uploadId, reviewIdentifier, userId: user.id}));
       this.router.navigate(['../../'], {relativeTo: this.route})
     }).catch((err) => {
       console.error(err)

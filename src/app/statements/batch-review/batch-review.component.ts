@@ -34,19 +34,22 @@ export class BatchReviewComponent implements OnInit {
   filename: string;
   page: string;
 
+  routeData: string;
+
   constructor(
     private batchManagementService: BatchManagementService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.pendingBatches$ = this.batchManagementService.getPendingBatches();
-  }
+    this.routeData = this.route.snapshot.data.page;
 
-  sendConfirmation(batch) {
-    this.modalType = ModalType.MailConfirmation;
-    this.currentBatchId = batch.id;
-    this.filename = batch.filename;
-    this.toggleModal();
+    if (this.routeData === 'history') {
+      // this.pendingBatches$ = this.batchManagementService.getCompletedBatches();
+      this.pendingBatches$ = of({});
+    } else {
+      this.pendingBatches$ = this.batchManagementService.getPendingBatches();
+    }
   }
 
   deleteConfirmation(batch) {

@@ -49,6 +49,36 @@ export class BatchManagementService {
     });
   }
 
+  getCompletedBatches() {
+    return new Observable<{ [key: string]: UploadObject[] }>((observer) => {
+      const unsubscribe = this.fs
+        .collection('uploads')
+        .where('mailComplete', '==', true)
+        .orderBy('dateCreated', 'desc')
+        .onSnapshot((_snapshot) => {
+          const snapshot = _snapshot.docs;
+          const uploads = [];
+          snapshot.forEach((doc) => {
+            uploads.push({ id: doc.id, ...doc.data() });
+          });
+          this.store.dispatch(setUploads({ uploads }));
+          const res = uploads.reduce((acc, cur) => {
+            const date = new Date(cur.dateCreated.seconds * 1000);
+            const key = `${date.getFullYear()}-${
+              date.getMonth() + 1
+            }-${date.getDate()}`;
+            if (!acc[key]) {
+              acc[key] = [];
+            }
+            acc[key].push(cur);
+            return acc;
+          }, {});
+          return observer.next(res);
+        });
+      return unsubscribe;
+    });
+  }
+
   deleteUpload(id: string) {
     if (!id) {
       return of(false);

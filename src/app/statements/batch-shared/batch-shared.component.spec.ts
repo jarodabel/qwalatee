@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SendModalComponent } from './send-modal.component';
+import { BatchSharedComponent } from './batch-shared.component';
 
-describe('SendModalComponent', () => {
-  let component: SendModalComponent;
-  let fixture: ComponentFixture<SendModalComponent>;
+describe('BatchSharedComponent', () => {
+  let component: BatchSharedComponent;
+  let fixture: ComponentFixture<BatchSharedComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SendModalComponent ]
+      declarations: [ BatchSharedComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SendModalComponent);
+    fixture = TestBed.createComponent(BatchSharedComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
