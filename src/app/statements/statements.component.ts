@@ -13,7 +13,6 @@ import { BatchReviewComponent } from './batch-review/batch-review.component';
 import { BatchUploadComponent } from './batch-upload/batch-upload.component';
 import { HistoryStatementsComponent } from './history-statements/history-statements.component';
 
-import { NewStatementsComponent } from './new-statements/new-statements.component';
 import { UploadHistoryComponent } from './upload-history/upload-history.component';
 import { BatchReviewDetailsComponent } from './batch-review/batch-review-details/batch-review-details.component';
 import { ReviewPdfComponent } from './batch-review/review-pdf/review-pdf.component';
@@ -21,7 +20,6 @@ import { BatchExploreComponent } from './batch-explore/batch-explore.component';
 import { BatchSharedComponent } from './batch-shared/batch-shared.component';
 
 export enum TabNames {
-  NewStatements = 'newStatements',
   HistoryStatements = 'historyStatements',
   UploadHistory = 'uploadHistory',
   AllActivity = 'allActivity',
@@ -59,7 +57,6 @@ export class StatementsComponent implements OnInit {
     BatchReviewComponent,
     BatchUploadComponent,
     StatementsComponent,
-    NewStatementsComponent,
     HistoryStatementsComponent,
     UploadHistoryComponent,
     UploadEventPipe,

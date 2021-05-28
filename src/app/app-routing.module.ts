@@ -14,7 +14,6 @@ import { StatementsComponent } from './statements/statements.component';
 import { CanActivateService } from './statements/statements.route.guard';
 import { ResourcesComponent } from './resouces/resources.component';
 import { AttributionComponent } from './attribution/attribution.component';
-import { NewStatementsComponent } from './statements/new-statements/new-statements.component';
 import { UploadHistoryComponent } from './statements/upload-history/upload-history.component';
 import { HistoryStatementsComponent } from './statements/history-statements/history-statements.component';
 import { BatchUploadComponent } from './statements/batch-upload/batch-upload.component';
@@ -87,10 +86,6 @@ const routes: Routes = [
         path: '',
         redirectTo: 'upload-batch',
         pathMatch: 'full',
-      },
-      {
-        component: NewStatementsComponent,
-        path: 'upload-batch-old',
       },
       {
         component: BatchUploadComponent,
