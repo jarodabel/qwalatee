@@ -10,6 +10,7 @@ import { FormBuilder } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs/operators';
+import firebase from 'firebase/app';
 
 const defaultForm = {
   aim: '',
@@ -34,10 +35,10 @@ export class PdsaHomeComponent implements OnInit, OnChanges {
   checkoutForm;
 
   routeParams$ = this.route.params;
+  fs = firebase.firestore();
 
   constructor(
     private formBuilder: FormBuilder,
-    private db: AngularFirestore,
     private route: ActivatedRoute,
     private router: Router,
   ) {}
@@ -69,7 +70,7 @@ export class PdsaHomeComponent implements OnInit, OnChanges {
   async saveForm() {
     const params = await this.routeParams$.pipe(take(1)).toPromise();
 
-    this.db
+    this.fs
       .collection('pdsa')
       .doc(params.pdsaId)
       .set({ ...this.getFormData(), site: params.siteId }, { merge: true });

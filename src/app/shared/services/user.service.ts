@@ -48,8 +48,7 @@ export class UserService {
         firstName: _user?.firstname,
         lastName: _user?.lastname,
         organization: _user?.organization,
-        lobStatements: _user?.lob_statements,
-        lobStatementsLive: _user?.lob_statements_live,
+        lobPermissions: _user?.lob_permissions,
       };
       this.store.dispatch(setUser(user));
       return user;

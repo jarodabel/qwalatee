@@ -118,7 +118,7 @@ export class BatchReviewDetailsComponent
       .pipe(
         tap((a) => {
           this.userId = a.id;
-          this.hasPermission = a?.lobStatementsLive;
+          this.hasPermission = a?.lobPermissions?.lobStatementsLive;
         }),
         takeUntil(this.destroy$)
       )

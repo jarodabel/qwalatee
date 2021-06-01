@@ -9,8 +9,10 @@ export class GoogleSigninDirective {
 
   @HostListener('click')
   onclick() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({prompt: 'select_account'})
     firebase.auth()
-      .signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .signInWithPopup(provider)
       .then(
         (a) => {
         },

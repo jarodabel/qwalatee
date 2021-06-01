@@ -8,3 +8,14 @@ export const selectUser = createSelector(
   selectStateUser,
   (user) => user,
 );
+
+export const selectCurrentUserHasLobPermission = (permission) => createSelector(
+  selectStateUser,
+  (user) => {
+    const permissions = user.lobPermissions;
+    if(!permission || !permissions){
+      return false;
+    }
+    return permissions[permission];
+  },
+);

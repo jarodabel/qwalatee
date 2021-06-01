@@ -1,13 +1,13 @@
 import { Component, NgModule, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, map, tap, take } from 'rxjs/operators';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { Store } from '@ngrx/store';
 import { addBreadcrumb } from '../shared/actions/shared-actions';
 import { AppState } from '../app-state';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import firebase from 'firebase/app';
 
 @Component({
   selector: 'organization-page',
@@ -17,33 +17,34 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 export class OrganizationComponent implements OnInit {
   locations$;
   orgId;
+  fs = firebase.firestore()
 
   constructor(
     private route: ActivatedRoute,
-    private db: AngularFirestore,
     private router: Router,
     private store: Store<AppState>,
   ) {}
   ngOnInit() {
     this.locations$ = this.route.params.pipe(
       switchMap((params) =>
-        this.db
-          .collection('site', (ref) =>
-            ref.where('organization', '==', params.orgId)
-          )
+        this.fs
+          .collection('site')
+          .where('organization', '==', params.orgId)
           .get()
       ),
       map((locations) =>
-        locations.docs.map((location) => ({
+        locations.docs.map((location) => {
+          return {
           id: location.id,
-          ...location,
-        }))
-      )
+          ...location.data(),
+        }})
+      ), tap((a)=>{console.log(a)})
     );
     this.store.dispatch(addBreadcrumb({ home: '/' }));
   }
 
   async goToPdsaPage(id) {
+    console.log(id)
     const params = await this.route.params.pipe(take(1)).toPromise();
     this.store.dispatch(
       addBreadcrumb({ organization: params.orgId })

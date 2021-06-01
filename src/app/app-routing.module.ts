@@ -21,6 +21,8 @@ import { BatchReviewComponent } from './statements/batch-review/batch-review.com
 import { BatchReviewDetailsComponent } from './statements/batch-review/batch-review-details/batch-review-details.component';
 import { ReviewPdfComponent } from './statements/batch-review/review-pdf/review-pdf.component';
 import { BatchExploreComponent } from './statements/batch-explore/batch-explore.component';
+import { StatementsInfoComponent } from './statements-info/statements-info.component';
+import { CanActivateSubRouteService } from './statements/statements.sub.route.guard';
 
 const routes: Routes = [
   {
@@ -78,6 +80,10 @@ const routes: Routes = [
     component: MessagesComponent,
   },
   {
+    path: 'statements-info',
+    component: StatementsInfoComponent,
+  },
+  {
     canActivate: [CanActivateService],
     component: StatementsComponent,
     path: 'statements',
@@ -88,14 +94,17 @@ const routes: Routes = [
         pathMatch: 'full',
       },
       {
+        canActivate: [CanActivateSubRouteService],
         component: BatchUploadComponent,
         path: 'upload-batch',
       },
       {
+        canActivate: [CanActivateSubRouteService],
         component: BatchExploreComponent,
         path: 'explore-batch/:uploadId',
       },
       {
+        canActivate: [CanActivateSubRouteService],
         component: BatchReviewComponent,
         path: 'explore-batch',
         data: {
@@ -103,6 +112,7 @@ const routes: Routes = [
         },
       },
       {
+        canActivate: [CanActivateSubRouteService],
         component: BatchReviewDetailsComponent,
         path: 'review-batch/:uploadId',
         children: [
@@ -113,6 +123,7 @@ const routes: Routes = [
         ],
       },
       {
+        canActivate: [CanActivateSubRouteService],
         component: BatchReviewComponent,
         path: 'review-batch',
         data: {
@@ -120,6 +131,7 @@ const routes: Routes = [
         },
       },
       {
+        canActivate: [CanActivateSubRouteService],
         component: BatchReviewComponent,
         path: 'review-history',
         data: {

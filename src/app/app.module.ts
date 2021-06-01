@@ -43,9 +43,11 @@ import { AttributionComponent } from './attribution/attribution.component';
 import { statementReducerFn } from './shared/reducers/statement.reducers';
 import { UploadService } from './shared/services/upload.service';
 import { BatchManagementService } from './shared/services/batch-management.service';
+import { StatementsInfoComponent } from './statements-info/statements-info.component';
+import { CanActivateSubRouteService } from './statements/statements.sub.route.guard';
 
 @NgModule({
-  declarations: [AppComponent, HomePageComponent, AttributionComponent],
+  declarations: [AppComponent, HomePageComponent, AttributionComponent, StatementsInfoComponent],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     AppRoutingModule,
@@ -86,6 +88,7 @@ import { BatchManagementService } from './shared/services/batch-management.servi
     ValidationService,
     LobService,
     CanActivateService,
+    CanActivateSubRouteService,
     OrganizationService,
     StatementService,
     UploadService,

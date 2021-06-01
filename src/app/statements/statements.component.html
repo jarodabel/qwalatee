@@ -3,16 +3,16 @@
   <div class="column">
     <div class="tabs is-toggle">
       <ul>
-        <li [routerLinkActive]="['is-active']">
+        <li [routerLinkActive]="['is-active']" *ngIf="(hasUploadPermission$ | async)">
           <a [routerLink]="['/statements/upload-batch']">Upload</a>
         </li>
-        <li [routerLinkActive]="['is-active']">
+        <li [routerLinkActive]="['is-active']" *ngIf="(hasExplorePermission$ | async)">
           <a [routerLink]="['/statements/explore-batch']">Explore</a>
         </li>
-        <li [routerLinkActive]="['is-active']">
+        <li [routerLinkActive]="['is-active']" *ngIf="(hasReviewPermission$ | async)">
           <a [routerLink]="['/statements/review-batch']">Review</a>
         </li>
-        <li [routerLinkActive]="['is-active']">
+        <li [routerLinkActive]="['is-active']" *ngIf="(hasHistoryPermission$ | async)">
           <a [routerLink]="['/statements/review-history']">History</a>
         </li>
       </ul>

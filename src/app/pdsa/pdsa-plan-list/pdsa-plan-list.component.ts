@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, map, take, tap } from 'rxjs/operators';
 import { AngularFirestore } from '@angular/fire/firestore';
-import firebase from 'firebase/app';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../app-state';
 import { PdsaService } from '../../shared/services/pdsa.service';
 import { addBreadcrumb } from '../../shared/actions/shared-actions';
+import firebase from 'firebase/app';
+import { firestore } from 'firebase-admin';
 
 
 const defaultPdsa = {
@@ -28,9 +29,9 @@ const defaultPdsa = {
 })
 export class PdsaPlanListComponent implements OnInit {
   existingPdsas$;
+  fs = firebase.firestore();
   constructor(
     private route: ActivatedRoute,
-    private db: AngularFirestore,
     private router: Router,
     private store: Store<AppState>,
     private pdsaService: PdsaService,
@@ -51,12 +52,13 @@ export class PdsaPlanListComponent implements OnInit {
         this.pdsaService.setBreadcrumbs(params);
       }),
       switchMap((params) =>
-        this.db
-          .collection('pdsa', (ref) => ref.where('site', '==', params.siteId))
+        this.fs
+          .collection('pdsa')
+          .where('site', '==', params.siteId)
           .get()
       ),
       map((pdsas) =>
-        pdsas.docs.map((pdsa) => ({ id: pdsa.id, ...pdsa }))
+        pdsas.docs.map((pdsa) => ({ id: pdsa.id, ...pdsa.data() }))
       )
     );
   }
@@ -71,7 +73,7 @@ export class PdsaPlanListComponent implements OnInit {
       site: params.siteId,
       aim: 'UNTITLED PDSA',
     };
-    this.db.collection('pdsa').add(newPdsa);
+    this.fs.collection('pdsa').add(newPdsa);
     this.getPdsas();
   }
 }

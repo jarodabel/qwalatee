@@ -7,8 +7,12 @@ export interface User {
   id: string;
   lastName: string;
   organization: string;
-  lobStatements: boolean;
-  lobStatementsLive: boolean;
+  lobPermissions: {
+    admin: boolean;
+    statements: boolean;
+    lobStatementsLive: boolean;
+    uploads: boolean
+  }
 }
 
 const defaultState: User = {
@@ -17,8 +21,12 @@ const defaultState: User = {
   id: undefined,
   lastName: undefined,
   organization: undefined,
-  lobStatements: false,
-  lobStatementsLive: false,
+  lobPermissions: {
+    admin: false,
+    statements: false,
+    lobStatementsLive: false,
+    uploads: false
+  }
 };
 
 export enum HistoryObject {

@@ -1,18 +1,12 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import {
   map,
-  distinctUntilChanged,
-  filter,
   switchMap,
   take,
-  tap,
-  catchError,
 } from 'rxjs/operators';
-import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import firebase from 'firebase/app';
-import { of } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 import { AppState } from '../../app-state';
 import { selectUser } from '../selectors/user.selectors';
@@ -38,7 +32,6 @@ export class ShellComponent {
   );
 
   constructor(
-    public afAuth: AngularFireAuth,
     private db: AngularFirestore,
     private store: Store<AppState>,
     private router: Router
@@ -65,8 +58,10 @@ export class ShellComponent {
   }
 
   logIn() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({prompt: 'select_account'})
     firebase.auth()
-      .signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .signInWithPopup(provider)
       .then(
         (a) => {
           this.router.navigate(['/']);
