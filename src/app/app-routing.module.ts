@@ -14,8 +14,6 @@ import { StatementsComponent } from './statements/statements.component';
 import { CanActivateService } from './statements/statements.route.guard';
 import { ResourcesComponent } from './resouces/resources.component';
 import { AttributionComponent } from './attribution/attribution.component';
-import { UploadHistoryComponent } from './statements/upload-history/upload-history.component';
-import { HistoryStatementsComponent } from './statements/history-statements/history-statements.component';
 import { BatchUploadComponent } from './statements/batch-upload/batch-upload.component';
 import { BatchReviewComponent } from './statements/batch-review/batch-review.component';
 import { BatchReviewDetailsComponent } from './statements/batch-review/batch-review-details/batch-review-details.component';
@@ -51,10 +49,10 @@ const routes: Routes = [
     path: 'organization/:orgId/site/:siteId/pdsa/:pdsaId',
     component: PdsaComponent,
   },
-  {
-    path: 'settings',
-    loadChildren: () => import('./user/user.module').then((m) => m.UserModule),
-  },
+  // {
+  //   path: 'settings',
+  //   loadChildren: () => import('./user/user.module').then((m) => m.UserModule),
+  // },
   {
     path: 'about-us',
     component: AboutUsComponent,
@@ -132,23 +130,16 @@ const routes: Routes = [
       },
       {
         canActivate: [CanActivateSubRouteService],
+        component: BatchExploreComponent,
+        path: 'review-history/:uploadId',
+      },
+      {
+        canActivate: [CanActivateSubRouteService],
         component: BatchReviewComponent,
         path: 'review-history',
         data: {
           page: 'history',
         },
-      },
-      {
-        component: UploadHistoryComponent,
-        path: 'upload-history',
-      },
-      {
-        component: HistoryStatementsComponent,
-        path: 'statement-history/:uploadId',
-      },
-      {
-        component: HistoryStatementsComponent,
-        path: 'statement-history',
       },
       {
         component: undefined,

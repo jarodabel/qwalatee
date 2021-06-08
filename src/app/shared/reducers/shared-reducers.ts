@@ -1,7 +1,6 @@
 import { createReducer, props, on, Action } from '@ngrx/store';
 import * as breadcrumbActions from '../actions/shared-actions';
 import { AppState } from '../../app-state';
-import { state } from '@angular/animations';
 
 interface BreadcrumbState {
   home?: string;

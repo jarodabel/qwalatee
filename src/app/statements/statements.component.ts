@@ -11,9 +11,7 @@ import { UserService } from '../shared/services/user.service';
 import { SharedModule } from '../shared/shared.module';
 import { BatchReviewComponent } from './batch-review/batch-review.component';
 import { BatchUploadComponent } from './batch-upload/batch-upload.component';
-import { HistoryStatementsComponent } from './history-statements/history-statements.component';
 
-import { UploadHistoryComponent } from './upload-history/upload-history.component';
 import { BatchReviewDetailsComponent } from './batch-review/batch-review-details/batch-review-details.component';
 import { ReviewPdfComponent } from './batch-review/review-pdf/review-pdf.component';
 import { BatchExploreComponent } from './batch-explore/batch-explore.component';
@@ -67,8 +65,6 @@ export class StatementsComponent implements OnInit {
     BatchReviewComponent,
     BatchUploadComponent,
     StatementsComponent,
-    HistoryStatementsComponent,
-    UploadHistoryComponent,
     UploadEventPipe,
     UseramePipe,
     BatchReviewDetailsComponent,

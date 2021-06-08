@@ -25,7 +25,6 @@ export class CanActivateSubRouteService implements CanActivate {
   ) {}
 
   canActivate(a): any {
-    console.log(a.routeConfig.path);
     return this.store.pipe(
       select(selectUser),
       mergeMap((user) =>

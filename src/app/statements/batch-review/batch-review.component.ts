@@ -45,8 +45,7 @@ export class BatchReviewComponent implements OnInit {
     this.routeData = this.route.snapshot.data.page;
 
     if (this.routeData === 'history') {
-      // this.pendingBatches$ = this.batchManagementService.getCompletedBatches();
-      this.pendingBatches$ = of({});
+      this.pendingBatches$ = this.batchManagementService.getCompletedBatches();
     } else {
       this.pendingBatches$ = this.batchManagementService.getPendingBatches();
     }

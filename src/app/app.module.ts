@@ -9,7 +9,6 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { HomePageComponent } from './home-page/home-page.component';
 import { SharedModule } from './shared/shared.module';
-import { UserModule } from './user/user.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 // Firebase imports
@@ -54,7 +53,6 @@ import { CanActivateSubRouteService } from './statements/statements.sub.route.gu
     BrowserAnimationsModule,
     CommonModule,
     SharedModule,
-    UserModule,
     PdsaModule,
     OrganizationModule,
     ContactUsModule,

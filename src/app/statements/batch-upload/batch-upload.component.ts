@@ -38,9 +38,9 @@ export class BatchUploadComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap((x) => {
           if (x !== UploadSteps.UploadingRecord) {
-            return of(x).pipe(delay(600));
+            return of(x).pipe(delay(150));
           }
-          return of(x).pipe(delay(100));
+          return of(x).pipe(delay(50));
         }),
         takeUntil(this.destroy$)
       )

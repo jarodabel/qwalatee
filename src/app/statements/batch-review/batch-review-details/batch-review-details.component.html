@@ -60,14 +60,51 @@
             <p>Mailing will start immediately and <strong>cannot be undone</strong></p>
             <p><strong>{{records?.length}}</strong> Statements To Be Sent</p>
             <nav class="level">
-              <div class="level-left"></div>
+              <div class="level-left">
+                <div class="select">
+                  <select (change)="mailingOptionChanged($event)">
+                    <option [value]="mailOptions.NONE">Please Select</option>
+                    <option [value]="mailOptions.SKIP_MAILING">Skip Mailing (TEST)</option>
+                    <option [value]="mailOptions.MAIL_TO_CHC">Mail To CHC (TEST)</option>
+                    <option [value]="mailOptions.MAIL_TO_PATIENT">Mail To Patient (LIVE)</option>
+                  </select>
+                </div>
+              </div>
               <div class="level-right">
-                <div class="buttons">
-                  <button class="button is-success is-large is-fullwidth" (click)="areYouSure()">
-                    <span class="icon">
-                      <i class="fas fa-mail-bulk"></i> </span>
-                    <span>Approve / Send Mail</span>
-                  </button>
+                <div class="buttons" [ngSwitch]="selectedMailingOption">
+                  <ng-container *ngSwitchCase="mailOptions.SKIP_MAILING">
+                    <button class="button is-warning is-fullwidth"
+                      (click)="startMail(mailOptions.SKIP_MAILING)">
+                      <span class="icon">
+                        <i class="fas fa-vial"></i>
+                      </span>
+                      <span>Skip Mail - Approve</span>
+                    </button>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="mailOptions.MAIL_TO_CHC">
+                    <button class="button is-warning is-fullwidth" (click)="startMail(mailOptions.MAIL_TO_CHC)">
+                      <span class="icon">
+                        <i class="fas fa-mail-bulk"></i>
+                      </span>
+                      <span>Mail To CHC - Approve</span>
+                    </button>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="mailOptions.MAIL_TO_PATIENT">
+                    <button class="button is-success is-fullwidth" (click)="startMail(mailOptions.MAIL_TO_PATIENT)">
+                      <span class="icon">
+                        <i class="fas fa-mail-bulk"></i>
+                      </span>
+                      <span>Mail To Patient - Approve</span>
+                    </button>
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    <button class="button is-danger is-fullwidth" disabled="true">
+                      <span class="icon">
+                        <i class="fas fa-mail-bulk"></i>
+                      </span>
+                      <span>Please Select Mail Type</span>
+                    </button>
+                  </ng-container>
                 </div>
               </div>
             </nav>
@@ -76,9 +113,13 @@
       </div>
       <div class="tile is-parent" *ngIf="!myOutlet.isActivated && currentStep.title === stepTitles.MAILING_IN_PROGRESS">
         <div class="tile is-child box">
-          <h3>Mailing In Progress</h3>
-          <h4>Do not close this window.</h4>
-          <progress *ngIf="!records.length || pending" class="progress is-small is-link" max="100">60%</progress>
+          <div class="content">
+            <h1>Mailing In Progress - Do Not Close This Tab</h1>
+            <progress class="progress is-small is-link" max="100">60%</progress>
+            <p>
+              Please wait, do not close this tab.
+            </p>
+          </div>
         </div>
       </div>
       <div class="tile is-parent" *ngIf="!myOutlet.isActivated && currentStep.title === stepTitles.MAILING_COMPLETE">

@@ -67,7 +67,8 @@ export class BatchExploreComponent
     lobService: LobService,
     userService: UserService,
     store: Store<AppState>,
-    route: ActivatedRoute
+    route: ActivatedRoute,
+    router: Router,
   ) {
     super(
       batchManagementService,
@@ -75,7 +76,8 @@ export class BatchExploreComponent
       statementService,
       userService,
       store,
-      route
+      route,
+      router,
     );
   }
 
@@ -108,7 +110,6 @@ export class BatchExploreComponent
     this.batchManagementService
       .getRecordsByUploadId(this.uploadId)
       .then((snapshot) => {
-        console.log('snapshot', snapshot);
         const res = [];
         snapshot.forEach((doc) => {
           res.push({ recordId: doc.id, ...doc.data(), selected: false });
@@ -157,6 +158,15 @@ export class BatchExploreComponent
 
   send() {
     const selectedRecords = [...this.records].filter((row) => row.selected);
-    this.startStatements(selectedRecords);
+    this.startStatements(selectedRecords, false).subscribe(
+      (s) => {},
+      (err) => {
+        console.log('error', err);
+      },
+      () => {
+        console.log('success', this.completedRequests - this.failedRequests);
+        console.log('error', this.failedRequests);
+      }
+    );;
   }
 }

@@ -1,4 +1,10 @@
-import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
@@ -15,7 +21,7 @@ import { LOB_ENV } from '../../../types/lob';
   templateUrl: './review-pdf.component.html',
   styleUrls: ['./review-pdf.component.scss'],
 })
-export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
+export class ReviewPdfComponent implements OnInit, OnDestroy {
   ltrId: string;
   pdf: any;
   pageNumber: number;
@@ -23,6 +29,7 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
   pageNumPending: number;
   loadingPagePending = false;
   canApprove = false;
+  reloadAttempt = false;
   viewedPages: number[] = [];
 
   routeParams$ = this.route.params;
@@ -39,14 +46,9 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // this.getLtrId();
     this.routeParams$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.init();
-    })
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    console.log(changes)
+    });
   }
 
   ngOnDestroy() {
@@ -54,12 +56,14 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
   }
 
-  init(){
+  init() {
     this.pageNumber = undefined;
     this.numPages = undefined;
     this.pageNumPending = undefined;
-    this.loadingPagePending = false;
+    this.loadingPagePending = true;
     this.canApprove = false;
+    this.viewedPages.length = 0;
+    this.reloadAttempt = false;
     this.clearCanvas();
     this.getLtrId();
   }
@@ -103,6 +107,7 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(
       (pdf) => {
+        this.loadingPagePending = true;
         this.pdf = pdf;
         this.numPages = this.pdf.numPages;
         this.pageNumber = 1;
@@ -110,6 +115,16 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
         this.renderPdfPage();
       },
       (reason) => {
+        this.loadingPagePending = false;
+        this.clearCanvas();
+        if (!this.reloadAttempt) {
+          this.loadingPagePending = true;
+          this.reloadAttempt = true;
+          setTimeout(() => {
+            this.loadPdf(url);
+          }, 4000);
+          return;
+        }
         // PDF loading error
         console.error(reason);
       }
@@ -119,6 +134,7 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
   renderPdfPage() {
     // Fetch the first page
     this.loadingPagePending = true;
+
     this.pdf.getPage(this.pageNumber).then((page) => {
       const scale = 1.1;
       const viewport = page.getViewport({ scale });
@@ -145,6 +161,7 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
       });
     });
   }
+
   queueRenderPage() {
     if (this.loadingPagePending) {
       this.pageNumPending = this.pageNumber;
@@ -152,6 +169,7 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
       this.renderPdfPage();
     }
   }
+
   nextPage() {
     if (this.pageNumber >= this.pdf.numPages) {
       return;
@@ -160,6 +178,7 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
     this.pageViewed(this.pageNumber);
     this.queueRenderPage();
   }
+
   previousPage() {
     if (this.pageNumber <= 1) {
       return;
@@ -167,6 +186,7 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
     this.pageNumber--;
     this.queueRenderPage();
   }
+
   pageViewed(num) {
     if (this.viewedPages.includes(num)) {
       return;
@@ -188,12 +208,15 @@ export class ReviewPdfComponent implements OnInit, OnChanges, OnDestroy {
     const update = {
       [`reviewStatements.${reviewIdentifier}.approved`]: true,
       [`reviewStatements.${reviewIdentifier}.user`]: user.id,
-    }
+    };
 
-    this.statementService.updateUploadRecord(uploadId, update).then((res) => {
-      this.router.navigate(['../../'], {relativeTo: this.route})
-    }).catch((err) => {
-      console.error(err)
-    });
+    this.statementService
+      .updateUploadRecord(uploadId, update)
+      .then((res) => {
+        this.router.navigate(['../../'], { relativeTo: this.route });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 }

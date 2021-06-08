@@ -1,18 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { combineLatest, Subject } from 'rxjs';
-import { map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { AppState } from '../../../app-state';
 import { selectUser } from '../../../shared/selectors/user.selectors';
-import {
-  BatchManagementService,
-  Env,
-} from '../../../shared/services/batch-management.service';
+import { BatchManagementService } from '../../../shared/services/batch-management.service';
 import { LobService } from '../../../shared/services/lob.service';
-import {
-  UploadObject,
-  USER_FIELDS,
-} from '../../../shared/services/upload.service';
+import { UploadObject } from '../../../shared/services/upload.service';
 import { AddressOverwrite, LOB_ENV, TemplateLookup } from '../../../types/lob';
 import { ModalType } from '../batch-review.component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -41,6 +35,13 @@ type StepObject = {
   id: ReviewIdentifiers;
 };
 
+enum MailOptions {
+  NONE,
+  SKIP_MAILING,
+  MAIL_TO_CHC,
+  MAIL_TO_PATIENT,
+}
+
 @Component({
   selector: 'app-batch-review-details',
   templateUrl: './batch-review-details.component.html',
@@ -63,7 +64,10 @@ export class BatchReviewDetailsComponent
   userId;
   hasPermission = false;
   showEmptyMessage = false;
+  skipMailing = false;
   stepTitles = StepTitles;
+  mailOptions = MailOptions;
+  selectedMailingOption: MailOptions;
 
   user$ = this.store.pipe(select(selectUser));
   destroy$ = new Subject();
@@ -81,7 +85,7 @@ export class BatchReviewDetailsComponent
     userService: UserService,
     store: Store<AppState>,
     route: ActivatedRoute,
-    private router: Router
+    router: Router
   ) {
     super(
       batchManagementService,
@@ -89,7 +93,8 @@ export class BatchReviewDetailsComponent
       statementService,
       userService,
       store,
-      route
+      route,
+      router,
     );
   }
 
@@ -118,7 +123,7 @@ export class BatchReviewDetailsComponent
       .pipe(
         tap((a) => {
           this.userId = a.id;
-          this.hasPermission = a?.lobPermissions?.lobStatementsLive;
+          this.hasPermission = a?.lobPermissions?.canMail;
         }),
         takeUntil(this.destroy$)
       )
@@ -161,7 +166,9 @@ export class BatchReviewDetailsComponent
       recordId = this.uploadObj.reviewStatements.three.recordId;
     }
 
-    const foundRecord = this.records.find((record) => record.recordId === recordId);
+    const foundRecord = this.records.find(
+      (record) => record.recordId === recordId
+    );
 
     return JSON.parse(JSON.stringify(foundRecord));
   }
@@ -186,7 +193,7 @@ export class BatchReviewDetailsComponent
       } else if (index === 3) {
         return this.uploadObj?.reviewIsComplete;
       } else if (index === 4) {
-        return this.uploadObj?.mailHasStarted;
+        return this.uploadObj?.mailHasStarted && this.uploadObj?.mailComplete;
       } else if (index === 5) {
         return this.uploadObj?.mailComplete;
       }
@@ -265,7 +272,7 @@ export class BatchReviewDetailsComponent
           this.env,
           TemplateLookup[this.env],
           recordWithCharges,
-          AddressOverwrite[this.env]
+          false
         )
         .pipe(take(1))
         .toPromise();
@@ -300,35 +307,64 @@ export class BatchReviewDetailsComponent
     ].includes(this.currentStep.id);
   }
 
-  async sendAll() {
+  areYouSure(message, env, shouldOverwriteAddress) {
+    if (!this.records) {
+      return;
+    }
+    const answer = confirm(message);
+    if (answer) {
+      this.mailFn(env, shouldOverwriteAddress);
+    }
+  }
+
+  mailFn(env: LOB_ENV, shouldOverwriteAddress: boolean) {
     this.pending = true;
-    console.log('send it');
     const update = {
       reviewIsComplete: true,
       reviewApprovedBy: this.userId,
       mailHasStarted: true,
     };
-
-    this.env = LOB_ENV.LIVE;
-    this.startStatements(this.records);
-
     this.statementService
       .updateUploadRecord(this.uploadId, update)
       .then((res) => {})
       .catch((err) => {
         console.error(err);
       });
+
+    this.env = env;
+    this.startStatements(this.records, shouldOverwriteAddress).subscribe(
+      (s) => {},
+      (err) => {
+        console.log('error', err);
+      },
+      () => {
+        console.log('success', this.completedRequests - this.failedRequests);
+        console.log('error', this.failedRequests);
+        this.finished();
+      }
+    );
   }
 
-  areYouSure() {
-    if (!this.records) {
+  mailingOptionChanged(event) {
+    this.selectedMailingOption = event.target.value;
+  }
+
+  startMail(option: MailOptions) {
+    let message;
+    console.log(option);
+    if (option === MailOptions.NONE) {
       return;
+    } else if (option === MailOptions.SKIP_MAILING) {
+      message = `Are you sure? Confirmation will mark this batch as completed and no statements will be mailed`;
+      this.areYouSure(message, LOB_ENV.TEST, false);
+    } else if (option === MailOptions.MAIL_TO_CHC) {
+      message = `Are you sure? Confirmation will mail ${this.records.length} statements to CHC`;
+      this.areYouSure(message, LOB_ENV.LIVE, true);
+    } else if (option === MailOptions.MAIL_TO_PATIENT) {
+      message = `Are you sure? Confirmation will mail ${this.records.length} patient statements`;
+      this.areYouSure(message, LOB_ENV.LIVE, false);
     }
-    const answer = confirm(
-      `Are you sure? Confirmation will mail ${this.records.length} statements. THIS CANNOT BE UNDONE`
-    );
-    if (answer) {
-      this.sendAll();
-    }
+
+    //`Are you sure? Confirmation will mail ${this.records.length} statements. THIS CANNOT BE UNDONE`
   }
 }

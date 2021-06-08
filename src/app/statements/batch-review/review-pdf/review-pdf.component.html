@@ -6,13 +6,13 @@
         <div class="level-left">
           <div class="level-item">
             <div class="buttons">
-              <button class="button is-outlined is-small" (click)="previousPage()">
+              <button class="button is-outlined is-small" (click)="previousPage()" [disabled]="loadingPagePending">
                 <span class="icon">
                   <i class="fas fa-chevron-left"></i>
                 </span>
                 <span>Previous</span>
               </button>
-              <button class="button is-outlined is-small" (click)="nextPage()">
+              <button class="button is-outlined is-small" (click)="nextPage()" [disabled]="loadingPagePending">
                 <span>Next</span>
                 <span class="icon">
                   <i class="fas fa-chevron-right"></i>
@@ -48,7 +48,7 @@
       </nav>
       <progress class="progress is-small is-link" *ngIf="loadingPagePending" max="100">15%</progress>
 
-      <canvas id="the-canvas"></canvas>
+      <canvas id="the-canvas" [ngClass]="{'hide': loadingPagePending}"></canvas>
     </div>
   </div>
 </div>

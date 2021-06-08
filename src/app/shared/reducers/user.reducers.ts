@@ -9,8 +9,11 @@ export interface User {
   organization: string;
   lobPermissions: {
     admin: boolean;
+    canMail: boolean;
     statements: boolean;
-    lobStatementsLive: boolean;
+    explore:boolean;
+    history: boolean;
+    review: boolean;
     uploads: boolean
   }
 }
@@ -23,9 +26,12 @@ const defaultState: User = {
   organization: undefined,
   lobPermissions: {
     admin: false,
+    canMail: false,
+    explore: false,
+    history: false,
     statements: false,
-    lobStatementsLive: false,
-    uploads: false
+    review: false,
+    uploads: false,
   }
 };
 

@@ -4,6 +4,7 @@ import {
   switchMap,
   take,
 } from 'rxjs/operators';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import firebase from 'firebase/app';
@@ -32,6 +33,7 @@ export class ShellComponent {
   );
 
   constructor(
+    public afAuth: AngularFireAuth,
     private db: AngularFirestore,
     private store: Store<AppState>,
     private router: Router

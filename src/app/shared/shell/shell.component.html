@@ -67,7 +67,7 @@
           </a>
 
           <div class="navbar-dropdown is-right">
-            <a class="navbar-item" [routerLink]="['/settings']" *ngIf="afAuth.authState | async as user"
+            <!-- <a class="navbar-item" [routerLink]="['/settings']" *ngIf="afAuth.authState | async as user"
               (click)="hideNavbarMenu()">
               <span class="icon">
                 <i class="fas fa-user-cog"></i>
@@ -75,8 +75,8 @@
               <span>
                 Settings
               </span>
-            </a>
-            <hr class="navbar-divider">
+            </a> -->
+            <!-- <hr class="navbar-divider"> -->
 
             <a class="navbar-item" [routerLink]="['/']"
               (click)="signOut()">

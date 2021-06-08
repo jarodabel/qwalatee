@@ -8,14 +8,19 @@ import {
 } from '../../shared/services/batch-management.service';
 import { LobService } from '../../shared/services/lob.service';
 import { AccessType } from '../../types/access';
-import { AddressOverwrite, ChcAddress, LOB_ENV, TemplateLookup } from '../../types/lob';
+import {
+  AddressOverwrite,
+  ChcAddress,
+  LOB_ENV,
+  TemplateLookup,
+} from '../../types/lob';
 import firebase from 'firebase/app';
 import { StatementService } from '../../shared/services/statement.service';
 import { UserService } from '../../shared/services/user.service';
 import { select, Store } from '@ngrx/store';
 import { AppState } from '../../app-state';
 import { selectUser } from '../../shared/selectors/user.selectors';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-batch-shared',
@@ -41,21 +46,25 @@ export class BatchSharedComponent {
     protected statementService: StatementService,
     protected userService: UserService,
     protected store: Store<AppState>,
-    protected route: ActivatedRoute
+    protected route: ActivatedRoute,
+    protected router: Router
   ) {}
 
   count() {
     this.selectedCount = this.records.filter((row) => row.selected).length || 0;
   }
 
-  createStatements(partialRecords) {
+  createStatements(partialRecords, shouldOverwriteAddress) {
     const promise = (row, i) =>
       new Promise(
         (async (resolve, reject) => {
           let res;
           try {
+            const address = shouldOverwriteAddress
+              ? AddressOverwrite[this.env]
+              : undefined;
             res = await this.lobService
-              .sendLetter(this.env, TemplateLookup[this.env], row, AddressOverwrite[this.env])
+              .sendLetter(this.env, TemplateLookup[this.env], row, address)
               .pipe(take(1))
               .toPromise();
 
@@ -80,28 +89,13 @@ export class BatchSharedComponent {
       this.mapCharges(record)
     );
 
-    from(records)
-      .pipe(
-        mergeMap(
-          (row, i) => merge(promise(row, i), timer(0).pipe(ignoreElements())),
-          undefined,
-          3
-        )
+    return from(records).pipe(
+      mergeMap(
+        (row, i) => merge(promise(row, i), timer(0).pipe(ignoreElements())),
+        undefined,
+        3
       )
-      .subscribe(
-        (s) => {
-          console.log('success', this.completedRequests - this.failedRequests);
-          console.log('error', this.failedRequests);
-        },
-        (err) => {
-          console.log('error', err);
-        },
-        () => {
-          if (this.env === LOB_ENV.LIVE) {
-            this.finished();
-          }
-        }
-      );
+    );
   }
 
   mapCharges(record) {
@@ -111,12 +105,12 @@ export class BatchSharedComponent {
     };
   }
 
-  startStatements(records) {
+  startStatements(records, shouldOverwriteAddress) {
     this.pending = true;
     this.completedRequests = 0;
     this.failedRequests = 0;
 
-    this.createStatements(records);
+    return this.createStatements(records, shouldOverwriteAddress);
   }
 
   async statementHistory(res, id, date, uploadId) {
@@ -174,7 +168,6 @@ export class BatchSharedComponent {
   }
 
   async finished() {
-    console.log('done');
     this.env = LOB_ENV.TEST;
     const update = {
       mailComplete: true,
@@ -184,7 +177,12 @@ export class BatchSharedComponent {
     const { uploadId } = await this.routeParams$.pipe(take(1)).toPromise();
     this.statementService
       .updateUploadRecord(uploadId, update)
-      .then((res) => {})
+      .then((res) => {
+        this.completedRequests = 0;
+        this.failedRequests = 0;
+        this.selectedCount = 0;
+        this.router.navigate(['../'], { relativeTo: this.route });
+      })
       .catch((err) => {
         console.error(err);
       });

@@ -3,6 +3,7 @@
 // }
 export enum TemplateLookup {
   Test = 'tmpl_80703dffb3b4cb3',
+  TestSmallLogo = 'tmpl_2bae382bb59e4ec',
   Live = 'tmpl_3d1ae82287d0174',
 }
 
