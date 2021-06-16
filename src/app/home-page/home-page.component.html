@@ -1,22 +1,6 @@
 <div class="columns">
-  <!-- <div class="column is-one-third is-full-mobile" *ngIf="(org$ | async)?.name">
-    <div class="tile is-parent" (click)="goToOrg()">
-      <article class="tile is-child notification is-info">
-        <p class="title">Your Organization</p>
-        <p class="subtitle">{{(org$ | async)?.name}}</p>
-        <div class="content">
-          <button class="button">Open</button>
-        </div>
-      </article>
-    </div>
-  </div> -->
-  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column is-hidden-mobile is-1"></div>
   <div class="column" *ngIf="(blogPosts$ | async)">
-    <!-- <div class="tile is-parent">
-      <article class="tile is-child notification is-light">
-        <p class="title">Qwalatee Blog</p>
-      </article>
-    </div> -->
     <div class="tile is-parent" *ngFor="let post of (blogPosts$|async)">
       <article class="tile is-child notification is-light">
         <p class="title">{{post.title}}</p>
@@ -25,5 +9,5 @@
       </article>
     </div>
   </div>
-  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column is-hidden-mobile is-1"></div>
 </div>

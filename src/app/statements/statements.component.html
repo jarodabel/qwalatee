@@ -15,6 +15,9 @@
         <li [routerLinkActive]="['is-active']" *ngIf="(hasHistoryPermission$ | async)">
           <a [routerLink]="['/statements/review-history']">History</a>
         </li>
+        <li [routerLinkActive]="['is-active']" *ngIf="(hasSearchPermission$ | async)">
+          <a [routerLink]="['/statements/search']">Search</a>
+        </li>
       </ul>
     </div>
   </div>

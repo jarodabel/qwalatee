@@ -1,12 +1,12 @@
 <div class="columns">
-  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column is-hidden-mobile is-1"></div>
   <div class="column">
     <h1 class="title">Your Locations</h1>
   </div>
-  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column is-hidden-mobile is-1"></div>
 </div>
 <div class="columns">
-  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column is-hidden-mobile is-1"></div>
   <div class="column">
     <div class="tile is-parent" *ngFor="let loc of (locations$ | async)">
       <article class="tile is-child notification is-light" (click)='goToPdsaPage(loc.id)'>
@@ -16,5 +16,5 @@
       </article>
     </div>
   </div>
-  <div class="column is-hidden-mobile is-2"></div>
+  <div class="column is-hidden-mobile is-1"></div>
 </div>

@@ -23,8 +23,8 @@ export class BatchManagementService {
     return new Observable<{ [key: string]: UploadObject[] }>((observer) => {
       const unsubscribe = this.fs
         .collection('uploads')
+        // .orderBy('dateCreated', 'desc')
         .where('mailComplete', '==', false)
-        .orderBy('dateCreated', 'desc')
         .onSnapshot((_snapshot) => {
           const snapshot = _snapshot.docs;
           const uploads = [];
@@ -34,15 +34,14 @@ export class BatchManagementService {
           this.store.dispatch(setUploads({ uploads }));
           const res = uploads.reduce((acc, cur) => {
             const date = new Date(cur.dateCreated.seconds * 1000);
-            const key = `${date.getFullYear()}-${
-              date.getMonth() + 1
-            }-${date.getDate()}`;
+            const key = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
             if (!acc[key]) {
               acc[key] = [];
             }
             acc[key].push(cur);
             return acc;
           }, {});
+
           return observer.next(res);
         });
       return unsubscribe;
@@ -64,9 +63,7 @@ export class BatchManagementService {
           this.store.dispatch(setUploads({ uploads }));
           const res = uploads.reduce((acc, cur) => {
             const date = new Date(cur.dateCreated.seconds * 1000);
-            const key = `${date.getFullYear()}-${
-              date.getMonth() + 1
-            }-${date.getDate()}`;
+            const key = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
             if (!acc[key]) {
               acc[key] = [];
             }

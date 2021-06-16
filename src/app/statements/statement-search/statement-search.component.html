@@ -1,0 +1,30 @@
+<div class="columns">
+  <div class="column is-hidden-mobile is-1"></div>
+  <div class="column is-10">
+    <div class="tile is-ancestor" >
+      <div class="tile is-parent">
+        <div class="tile is-child box">
+          <p class="title">Search</p>
+          <div class="field has-addons">
+            <div class="control">
+              <input class="input is-small" type="text" placeholder="Patient Id">
+            </div>
+            <div class="control">
+              <a class="button is-link is-small" (click)="searchFn()">
+                Search
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tile is-ancestor">
+      <div class="tile is-parent">
+        <div class="tile is-child box">
+          <p class="title">Results</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="column is-hidden-mobile is-1"></div>
+</div>

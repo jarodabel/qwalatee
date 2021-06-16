@@ -5,12 +5,16 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { select, Store } from '@ngrx/store';
 import { of, Subject } from 'rxjs';
 import { concatMap, delay, takeUntil } from 'rxjs/operators';
+import { AppState } from '../../app-state';
+import { selectCurrentUserHasLobPermission } from '../../shared/selectors/user.selectors';
 import {
   UploadService,
   UploadSteps,
 } from '../../shared/services/upload.service';
+import { RoutePermissionMap } from '../statements.types';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,10 +31,12 @@ export class BatchUploadComponent implements OnInit, OnDestroy {
   uploadReset = new Subject();
   uploadSteps = UploadSteps;
   destroy$ = new Subject();
+  hasExplorePermission$ = this.store.pipe(select(selectCurrentUserHasLobPermission(RoutePermissionMap['explore-batch'])));
 
   constructor(
     private uploadService: UploadService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit(): void {

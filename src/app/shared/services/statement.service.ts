@@ -15,8 +15,6 @@ export class StatementService {
     return this.db.collection('statement-history').add(row);
   }
 
-  // batchAddStatementHistory() {}
-
   getStatementsById(id) {
     return this.fs.collection('statement-history').where('id', '==', id).get();
   }

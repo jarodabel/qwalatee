@@ -1,3 +1,4 @@
+import { KeyValue } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -80,6 +81,10 @@ export class BatchReviewComponent implements OnInit {
     this.filename = undefined;
     this.pending = false;
     this.toggleModal();
+  }
+
+  keyDescOrder = (a: KeyValue<number,string>, b: KeyValue<number,string>): number => {
+    return a.key - b.key;
   }
 
   private toggleModal() {

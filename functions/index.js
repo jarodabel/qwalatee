@@ -48,3 +48,10 @@ exports.getLobRequest = functions.https.onRequest((req, res) => {
       });
   });
 });
+
+exports.lobEventWebhook = functions.https.onRequest((req, res) => {
+  cors(req, res, () => {
+    console.log(req);
+    res.send("endpoint for lob webhooks")
+  });
+});

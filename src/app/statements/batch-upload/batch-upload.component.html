@@ -29,7 +29,7 @@
                     </span>
                     <span>New Upload</span>
                   </button>
-                  <button class="button has-text-success-dark is-outlined is-small" [routerLink]="['/statements/review-batch']">
+                  <button class="button has-text-success-dark is-outlined is-small" *ngIf="hasExplorePermission$ | async" [routerLink]="['/statements/review-batch']">
                     <span class="icon">
                       <i class="fa fa-arrow-right"></i>
                     </span>

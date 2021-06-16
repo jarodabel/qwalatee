@@ -3,8 +3,9 @@ start: npm start
 build: ng build
 
 deploy 
-- everything: `firebase deploy`
+- everything: `firebase deploy `
 - hosting only: `firebase deploy --only hosting`
+- functions: `firebase deploy --only functions`
 
 
 

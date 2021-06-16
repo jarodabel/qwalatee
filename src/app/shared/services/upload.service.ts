@@ -101,7 +101,10 @@ export class UploadService {
   uploadStatus$ = new Subject<UploadSteps>();
   fs = firebase.firestore();
 
-  constructor(private userService: UserService, private statementService: StatementService) {}
+  constructor(
+    private userService: UserService,
+    private statementService: StatementService
+  ) {}
 
   async upload(filename, rawData) {
     try {
@@ -150,6 +153,7 @@ export class UploadService {
     let tempObj: PatientRecord = {};
     let newPatient = false;
 
+    const totalRows = chunks.length;
     const userObjects = chunks.reduce(
       (accumulator, currentValue, currentIndex) => {
         // first one
@@ -184,11 +188,15 @@ export class UploadService {
           tempObj.charges.push(rowData);
         }
 
+        // last row
+        if (totalRows === currentIndex + 1) {
+          accumulator.push(tempObj);
+        }
+
         return accumulator;
       },
       []
     );
-
     return userObjects;
   }
 
@@ -226,16 +234,20 @@ export class UploadService {
         (a, b) => Object.keys(a.charges).length - Object.keys(b.charges).length
       );
       const len = chargesArr.length;
-      const max = chargesArr[len - 1];
-      const min = chargesArr[0];
-      const med = chargesArr[Math.round(len / 2)];
+      const min = chargesArr[0] || {recordId: null, approved: true};
+      const max = len > 1 ? chargesArr[len - 1] : {recordId: null, approved: true};
+      const med = len > 2 ? chargesArr[Math.round(len / 2)] : {recordId: null, approved: true};
 
       const update = {
         'reviewStatements.one.recordId': min.recordId,
+        'reviewStatements.one.approved': min?.approved || false,
         'reviewStatements.two.recordId': med.recordId,
+        'reviewStatements.two.approved': med?.approved || false,
         'reviewStatements.three.recordId': max.recordId,
-      }
-      this.statementService.updateUploadRecord(id, update)
+        'reviewStatements.three.approved': max?.approved || false,
+      };
+      this.statementService
+        .updateUploadRecord(id, update)
         .then((res) => {
           this.uploadStatus$.next(UploadSteps.UpdateUploadObjectDone);
           resolve(res);

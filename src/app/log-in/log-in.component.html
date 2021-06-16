@@ -1,0 +1,45 @@
+<div class="columns login-column">
+  <div class="column is-12 is-flex is-align-items-center is-justify-content-center" *ngIf='errorMessage'>
+    <h2 class="subtitle">There was and error during login. Please try again or contact an admin.</h2>
+  </div>
+  <div class="column is-12 is-flex is-align-items-center is-justify-content-center" *ngIf='!showForm'>
+    <button class="button is-link login-button" (click)="emailPasswordForm()">
+      <span class="icon is-small">
+        <i class="fas fa-at"></i>
+      </span>
+      <span>Log In With Email</span>
+    </button>
+    <div class="google-btn-image login-button" (click)="logInWithGoogle()">
+    </div>
+  </div>
+  <div class="column is-6 is-offset-2" *ngIf='showForm'>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <p class="control has-icons-left has-icons-right">
+          <input class="input" type="email" placeholder="Email" formControlName="email" autofocus>
+          <span class="icon is-small is-left">
+            <i class="fas fa-envelope"></i>
+          </span>
+          <span class="icon is-small is-right">
+            <i class="fas fa-check"></i>
+          </span>
+        </p>
+      </div>
+      <div class="field">
+        <p class="control has-icons-left">
+          <input class="input" type="password" placeholder="Password" formControlName="password">
+          <span class="icon is-small is-left">
+            <i class="fas fa-lock"></i>
+          </span>
+        </p>
+      </div>
+      <div class="field">
+        <p class="control">
+          <button class="button is-success" type="submit" [disabled]="loginForm.invalid || loginForm.pristine">
+            Login
+          </button>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

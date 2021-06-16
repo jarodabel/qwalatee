@@ -44,9 +44,11 @@ import { UploadService } from './shared/services/upload.service';
 import { BatchManagementService } from './shared/services/batch-management.service';
 import { StatementsInfoComponent } from './statements-info/statements-info.component';
 import { CanActivateSubRouteService } from './statements/statements.sub.route.guard';
+import { LogInComponent } from './log-in/log-in.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [AppComponent, HomePageComponent, AttributionComponent, StatementsInfoComponent],
+  declarations: [AppComponent, HomePageComponent, AttributionComponent, StatementsInfoComponent, LogInComponent],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     AppRoutingModule,
@@ -79,6 +81,7 @@ import { CanActivateSubRouteService } from './statements/statements.sub.route.gu
     EffectsModule.forRoot([BreadcrumbService]),
     MessagesModudle,
     StatementsModule,
+    ReactiveFormsModule,
   ],
   providers: [
     PdsaService,

@@ -1,0 +1,22 @@
+:host {
+  width: 100%;
+}
+
+.login-column{
+  height: 100%;
+}
+
+.login-button{
+  margin: 10px;
+}
+
+.google-btn-image {
+  cursor: pointer;
+  width: 191px;
+  height: 46px;
+  background: url(../../assets/btn_google_signin_light_normal_web.png);
+}
+
+.google-btn-image:hover {
+  background: url(../../assets/btn_google_signin_light_pressed_web.png);
+}

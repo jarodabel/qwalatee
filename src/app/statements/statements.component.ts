@@ -19,6 +19,7 @@ import { BatchSharedComponent } from './batch-shared/batch-shared.component';
 import { selectCurrentUserHasLobPermission, selectUser } from '../shared/selectors/user.selectors';
 import { Router } from '@angular/router';
 import { RoutePermissionMap } from './statements.types';
+import { StatementSearchComponent } from './statement-search/statement-search.component';
 
 export enum TabNames {
   HistoryStatements = 'historyStatements',
@@ -39,6 +40,7 @@ export class StatementsComponent implements OnInit {
   hasExplorePermission$ = this.store.pipe(select(selectCurrentUserHasLobPermission(RoutePermissionMap['explore-batch'])));
   hasReviewPermission$ = this.store.pipe(select(selectCurrentUserHasLobPermission(RoutePermissionMap['review-batch'])));
   hasHistoryPermission$ = this.store.pipe(select(selectCurrentUserHasLobPermission(RoutePermissionMap['review-history'])));
+  hasSearchPermission$ = this.store.pipe(select(selectCurrentUserHasLobPermission(RoutePermissionMap.search)));
 
   constructor(
     private userService: UserService,
@@ -71,6 +73,7 @@ export class StatementsComponent implements OnInit {
     ReviewPdfComponent,
     BatchExploreComponent,
     BatchSharedComponent,
+    StatementSearchComponent,
   ],
   exports: [UploadEventPipe, UseramePipe],
   imports: [CommonModule, SharedModule, BrowserModule, FormsModule],

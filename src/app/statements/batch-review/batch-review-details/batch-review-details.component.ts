@@ -68,6 +68,7 @@ export class BatchReviewDetailsComponent
   stepTitles = StepTitles;
   mailOptions = MailOptions;
   selectedMailingOption: MailOptions;
+  displayMessage: string;
 
   user$ = this.store.pipe(select(selectUser));
   destroy$ = new Subject();
@@ -94,7 +95,7 @@ export class BatchReviewDetailsComponent
       userService,
       store,
       route,
-      router,
+      router
     );
   }
 
@@ -166,6 +167,10 @@ export class BatchReviewDetailsComponent
       recordId = this.uploadObj.reviewStatements.three.recordId;
     }
 
+    if (!recordId) {
+      return false;
+    }
+
     const foundRecord = this.records.find(
       (record) => record.recordId === recordId
     );
@@ -209,6 +214,13 @@ export class BatchReviewDetailsComponent
       if (isChecked(index)) {
         return true;
       }
+      if (index === 3) {
+        const res =
+          this.uploadObj?.reviewStatements.one.approved &&
+          this.uploadObj?.reviewStatements.two.approved &&
+          this.uploadObj?.reviewStatements.three.approved;
+        return this.uploadObj ? !res : true;
+      }
       return !isChecked(index - 1);
     };
     const list = [
@@ -246,6 +258,7 @@ export class BatchReviewDetailsComponent
         title: StepTitles.MAILING_COMPLETE,
       },
     ];
+
     this.reviewList = [[list[0], list[1], list[2]], list[3], list[4], list[5]];
     this.allSteps = [...list];
     this.setCurrentStep();
@@ -260,6 +273,11 @@ export class BatchReviewDetailsComponent
 
   async reviewStepClicked(index) {
     const record = this.getRecordForReview(index);
+
+    if (!record) {
+      return;
+    }
+
     let res;
     let ltrId;
 
@@ -331,15 +349,15 @@ export class BatchReviewDetailsComponent
         console.error(err);
       });
 
-    this.env = env;
-    this.startStatements(this.records, shouldOverwriteAddress).subscribe(
-      (s) => {},
-      (err) => {
-        console.log('error', err);
-      },
-      () => {
-        console.log('success', this.completedRequests - this.failedRequests);
-        console.log('error', this.failedRequests);
+      this.env = env;
+      this.startStatements(this.records, shouldOverwriteAddress).subscribe(
+        (s) => {},
+        (err) => {
+          console.log('error', err);
+        },
+        () => {
+          console.log('success', this.completedRequests - this.failedRequests);
+          console.log('error', this.failedRequests);
         this.finished();
       }
     );
@@ -351,7 +369,6 @@ export class BatchReviewDetailsComponent
 
   startMail(option: MailOptions) {
     let message;
-    console.log(option);
     if (option === MailOptions.NONE) {
       return;
     } else if (option === MailOptions.SKIP_MAILING) {

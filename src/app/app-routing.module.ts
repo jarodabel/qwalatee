@@ -21,11 +21,17 @@ import { ReviewPdfComponent } from './statements/batch-review/review-pdf/review-
 import { BatchExploreComponent } from './statements/batch-explore/batch-explore.component';
 import { StatementsInfoComponent } from './statements-info/statements-info.component';
 import { CanActivateSubRouteService } from './statements/statements.sub.route.guard';
+import { StatementSearchComponent } from './statements/statement-search/statement-search.component';
+import { LogInComponent } from './log-in/log-in.component';
 
 const routes: Routes = [
   {
     path: '',
     component: HomePageComponent,
+  },
+  {
+    path: 'login',
+    component: LogInComponent,
   },
   {
     path: 'organization/:orgId',
@@ -146,6 +152,14 @@ const routes: Routes = [
         path: 'activity',
         redirectTo: '',
       },
+      {
+        component: StatementSearchComponent,
+        canActivate: [CanActivateSubRouteService],
+        path: 'search',
+        data: {
+          page: 'search',
+        }
+      }
     ],
   },
   {

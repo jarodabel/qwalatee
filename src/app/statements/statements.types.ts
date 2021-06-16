@@ -3,4 +3,5 @@ export enum RoutePermissionMap {
   'explore-batch' = 'explore',
   'review-batch' = 'review',
   'review-history' = 'history',
+  'search' = 'search',
 }

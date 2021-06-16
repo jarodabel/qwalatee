@@ -1,13 +1,10 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import {
-  map,
-  switchMap,
-  take,
-} from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import firebase from 'firebase/app';
+
 import { select, Store } from '@ngrx/store';
 import { AppState } from '../../app-state';
 import { selectUser } from '../selectors/user.selectors';
@@ -22,7 +19,6 @@ export class ShellComponent {
   @ViewChild('navbarBasicMenu') navbarBasicMenu: ElementRef;
   @ViewChild('navbarBurger') navbarBurger: ElementRef;
   @ViewChild('settingsMenu') settingsMenu: ElementRef;
-
   user$ = this.store.pipe(select(selectUser));
 
   org$ = this.user$.pipe(
@@ -54,24 +50,13 @@ export class ShellComponent {
     this.navbarBurger.nativeElement.classList.remove('is-active');
     this.navbarBasicMenu.nativeElement.classList.remove('is-active');
     // settings menu
-    if(this.settingsMenu){
+    if (this.settingsMenu) {
       this.settingsMenu.nativeElement.classList.remove('is-active');
     }
   }
 
   logIn() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({prompt: 'select_account'})
-    firebase.auth()
-      .signInWithPopup(provider)
-      .then(
-        (a) => {
-          this.router.navigate(['/']);
-        },
-        (err) => {
-          console.error('error');
-        }
-      );
+    this.router.navigate(['/login']);
   }
 
   signOut() {
