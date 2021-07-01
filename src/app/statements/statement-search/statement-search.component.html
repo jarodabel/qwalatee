@@ -1,13 +1,13 @@
 <div class="columns">
   <div class="column is-hidden-mobile is-1"></div>
   <div class="column is-10">
-    <div class="tile is-ancestor" >
+    <div class="tile is-ancestor">
       <div class="tile is-parent">
         <div class="tile is-child box">
           <p class="title">Search</p>
           <div class="field has-addons">
             <div class="control">
-              <input class="input is-small" type="text" placeholder="Patient Id">
+              <input class="input is-small" type="text" placeholder="Patient Id" [(ngModel)]="searchTerm">
             </div>
             <div class="control">
               <a class="button is-link is-small" (click)="searchFn()">
@@ -15,6 +15,7 @@
               </a>
             </div>
           </div>
+          <button class="button is-small is-danger is-pulled-right" (click)="clearSearch()">Clear</button>
         </div>
       </div>
     </div>
@@ -22,6 +23,26 @@
       <div class="tile is-parent">
         <div class="tile is-child box">
           <p class="title">Results</p>
+          <div class="table-container" *ngIf="searchResults?.length">
+            <table class="table is-narrow is-fullwidth is-striped is-hoverable statement-table ">
+              <thead>
+                <th *ngFor="let heading of headings">
+                  {{heading}}
+                </th>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of searchResults; let i = index">
+                  <td>
+                    <span class="icon statement-icon" [ngClass]="{'disabled': !row.ltrId}"
+                      (click)="openUrl(row.ltrId)">
+                      <i class="fas fa-file-alt"></i>
+                    </span>
+                  </td>
+                  <td *ngFor="let field of fieldNames">{{row[field]}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

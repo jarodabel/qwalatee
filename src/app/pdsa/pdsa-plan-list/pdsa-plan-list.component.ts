@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, map, take, tap } from 'rxjs/operators';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../app-state';
 import { PdsaService } from '../../shared/services/pdsa.service';

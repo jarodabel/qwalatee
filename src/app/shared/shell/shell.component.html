@@ -16,12 +16,12 @@
     </div>
     <div id="navbarBasicExample" class="navbar-menu" #navbarBasicMenu>
       <div class="navbar-start">
-        <a class="navbar-item" *ngIf="(user$ | async)?.organization" (click)="goToOrg()">
+        <!-- <a class="navbar-item" *ngIf="(user$ | async)?.organization" (click)="goToOrg()">
           <span class="icon has-text-link-dark">
             <i class="fas fa-book"></i>
           </span>
           <span>PDSAs</span>
-        </a>
+        </a> -->
         <a class="navbar-item" [routerLink]="['/statements']" *ngIf="(user$ | async)?.lobPermissions?.statements" (click)="hideNavbarMenu()">
           <span class="icon has-text-link-dark">
             <i class="fas fa-file-invoice-dollar"></i>
@@ -56,10 +56,10 @@
 
       <div class="navbar-end">
         <div class="navbar-item">
-          <button class="button is-small is-outlined has-text-link-dark" *ngIf="!(afAuth.authState | async)" (click)="logIn()">Log In
+          <button class="button is-small is-outlined has-text-link-dark" *ngIf="!(user$ | async)?.id" (click)="logIn()">Log In
           </button>
         </div>
-        <div class="navbar-item has-dropdown" *ngIf="afAuth.authState | async as user" #settingsMenu>
+        <div class="navbar-item has-dropdown" *ngIf="(user$ | async )?.id" #settingsMenu>
           <a class="navbar-link" (click)="openSettingsMenu()">
             <span class="icon has-text-dark">
               <i class="fas fa-cog"></i>
@@ -67,7 +67,7 @@
           </a>
 
           <div class="navbar-dropdown is-right">
-            <!-- <a class="navbar-item" [routerLink]="['/settings']" *ngIf="afAuth.authState | async as user"
+            <!-- <a class="navbar-item" [routerLink]="['/settings']"
               (click)="hideNavbarMenu()">
               <span class="icon">
                 <i class="fas fa-user-cog"></i>

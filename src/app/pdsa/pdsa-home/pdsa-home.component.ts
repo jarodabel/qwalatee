@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 
 import { FormBuilder } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 import firebase from 'firebase/app';

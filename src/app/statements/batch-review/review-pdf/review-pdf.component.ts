@@ -1,16 +1,13 @@
 import {
   Component,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 import { AppState } from '../../../app-state';
-import { updateUploadRecordApproved } from '../../../shared/actions/statement.actions';
 import { selectUser } from '../../../shared/selectors/user.selectors';
 import { LobService } from '../../../shared/services/lob.service';
 import { StatementService } from '../../../shared/services/statement.service';

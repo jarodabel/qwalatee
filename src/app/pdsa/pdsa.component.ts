@@ -8,9 +8,9 @@ import { PdsaPlanListComponent } from './pdsa-plan-list/pdsa-plan-list.component
 import { PdsaHomeComponent } from './pdsa-home/pdsa-home.component';
 import { switchMap, map } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Store } from '@ngrx/store';
 import { AppState } from '../app-state';
+import { PdsaService } from '../shared/services/pdsa.service';
 
 @Component({
   selector: 'pdsa',
@@ -21,15 +21,15 @@ export class PdsaComponent implements OnInit {
   thisPdsa$;
   constructor(
     private route: ActivatedRoute,
-    private db: AngularFirestore,
     private router: Router,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private pdsaService: PdsaService,
   ) {}
 
   ngOnInit() {
     this.thisPdsa$ = this.route.params.pipe(
       switchMap((params) =>
-        this.db.collection('pdsa').doc(params.pdsaId).get()
+        this.pdsaService.getPdsaById(params.pdsaId)
       ),
       map((a) => ({ id: a.id, ...a }))
     );

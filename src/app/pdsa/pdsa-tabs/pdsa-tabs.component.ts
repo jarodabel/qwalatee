@@ -1,6 +1,5 @@
-import { Component, OnInit, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
 import { take, map } from 'rxjs/operators';
 import firebase from 'firebase/app';
@@ -19,16 +18,16 @@ const documentFields = [
   templateUrl: './pdsa-tabs.component.html',
 })
 export class PdsaTabsComponent implements OnInit {
+  fs = firebase.firestore();
   list = ['Plan', 'Do', 'Study', 'Act'];
   clicked = 'Plan';
   currentPdsaCycle;
   routeParams$ = this.route.params;
-  pdsa$;
+  pdsa;
   canSave = false;
 
   constructor(
     private formBuilder: FormBuilder,
-    private db: AngularFirestore,
     private route: ActivatedRoute
   ) {}
 
@@ -40,16 +39,13 @@ export class PdsaTabsComponent implements OnInit {
 
   async setCycles() {
     const params = await this.routeParams$.pipe(take(1)).toPromise();
-    this.pdsa$ = this.db
-      .collection('pdsa-cycle', (ref) =>
-        ref.where('pdsaId', '==', params.pdsaId)
-      )
+    this.fs
+      .collection('pdsa-cycle')
+      .where('pdsaId', '==', params.pdsaId)
       .get()
-      .pipe(
-        map((pdsas) =>
-          pdsas.docs.map((pdsa) => ({ id: pdsa.id, ...pdsa }))
-        )
-      );
+      .then((pdsas) => {
+        this.pdsa = pdsas.docs.map((pdsa) => ({ id: pdsa.id, ...pdsa }))
+      })
   }
 
   getFormData() {
@@ -63,7 +59,7 @@ export class PdsaTabsComponent implements OnInit {
   async saveForm() {
     const params = await this.routeParams$.pipe(take(1)).toPromise();
     const newDate = firebase.firestore.FieldValue.serverTimestamp();
-    this.db
+    this.fs
       .collection('pdsa-cycle')
       .add({
         ...this.getFormData(),

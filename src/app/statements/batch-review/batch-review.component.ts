@@ -1,15 +1,10 @@
 import { KeyValue } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { from, Observable, of } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
-import { AppState } from '../../app-state';
-import { setUploads } from '../../shared/actions/statement.actions';
+import { Observable, of } from 'rxjs';
 import { BatchManagementService } from '../../shared/services/batch-management.service';
 import {
   UploadObject,
-  UploadService,
 } from '../../shared/services/upload.service';
 
 export enum ModalType {

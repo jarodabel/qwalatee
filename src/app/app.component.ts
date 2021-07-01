@@ -1,7 +1,6 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AppState } from './app-state';
-import { setUser } from './shared/actions/user-actions';
 import { UserService } from './shared/services/user.service';
 
 @Component({
@@ -17,7 +16,8 @@ export class AppComponent implements OnInit {
   constructor(
     private userService: UserService,
     private store: Store<AppState>
-  ) {}
+  ) {
+  }
   close() {
     this.constructionNotification.nativeElement.remove();
   }

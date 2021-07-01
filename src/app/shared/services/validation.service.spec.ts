@@ -1,19 +1,22 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { AngularFirestore } from '@angular/fire/firestore';
 import firebase from 'firebase/app';
-import { Observable, of } from 'rxjs';
-import { last } from 'rxjs/operators';
-import { FirebaseMock } from './firebase.mock';
 import { ValidationService } from './validation.service';
+import { FirebaseMock, firestore } from './firebase.mock';
+
+jest.mock('firebase');
 
 describe('Validation Service', () => {
   let service: ValidationService;
-  let db: FirebaseMock;
+  let consoleErrorSpy;
+  beforeAll(() => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
+    firebase.firestore = firestore as any;
+  });
 
   beforeEach(() => {
     TestBed.configureTestingModule({ providers: [ValidationService] });
     service = TestBed.inject(ValidationService);
-    service.fs = new FirebaseMock() as any;
+    consoleErrorSpy.mockClear();
   });
 
   describe('checkData', () => {
@@ -21,11 +24,11 @@ describe('Validation Service', () => {
       const validateSpy = spyOn(service, 'validate');
       service.checkData(undefined, undefined);
       expect(validateSpy).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalled();
     });
 
     it('should call validate with data and statementId', () => {
       const validateSpy = spyOn(service, 'validate');
-      spyOn(db, 'data').and.returnValue(undefined);
       service.checkData([], 'statement-837383');
       expect(validateSpy).toHaveBeenCalled();
     })
@@ -33,8 +36,6 @@ describe('Validation Service', () => {
 
   describe('validate function', () => {
     it('should emit false if missing statement in db', (done) => {
-      spyOn(db, 'data').and.returnValue(undefined);
-
       service.responseSub.subscribe((res) => {
         expect(res).toEqual(false);
         done();
@@ -44,7 +45,7 @@ describe('Validation Service', () => {
 
     it('should set header fields if it finds some', fakeAsync(() => {
       const acceptableFields = ['field2', 'field1', 'field8'];
-      db.setData({acceptableFields})
+      jest.spyOn(service.fs as any, 'data').mockReturnValue({acceptableFields})
       service.checkData([], 'statement-837383');
       tick();
       expect(service.headerFields).toEqual(acceptableFields);

@@ -12,9 +12,6 @@ import { SharedModule } from './shared/shared.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 // Firebase imports
-import { AngularFireModule } from '@angular/fire';
-import { AngularFirestoreModule } from '@angular/fire/firestore';
-import { AngularFireAuthModule } from '@angular/fire/auth';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { PdsaModule } from './pdsa/pdsa.component';
 import { StoreModule } from '@ngrx/store';
@@ -46,6 +43,7 @@ import { StatementsInfoComponent } from './statements-info/statements-info.compo
 import { CanActivateSubRouteService } from './statements/statements.sub.route.guard';
 import { LogInComponent } from './log-in/log-in.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import firebase from '@firebase/app'
 
 @NgModule({
   declarations: [AppComponent, HomePageComponent, AttributionComponent, StatementsInfoComponent, LogInComponent],
@@ -62,9 +60,6 @@ import { ReactiveFormsModule } from '@angular/forms';
     PrivacyModule,
     ResourcesModule,
     FontAwesomeModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
-    AngularFireAuthModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
     }),
@@ -98,4 +93,8 @@ import { ReactiveFormsModule } from '@angular/forms';
   bootstrap: [AppComponent],
   exports: [],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(){
+    firebase.initializeApp(environment.firebase);
+  }
+}

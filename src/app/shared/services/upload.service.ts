@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import firebase from 'firebase/app';
-import { of, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { AccessType } from '../../types/access';
 import { PatientRecord } from '../../types/data-models';
 import { StatementService } from './statement.service';

@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import firebase from 'firebase/app';
-import 'firebase/firestore';
 import { environment } from '../../../environments/environment';
+import { firestore } from './firebase.mock';
 
 import { UploadService, ValidationErrorTypes } from './upload.service';
 import { UserService } from './user.service';
-import { UserServiceMock } from './user.service.mock';
 
 const fs = require('fs');
 const path = require('path');
+jest.mock('firebase');
 
 describe('UploadServiceService', () => {
   let service: UploadService;
@@ -27,6 +27,7 @@ describe('UploadServiceService', () => {
       }
     });
     firebase.initializeApp(environment.firebase);
+    firebase.firestore = firestore as any;
   });
 
   beforeEach(() => {
@@ -86,16 +87,16 @@ describe('UploadServiceService', () => {
       res = service.parseUpload(rawData);
     });
     it('should return data as expected', () => {
-      expect(res.length).toBe(45);
+      expect(res.length).toBe(46);
       expect(res[0]).toEqual(johnDoe);
     });
     it('should create properly shaped object', () => {
       const uploadObject = service.createUploadObject(filename, res);
-      expect(uploadObject.count).toBe(45);
+      expect(uploadObject.count).toBe(46);
       expect(uploadObject.filename).toBe(filename);
       expect(uploadObject.dateCreated).toBeDefined();
       // expect(uploadObject.records[0]).toEqual(johnDoe);
-      expect(uploadObject.hasBeenMailed).toBe(false);
+      expect(uploadObject.mailComplete).toBe(false);
     });
   });
 
@@ -105,12 +106,6 @@ describe('UploadServiceService', () => {
       res = service.parseUpload(rawData);
     });
     it('should do an upload and return success', (done) => {
-      const fake: any = () => {
-        return {
-          add: new Promise((resolve, rej) => {resolve('')}),
-        }
-      };
-      jest.spyOn(service.fs, 'collection').mockReturnValue(fake);
       service.uploadToDb(filename, res).then((response) => {
         expect(response).toBe('');
         done();

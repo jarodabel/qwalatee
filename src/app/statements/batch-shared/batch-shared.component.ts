@@ -156,7 +156,7 @@ export class BatchSharedComponent {
       row.ltrId = res.id;
       row.selected = false;
       this.batchManagementService
-        .setRecordAsTestView(record.recordId, res.id)
+        .setRecordAsTestView(record.recordId, res.id, res.expected_delivery_date)
         .then(() => {
           resolve('');
         })

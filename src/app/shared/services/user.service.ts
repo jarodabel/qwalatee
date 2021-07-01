@@ -1,30 +1,40 @@
 import { Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { select, Store } from '@ngrx/store';
 import { distinctUntilChanged, map, switchMap, take } from 'rxjs/operators';
 import { AppState } from '../../app-state';
 import { setUser } from '../actions/user-actions';
 import { selectUser } from '../selectors/user.selectors';
 import firebase from 'firebase/app';
+import 'firebase/auth';
 import { AccessObj, AccessType } from '../../types/access';
+import { Subject } from 'rxjs';
 import { User } from '../reducers/user.reducers';
 
+const noUser = {
+  email: '',
+  id: '',
+  firstName: '',
+  lastName: '',
+  organization: '',
+  lobPermissions: { admin: false, canMail: false, statements: false, explore: false, history: false, review: false, uploads: false, },
+};
 @Injectable()
 export class UserService {
+  userSubject$ = new Subject<any>();
+
   fs = firebase.firestore();
+  user = firebase.auth().onAuthStateChanged((user) => {
+    this.userSubject$.next(user);
+  });
 
-  constructor(
-    public afAuth: AngularFireAuth,
-    private db: AngularFirestore,
-    private store: Store<AppState>
-  ) {}
-  userAuth$ = this.afAuth.user;
+  constructor(private store: Store<AppState>) {}
 
-  dbUser$ = this.userAuth$.pipe(
+  dbUser$ = this.userSubject$.pipe(
     distinctUntilChanged(),
+
     switchMap(async (user) => {
-      if (!user) {
+      if (!user || !user.uid) {
+        this.store.dispatch(setUser(noUser))
         return undefined;
       }
       const query = await this.fs
@@ -38,7 +48,7 @@ export class UserService {
         return undefined;
       }
 
-      return { ...matchingUsers[0].data(), id: user.uid };
+      return { ...matchingUsers[0].data(), id: user.uid } as any;
     }),
     map((_user: any) => {
       const user = {
@@ -77,6 +87,6 @@ export class UserService {
       ltrId,
       filename,
     };
-    return this.db.collection('access').add(obj);
+    return this.fs.collection('access').add(obj);
   }
 }

@@ -1,5 +1,6 @@
 const sendEmail = require('./contact-us');
 const lobRequest = require('./statements');
+const webhook = require('./webhooks');
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
@@ -51,7 +52,15 @@ exports.getLobRequest = functions.https.onRequest((req, res) => {
 
 exports.lobEventWebhook = functions.https.onRequest((req, res) => {
   cors(req, res, () => {
-    console.log(req);
-    res.send("endpoint for lob webhooks")
+    webhook.lobEvent(req).then((data) => {
+      res.set('Content-Type', 'application/json');
+      res.status(200).send(data);
+      res.end();
+    })
+    .catch((err) => {
+      res.set('Content-Type', 'application/json');
+      res.status(400).send(JSON.stringify({ message: err }));
+      res.end();
+    });
   });
 });

@@ -160,10 +160,11 @@ export class BatchManagementService {
       .get();
   }
 
-  setRecordAsTestView(recordId: string, ltrId: string) {
+  setRecordAsTestView(recordId: string, ltrId: string, expectedDeliveryDate) {
     return this.fs.collection('statement-records').doc(recordId).update({
       testView: true,
       ltrId,
+      expectedDeliveryDate,
     });
   }
 

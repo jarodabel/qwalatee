@@ -1,7 +1,5 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { map, switchMap, take } from 'rxjs/operators';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import firebase from 'firebase/app';
 
@@ -16,6 +14,8 @@ import { logoutUser } from '../actions/user-actions';
   styleUrls: ['./shell.component.scss'],
 })
 export class ShellComponent {
+  fs = firebase.firestore();
+
   @ViewChild('navbarBasicMenu') navbarBasicMenu: ElementRef;
   @ViewChild('navbarBurger') navbarBurger: ElementRef;
   @ViewChild('settingsMenu') settingsMenu: ElementRef;
@@ -23,14 +23,12 @@ export class ShellComponent {
 
   org$ = this.user$.pipe(
     switchMap((userInfo: any) =>
-      this.db.collection('organization').doc(userInfo.organization).get()
+      this.fs.collection('organization').doc(userInfo.organization).get()
     ),
-    map((a) => ({ id: a.id, ...a }))
+    map((a: any) => ({ id: a.id, ...a }))
   );
 
   constructor(
-    public afAuth: AngularFireAuth,
-    private db: AngularFirestore,
     private store: Store<AppState>,
     private router: Router
   ) {}

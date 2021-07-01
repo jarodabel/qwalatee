@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { AccessType } from '../../types/access';
 
 import firebase from 'firebase/app';
@@ -9,10 +8,10 @@ import { QueryDocumentSnapshot } from 'firebase-functions/lib/providers/firestor
 })
 export class StatementService {
   fs = firebase.firestore();
-  constructor(private db: AngularFirestore) {}
+  constructor() {}
 
   postStatementHistory(row) {
-    return this.db.collection('statement-history').add(row);
+    return this.fs.collection('statement-history').add(row);
   }
 
   getStatementsById(id) {

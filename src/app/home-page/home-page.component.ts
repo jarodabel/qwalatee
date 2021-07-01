@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { switchMap, map, take, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
@@ -7,9 +7,8 @@ import { resetBreadcrumb } from '../shared/actions/shared-actions';
 import { AppState } from '../app-state';
 import { HttpClient } from '@angular/common/http';
 import { selectUser } from '../shared/selectors/user.selectors';
-import { User } from '../shared/reducers/user.reducers';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { environment } from '../../environments/environment';
+import { OrganizationService } from '../shared/services/organization.service';
 
 
 @Component({
@@ -22,20 +21,15 @@ export class HomePageComponent implements OnInit {
   user$ = this.store.pipe(select(selectUser));
 
   username: string;
-  org$ = this.user$.pipe(
-    switchMap((user: User) =>
-      this.db.collection('organization').doc(user.organization).get()
-    ),
-    map((a) => ({ id: a.id, ...a }))
-  );
+  org$ = this.organizationService$.getUsersOrganization();
 
   blogPosts$;
 
   constructor(
-    private db: AngularFirestore,
     private router: Router,
     private store: Store<AppState>,
-    private http: HttpClient
+    private http: HttpClient,
+    private organizationService$: OrganizationService
   ) {}
 
   ngOnInit() {

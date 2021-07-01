@@ -17,7 +17,6 @@ import { ReviewPdfComponent } from './batch-review/review-pdf/review-pdf.compone
 import { BatchExploreComponent } from './batch-explore/batch-explore.component';
 import { BatchSharedComponent } from './batch-shared/batch-shared.component';
 import { selectCurrentUserHasLobPermission, selectUser } from '../shared/selectors/user.selectors';
-import { Router } from '@angular/router';
 import { RoutePermissionMap } from './statements.types';
 import { StatementSearchComponent } from './statement-search/statement-search.component';
 
@@ -45,7 +44,6 @@ export class StatementsComponent implements OnInit {
   constructor(
     private userService: UserService,
     private store: Store<AppState>,
-    private router: Router
   ) {}
 
   ngOnInit() {
