@@ -74,6 +74,9 @@
   "jest": {
     "verbose": true,
     "preset": "jest-preset-angular",
-    "setupFilesAfterEnv": ["<rootDir>/setupJest.ts"]
+    "setupFilesAfterEnv": ["<rootDir>/setupJest.ts"],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
   }
 }
