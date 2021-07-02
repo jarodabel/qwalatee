@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { provideMockStore } from '@ngrx/store/testing';
+import { of } from 'rxjs';
 import { CheckboxComponent } from '../../../shared/checkbox/checkbox.component';
 import { BatchManagementService } from '../../../shared/services/batch-management.service';
 import { BatchManagementServiceMock } from '../../../shared/services/batch-management.service.mock';
@@ -31,6 +33,8 @@ describe('BatchReviewDetailsComponent', () => {
           { path: '', component: BlankCmp },
           { path: 'simple', component: BlankCmp },
         ]),
+      ],
+      providers: [
         provideMockStore({}),
         { provide: UserService, useClass: UserServiceMock },
         { provide: StatementService, useClass: StatementServiceMock },
@@ -39,6 +43,20 @@ describe('BatchReviewDetailsComponent', () => {
           provide: BatchManagementService,
           useClass: BatchManagementServiceMock,
         },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({}),
+            parent: {
+              params: of({})
+            },
+            snapshot: {
+              data: {
+                page: ''
+              }
+            }
+          }
+        }
       ],
     }).compileComponents();
   });

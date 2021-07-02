@@ -1,5 +1,9 @@
+import { of } from 'rxjs';
+
 export class BatchManagementServiceMock {
-  getPendingBatches() {}
+  getPendingBatches() {
+    return of()
+  }
   getCompletedBatches() {}
   deleteUpload() {}
   deleteStatementRecords() {}

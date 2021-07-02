@@ -23,7 +23,6 @@ export class StatementSearchComponent implements OnInit {
       .then((snapshot) => {
         snapshot.forEach((_doc) => {
           const doc = { ..._doc.data() };
-          console.log(doc);
           res.push(doc);
         });
       })
@@ -33,7 +32,6 @@ export class StatementSearchComponent implements OnInit {
       })
       .finally(() => {
         this.searchResults = [...res];
-        console.log(this.searchResults);
       });
   }
 
