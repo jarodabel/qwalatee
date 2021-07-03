@@ -5,10 +5,12 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "jest",
+    "test": "npm run env:create && jest",
+    "test:local": "local=true npm run test",
     "test:coverage": "jest --coverage",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "env:create": "local=true ts-node env.create.ts"
   },
   "private": true,
   "dependencies": {
@@ -61,6 +63,7 @@
     "codelyzer": "^5.0.0",
     "jest": "^26.6.3",
     "jest-preset-angular": "^8.4.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "2.2.1",
     "protractor": "~7.0.0",
     "ts-loader": "^5.2.0",
@@ -74,7 +77,9 @@
   "jest": {
     "verbose": true,
     "preset": "jest-preset-angular",
-    "setupFilesAfterEnv": ["<rootDir>/setupJest.ts"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/setupJest.ts"
+    ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }

@@ -3,6 +3,7 @@
 /src/env.ts
 /.firebase
 /src/environments/*
+environment.js
 
 # compiled output
 /dist
