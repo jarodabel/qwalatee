@@ -3,8 +3,8 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
 } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
-import * as envData from '../../../../credentials.json';
 
 @Component({
   selector: 'base-resources',
@@ -14,8 +14,8 @@ import * as envData from '../../../../credentials.json';
 export class BaseResourceComponent implements AfterViewInit {
   title = 'chc-resource';
   // Client ID and API key from the Developer Console
-  CLIENT_ID = envData.web.client_id;
-  API_KEY = envData.web.api_key;
+  CLIENT_ID = environment.web.client_id;
+  API_KEY = environment.web.api_key;
 
   // Array of API discovery doc URLs for APIs used by the quickstart
   DISCOVERY_DOCS = ['https://sheets.googleapis.com/$discovery/rest?version=v4'];

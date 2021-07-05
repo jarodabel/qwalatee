@@ -21,14 +21,14 @@ describe('Validation Service', () => {
 
   describe('checkData', () => {
     it('should not call validate', () => {
-      const validateSpy = spyOn(service, 'validate');
+      const validateSpy = jest.spyOn(service, 'validate');
       service.checkData(undefined, undefined);
       expect(validateSpy).not.toHaveBeenCalled();
       expect(consoleErrorSpy).toHaveBeenCalled();
     });
 
     it('should call validate with data and statementId', () => {
-      const validateSpy = spyOn(service, 'validate');
+      const validateSpy = jest.spyOn(service, 'validate');
       service.checkData([], 'statement-837383');
       expect(validateSpy).toHaveBeenCalled();
     })

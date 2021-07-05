@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import * as envData from '../../../../credentials.json';
 
 export class MockLobService {
   headerRow = [

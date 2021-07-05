@@ -60,18 +60,15 @@ import firebase from '@firebase/app'
     PrivacyModule,
     ResourcesModule,
     FontAwesomeModule,
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-    }),
+    // ServiceWorkerModule.register('ngsw-worker.js', {
+    //   enabled: environment.production,
+    // }),
     StoreModule.forRoot({
       breadcrumbs: breadcrumbReducerFn,
       user: userReducerFn,
       statements: statementReducerFn,
     }),
-    StoreDevtoolsModule.instrument({
-      maxAge: 25, // Retains last 25 states
-      logOnly: environment.production, // Restrict extension to log-only mode
-    }),
+
     HttpClientModule,
     EffectsModule.forRoot([BreadcrumbService]),
     MessagesModudle,

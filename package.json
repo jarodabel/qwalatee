@@ -3,9 +3,9 @@
   "version": "2.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "npm run env:create && jest",
+    "start": "npm run env:create && ng serve",
+    "build": "npm run env:create && ng build",
+    "test:ci": "npm run env:create && jest",
     "test:local": "local=true npm run test",
     "test:coverage": "jest --coverage",
     "lint": "ng lint",
@@ -15,13 +15,11 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "~11.1.0",
-    "@angular/cdk": "~8.1.4",
     "@angular/common": "~11.1.0",
     "@angular/compiler": "~11.1.0",
     "@angular/core": "~11.1.0",
     "@angular/fire": "^6.1.4",
     "@angular/forms": "~11.1.0",
-    "@angular/material": "^8.1.4",
     "@angular/platform-browser": "~11.1.0",
     "@angular/platform-browser-dynamic": "~11.1.0",
     "@angular/platform-server": "~11.1.0",
@@ -48,7 +46,7 @@
     "zone.js": "~0.11.3"
   },
   "devDependencies": {
-    "@angular-devkit/architect": "0.1101.1",
+    "@angular-devkit/architect": "0.1201.1",
     "@angular-devkit/build-angular": "^0.1101.1",
     "@angular/cli": "^11.2.13",
     "@angular/compiler-cli": "~11.1.0",
@@ -61,27 +59,33 @@
     "@types/node": "^8.10.66",
     "babel-jest": "^26.6.3",
     "codelyzer": "^5.0.0",
-    "jest": "^26.6.3",
-    "jest-preset-angular": "^8.4.0",
+    "jest": "^27.0.6",
+    "jest-preset-angular": "^9.0.4",
     "npm-run-all": "^4.1.5",
     "prettier": "2.2.1",
-    "protractor": "~7.0.0",
-    "ts-loader": "^5.2.0",
-    "ts-node": "~7.0.0",
+    "ts-jest": "^27.0.0-next.12",
+    "ts-loader": "^9.2.3",
+    "ts-node": "^10.0.0",
     "tslint": "^6.1.3",
-    "typescript": "~4.1.3"
+    "typescript": "4.1.6"
   },
   "prettier": {
     "singleQuote": true
   },
   "jest": {
-    "verbose": true,
     "preset": "jest-preset-angular",
     "setupFilesAfterEnv": [
       "<rootDir>/setupJest.ts"
     ],
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules/",
+      "<rootDir>/dist/"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "<rootDir>/tsconfig.spec.json",
+        "stringifyContentPathRegex": "\\.html$"
+      }
     }
   }
 }

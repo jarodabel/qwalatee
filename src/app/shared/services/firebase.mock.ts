@@ -1,5 +1,3 @@
-import { of } from 'rxjs';
-// class firebase {}
 const firestore = () => {
   const that = {} as any;
   const collection = (name) => {
@@ -54,7 +52,7 @@ firestore.FieldValue = {
 export class FirebaseMock {
   firestore = firestore;
   initializeApp(whocares) {
-    return jest.fn();
+    return ()=>{};
   }
 }
 
