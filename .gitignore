@@ -46,7 +46,6 @@ yarn-error.log
 testem.log
 credentials.json
 test-data.json
-ecwTestData.txt
 /typings
 
 # System Files

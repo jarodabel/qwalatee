@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 jest.mock('firebase');
 
-describe('UploadServiceService', () => {
+describe('UploadService', () => {
   let service: UploadService;
   let rawData;
 
@@ -117,7 +117,7 @@ describe('UploadServiceService', () => {
 const johnDoe = {
   first: 'John',
   m: 'B',
-  last: 'Doe',
+  last: 'Blue',
   date: '2021-03-01',
   id: '54321',
   amtDue: '96.08',
@@ -260,7 +260,7 @@ const johnDoe = {
       '0',
       '2021-03-01',
       '2021-03-01',
-      '**** Make a secure online payment at https://healowpay.com by using your personal statement code - tttttt ****',
+      '**** Make a secure online payment at https://healowpay.com by using your personal statement code - dafda ****',
       '',
       '',
       '',
