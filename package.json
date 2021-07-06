@@ -3,14 +3,14 @@
   "version": "2.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "npm run env:create && ng serve",
-    "build": "npm run env:create && ng build",
-    "test:ci": "npm run env:create && jest",
+    "start": "local=true yarn run env:create && ng serve",
+    "build": "local=true yarn run env:create && ng build",
+    "test:ci": "yarn run env:create && jest",
     "test:local": "local=true npm run test",
     "test:coverage": "jest --coverage",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "env:create": "local=true ts-node env.create.ts"
+    "env:create": "ts-node env.create.ts"
   },
   "private": true,
   "dependencies": {
