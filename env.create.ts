@@ -35,8 +35,8 @@ const envConfigFile = `export const environment = {
 };
 `;
 
-if (!fs.existsSync(targetPath)) {
-  fs.mkdirSync(targetPath, {
+if (!fs.existsSync('./src/environments/')) {
+  fs.mkdirSync('./src/environments/', {
     recursive: true,
   });
 }
