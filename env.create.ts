@@ -35,6 +35,12 @@ const envConfigFile = `export const environment = {
 };
 `;
 
+if (!fs.existsSync(targetPath)) {
+  fs.mkdirSync(targetPath, {
+    recursive: true,
+  });
+}
+
 fs.writeFile(targetPath, envConfigFile, { flag: 'w' }, (err) => {
   if (err) {
     throw console.error(err);
