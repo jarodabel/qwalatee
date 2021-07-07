@@ -7,7 +7,7 @@ import { SearchService } from '../../shared/services/search.service';
   styleUrls: ['./statement-search.component.scss'],
 })
 export class StatementSearchComponent implements OnInit {
-  searchTerm = '328106';
+  searchTerm = '';
   searchResults = [];
   headings = ['', 'Date', 'First Name', 'Last Name', 'Amount Due'];
   fieldNames = ['date', 'first', 'last', 'amtDue'];

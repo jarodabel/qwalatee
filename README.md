@@ -3,9 +3,10 @@ start: npm start
 build: ng build
 
 deploy 
-- everything: `firebase deploy `
-- hosting only: `firebase deploy --only hosting`
-- functions: `firebase deploy --only functions`
+- everything: `firebase deploy -P default`
+- hosting only: `firebase deploy --only hosting -P default`
+- functions: `firebase deploy --only functions -P default`
+  - `firebase deploy --only functions -P dev`
 
 
 

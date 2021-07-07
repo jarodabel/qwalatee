@@ -2,7 +2,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { environment } from '../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 // App Modules
 import { AppComponent } from './app.component';
@@ -12,7 +11,6 @@ import { SharedModule } from './shared/shared.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 // Firebase imports
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { PdsaModule } from './pdsa/pdsa.component';
 import { StoreModule } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
@@ -43,10 +41,16 @@ import { StatementsInfoComponent } from './statements-info/statements-info.compo
 import { CanActivateSubRouteService } from './statements/statements.sub.route.guard';
 import { LogInComponent } from './log-in/log-in.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import firebase from '@firebase/app'
+import firebase from '@firebase/app';
 
 @NgModule({
-  declarations: [AppComponent, HomePageComponent, AttributionComponent, StatementsInfoComponent, LogInComponent],
+  declarations: [
+    AppComponent,
+    HomePageComponent,
+    AttributionComponent,
+    StatementsInfoComponent,
+    LogInComponent,
+  ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     AppRoutingModule,
@@ -60,15 +64,11 @@ import firebase from '@firebase/app'
     PrivacyModule,
     ResourcesModule,
     FontAwesomeModule,
-    // ServiceWorkerModule.register('ngsw-worker.js', {
-    //   enabled: environment.production,
-    // }),
     StoreModule.forRoot({
       breadcrumbs: breadcrumbReducerFn,
       user: userReducerFn,
       statements: statementReducerFn,
     }),
-
     HttpClientModule,
     EffectsModule.forRoot([BreadcrumbService]),
     MessagesModudle,
@@ -91,7 +91,7 @@ import firebase from '@firebase/app'
   exports: [],
 })
 export class AppModule {
-  constructor(){
+  constructor() {
     firebase.initializeApp(environment.firebase);
   }
 }
