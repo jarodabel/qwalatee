@@ -1,19 +1,36 @@
 const environment = require('./environment');
 
+const isProd = process.env.firebaseEnv === 'prod';
+console.log('isProd', isProd);
+
 process.env.production = environment.e.production;
 process.env.blogger = environment.e.blogger;
 process.env.sendGrid = environment.e.sendGrid;
 // firebase
-process.env.firebase_apiKey = environment.e.firebase.apiKey;
-process.env.firebase_appId = environment.e.firebase.appId;
-process.env.firebase_authDomain = environment.e.firebase.authDomain;
-process.env.firebase_databaseURL = environment.e.firebase.databaseURL;
-process.env.firebase_measurementId = environment.e.firebase.measurementId;
-process.env.firebase_messagingSenderId =
-  environment.e.firebase.messagingSenderId;
-
-process.env.firebase_projectId = environment.e.firebase.projectId;
-process.env.firebase_storageBucket = environment.e.firebase.storageBucket;
+process.env.firebase_apiKey = isProd
+  ? environment.e.firebase.apiKey
+  : environment.e.firebaseDev.apiKey;
+process.env.firebase_appId = isProd
+  ? environment.e.firebase.appId
+  : environment.e.firebaseDev.appId;
+process.env.firebase_authDomain = isProd
+  ? environment.e.firebase.authDomain
+  : environment.e.firebaseDev.authDomain;
+process.env.firebase_databaseURL = isProd
+  ? environment.e.firebase.databaseURL
+  : environment.e.firebaseDev.databaseURL;
+process.env.firebase_measurementId = isProd
+  ? environment.e.firebase.measurementId
+  : environment.e.firebaseDev.measurementId;
+process.env.firebase_messagingSenderId = isProd
+  ? environment.e.firebase.messagingSenderId
+  : environment.e.firebaseDev.messagingSenderId;
+process.env.firebase_projectId = isProd
+  ? environment.e.firebase.projectId
+  : environment.e.firebaseDev.projectId;
+process.env.firebase_storageBucket = isProd
+  ? environment.e.firebase.storageBucket
+  : environment.e.firebaseDev.storageBucket;
 // web
 process.env.web_client_id = environment.e.web.client_id;
 process.env.web_project_id = environment.e.web.project_id;

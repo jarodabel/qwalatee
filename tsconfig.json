@@ -28,4 +28,5 @@
     "strictInjectionParameters": true
   },
   "files": ["typings.d.ts"],
+  "exclude": ["src/**/*.mock.ts"]
 }
