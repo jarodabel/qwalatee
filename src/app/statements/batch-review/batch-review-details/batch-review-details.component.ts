@@ -49,7 +49,7 @@ enum MailOptions {
   MAIL_TO_PATIENT,
 }
 
-const defaultStep =  { title: '', id: undefined };
+const defaultStep = { title: '', id: undefined };
 
 @Component({
   selector: 'app-batch-review-details',
@@ -71,7 +71,7 @@ export class BatchReviewDetailsComponent
   reviewList: any[] = [];
   allSteps = [];
   currentLtrId: string;
-  currentStep: StepObject =defaultStep;
+  currentStep: StepObject = defaultStep;
   userId;
   hasPermission = false;
   showEmptyMessage = false;
@@ -130,7 +130,7 @@ export class BatchReviewDetailsComponent
           this.missingUploadId = true;
         }
 
-        if(child.reviewNumber) {
+        if (child.reviewNumber) {
           this.disableSidebar = true;
         }
       });
@@ -226,7 +226,6 @@ export class BatchReviewDetailsComponent
     }
     this.currentStep = defaultStep;
 
-
     const index = obj.id;
     obj.loading = true;
 
@@ -236,6 +235,8 @@ export class BatchReviewDetailsComponent
     const record = this.getRecordForReview(index);
 
     if (!record) {
+      this.showLoadingTile = false;
+      this.disableSidebar = false;
       return;
     }
 
