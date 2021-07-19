@@ -9,7 +9,11 @@ export class LobService {
   statementCodes = [];
   excessTables = [];
 
-  cloudFnUrl = 'https://us-central1-pdsa-oskee.cloudfunctions.net';
+  cloudFnUrl = {
+    Live: 'https://us-central1-pdsa-oskee.cloudfunctions.net',
+    Test: 'https://us-central1-pdsa-oskee-dev.cloudfunctions.net',
+  }
+
   constructor(private http: HttpClient) {}
 
   sendLobRequest(env, template, user, overWriteAddress?) {
@@ -56,7 +60,7 @@ export class LobService {
     }
 
     return this.http.post(
-      `${this.cloudFnUrl}/postLobRequest?env=${env}`,
+      `${this.cloudFnUrl[env]}/postLobRequest?env=${env}`,
       {
         ...data,
       },
@@ -213,7 +217,7 @@ export class LobService {
 
   getLetterObject(env, id) {
     return this.http.post(
-      `${this.cloudFnUrl}/getLobRequest?env=${env}`,
+      `${this.cloudFnUrl[env]}/getLobRequest?env=${env}`,
       {
         id,
       },

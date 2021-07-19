@@ -82,7 +82,7 @@ export class BatchReviewComponent implements OnInit {
     return a.key - b.key;
   }
 
-  private toggleModal() {
+  toggleModal() {
     this.showModal = !this.showModal;
   }
 }

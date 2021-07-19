@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 import { BatchManagementService } from '../../shared/services/batch-management.service';
 import { BatchManagementServiceMock } from '../../shared/services/batch-management.service.mock';
 
-import { BatchReviewComponent } from './batch-review.component';
+import { BatchReviewComponent, ModalType } from './batch-review.component';
 @Component({
   template: ``,
 })
@@ -21,28 +21,29 @@ describe('BatchReviewComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [BatchReviewComponent, BlankCmp],
       imports: [
-        RouterTestingModule.withRoutes([
-          { path: '', component: BlankCmp },
-        ]),
+        RouterTestingModule.withRoutes([{ path: '', component: BlankCmp }]),
       ],
       providers: [
         provideMockStore({}),
-        {provide: BatchManagementService, useClass: BatchManagementServiceMock},
+        {
+          provide: BatchManagementService,
+          useClass: BatchManagementServiceMock,
+        },
         {
           provide: ActivatedRoute,
           useValue: {
             params: of({}),
             parent: {
-              params: of({})
+              params: of({}),
             },
             snapshot: {
               data: {
-                page: ''
-              }
-            }
-          }
-        }
-      ]
+                page: '',
+              },
+            },
+          },
+        },
+      ],
     }).compileComponents();
   });
 
@@ -54,5 +55,16 @@ describe('BatchReviewComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should open delete confirmation model on delete button press', () => {
+    expect(component.modalType).toBeUndefined();
+    expect(component.currentBatchId).toBeUndefined();
+    expect(component.showModal).toBe(false);
+
+    component.deleteConfirmation({ id: 'dog' });
+    expect(component.modalType).toBe(ModalType.DeleteConfirmation);
+    expect(component.currentBatchId).toBe('dog');
+    expect(component.showModal).toBe(true);
   });
 });

@@ -3,11 +3,11 @@
   "version": "2.0.0",
   "scripts": {
     "ng": "ng",
-    "local": "local=true firebaseEnv=dev yarn run env:create && ng serve",
+    "start": "local=true firebaseEnv=dev yarn run env:create && ng serve",
     "build:local": "local=true firebaseEnv=dev yarn run env:create && ng build",
     "build:prod": "local=true firebaseEnv=prod yarn run env:create && ng build",
     "test:ci": "yarn run env:create && jest --runInBand",
-    "test:local": "local=true npm run test",
+    "test:local": "local=true jest --runInBand",
     "test:coverage": "jest --coverage",
     "lint": "ng lint",
     "e2e": "ng e2e",

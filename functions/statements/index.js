@@ -36,14 +36,12 @@ exports.lobGetLetter = (req) => {
           success(obj);
         })
         .catch((error) => {
-          console.log(error)
-          if (error.response) {
-            console.error(error.response.body);
-          }
+          functions.logger.error(err)
           failure(error);
         });
     } catch (err) {
-      failure('error');
+      functions.logger.error(err)
+      failure(err);
     }
   });
 };
@@ -73,13 +71,12 @@ exports.lobPostLetter = (req) => {
           success(data);
         })
         .catch((error) => {
-          if (error.response) {
-            console.error(error.response.body);
-          }
+          functions.logger.error(err)
           failure(error);
         });
     } catch (err) {
-      failure('error');
+      functions.logger.error(err)
+      failure(JSON.stringify(err));
     }
   });
 };
