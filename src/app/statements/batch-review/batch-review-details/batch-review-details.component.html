@@ -3,7 +3,7 @@
   <div class="column is-10">
     <div class="tile is-ancestor">
 
-      <div class="tile is-vertical is-3">
+      <div class="tile is-vertical is-3" *ngIf="!disableSidebar">
         <div class="tile">
           <div class="tile is-parent is-vertical">
             <div class="tile is-child box side-bar">
@@ -17,7 +17,7 @@
                       <ul>
                         <li *ngFor="let child of item; index as c;">
                           <a [ngClass]="{'disabled': child.disabled && !child.checked, 'is-active': !child.disabled && !child.checked}"
-                            (click)="reviewStepClicked(child.id)">
+                            (click)="reviewStepClicked(child)">
                             <checkbox [checked]="child.checked">
                             </checkbox>
                             <span>{{child.title}}</span>
@@ -38,13 +38,25 @@
           </div>
         </div>
       </div>
-      <div class="tile is-parent" *ngIf="!myOutlet.isActivated && showEmptyMessage">
-        <div class="tile is-child box">
-          <div class="content">
-            <h4>Select next step in Review sidebar</h4>
+
+      <div class="tile is-vertical is-3" *ngIf="disableSidebar">
+        <div class="tile">
+          <div class="tile is-parent is-vertical">
+            <div class="tile is-child box">
+              <span class="back-button" (click)="goBack()"><i class="fas fa-arrow-left"></i> Back</span>
+            </div>
           </div>
         </div>
       </div>
+
+      <div class="tile is-parent" *ngIf="!myOutlet.isActivated && showLoadingTile">
+        <div class="tile is-child box">
+          <div class="content">
+            <progress class="progress is-small is-link" max="100">60%</progress>
+          </div>
+        </div>
+      </div>
+
       <div class="tile is-parent" *ngIf="!myOutlet.isActivated && currentStep.title === stepTitles.MAILING_APPROVED">
         <div class="tile is-child box">
           <progress *ngIf="!records.length || pending" class="progress is-small is-link" max="100">60%</progress>
@@ -128,7 +140,9 @@
           <h4>Upload, Explore, or Review another batch file</h4>
         </div>
       </div>
-      <router-outlet #myOutlet="outlet"></router-outlet>
+      <router-outlet #myOutlet="outlet"
+        (activate)="onActivate($event)"
+        (deactivate)="onDeactivate($event)"></router-outlet>
     </div>
   </div>
   <div class="column is-hidden-mobile is-1"></div>

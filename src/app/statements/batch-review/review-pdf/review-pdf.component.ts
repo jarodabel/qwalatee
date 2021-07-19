@@ -1,8 +1,4 @@
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
@@ -138,6 +134,9 @@ export class ReviewPdfComponent implements OnInit, OnDestroy {
 
       // Prepare canvas using PDF page dimensions
       const canvas = document.getElementById('the-canvas') as HTMLCanvasElement;
+      if(!canvas) {
+        return;
+      }
       const context = canvas.getContext('2d');
       canvas.height = viewport.height;
       canvas.width = viewport.width;

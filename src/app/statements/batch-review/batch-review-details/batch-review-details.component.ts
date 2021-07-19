@@ -1,7 +1,14 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
-import { Subject } from 'rxjs';
-import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
+import {
+  filter,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
+  withLatestFrom,
+} from 'rxjs/operators';
 import { AppState } from '../../../app-state';
 import { selectUser } from '../../../shared/selectors/user.selectors';
 import { BatchManagementService } from '../../../shared/services/batch-management.service';
@@ -42,6 +49,8 @@ enum MailOptions {
   MAIL_TO_PATIENT,
 }
 
+const defaultStep = { title: '', id: undefined };
+
 @Component({
   selector: 'app-batch-review-details',
   templateUrl: './batch-review-details.component.html',
@@ -52,6 +61,8 @@ export class BatchReviewDetailsComponent
   implements OnInit, OnDestroy {
   modalTypes = ModalType;
   pending = false;
+  showLoadingTile = false;
+  disableSidebar = false;
   records = [];
   uploadId: string;
   missingUploadId = false;
@@ -60,7 +71,7 @@ export class BatchReviewDetailsComponent
   reviewList: any[] = [];
   allSteps = [];
   currentLtrId: string;
-  currentStep: StepObject = { title: '', id: undefined };
+  currentStep: StepObject = defaultStep;
   userId;
   hasPermission = false;
   showEmptyMessage = false;
@@ -69,6 +80,7 @@ export class BatchReviewDetailsComponent
   mailOptions = MailOptions;
   selectedMailingOption: MailOptions;
   displayMessage: string;
+  outletActive: boolean;
 
   user$ = this.store.pipe(select(selectUser));
   destroy$ = new Subject();
@@ -78,6 +90,8 @@ export class BatchReviewDetailsComponent
       this.store.select(selectUploadObjectById(uploadId))
     )
   );
+
+  firstChild$ = this.route?.firstChild?.params || of({});
 
   constructor(
     batchManagementService: BatchManagementService,
@@ -105,20 +119,31 @@ export class BatchReviewDetailsComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe();
 
-    this.routeParams$.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.uploadId = params.uploadId;
-      this.filename = '';
-      if (this.uploadId) {
-        this.populateRecords();
-      } else {
-        this.missingUploadId = true;
-      }
-    });
+    this.routeParams$
+      .pipe(withLatestFrom(this.firstChild$), takeUntil(this.destroy$))
+      .subscribe(([params, child]) => {
+        this.uploadId = params.uploadId;
+        this.filename = '';
+        if (this.uploadId) {
+          this.populateRecords();
+        } else {
+          this.missingUploadId = true;
+        }
 
-    this.uploadObject$.pipe(takeUntil(this.destroy$)).subscribe((obj) => {
-      this.uploadObj = obj;
-      this.reviewListFn();
-    });
+        if (child.reviewNumber) {
+          this.disableSidebar = true;
+        }
+      });
+
+    this.uploadObject$
+      .pipe(
+        filter((object) => !!object),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((obj) => {
+        this.uploadObj = obj;
+        this.reviewListFn();
+      });
 
     this.user$
       .pipe(
@@ -134,6 +159,16 @@ export class BatchReviewDetailsComponent
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  onActivate() {
+    this.outletActive = true;
+  }
+
+  onDeactivate() {
+    this.outletActive = false;
+    this.showLoadingTile = false;
+    this.disableSidebar = false;
   }
 
   populateRecords() {
@@ -176,6 +211,139 @@ export class BatchReviewDetailsComponent
     );
 
     return JSON.parse(JSON.stringify(foundRecord));
+  }
+
+  mapCharges(record) {
+    return {
+      ...record,
+      charges: Object.keys(record.charges).map((key) => record.charges[key]),
+    };
+  }
+
+  async reviewStepClicked(obj) {
+    if (this.disableSidebar) {
+      return;
+    }
+    this.currentStep = defaultStep;
+
+    const index = obj.id;
+    obj.loading = true;
+
+    this.showLoadingTile = true;
+    this.disableSidebar = true;
+
+    const record = this.getRecordForReview(index);
+
+    if (!record) {
+      this.showLoadingTile = false;
+      this.disableSidebar = false;
+      return;
+    }
+
+    let res;
+    let ltrId;
+
+    const recordCopy = Object.assign({}, record);
+    const recordWithCharges = this.mapCharges(recordCopy);
+
+    if (!record.ltrId) {
+      res = await this.lobService
+        .sendLetter(
+          this.env,
+          TemplateLookup[this.env],
+          recordWithCharges,
+          false
+        )
+        .pipe(take(1))
+        .toPromise();
+      ltrId = res.id;
+    } else {
+      ltrId = record.ltrId;
+    }
+
+    if (!ltrId) {
+      throw new Error('there was an error finding ltrId');
+    }
+
+    this.showLoadingTile = false;
+    this.router.navigate([ReviewIdentifiers[index], ltrId], {
+      relativeTo: this.route,
+    });
+  }
+
+  mailStepClicked(index) {
+    this.router.navigate(['statements/review-batch', this.uploadId]);
+    this.setCurrentStep();
+  }
+
+  setCurrentStep() {
+    this.currentStep = [...this.allSteps].find(
+      (step) => !step.checked && !step.disabled
+    ) || { title: '', id: '' };
+  }
+
+  areYouSure(message, env, shouldOverwriteAddress) {
+    if (!this.records) {
+      return;
+    }
+    const answer = confirm(message);
+    if (answer) {
+      this.mailFn(env, shouldOverwriteAddress);
+    }
+  }
+
+  mailFn(env: LOB_ENV, shouldOverwriteAddress: boolean) {
+    this.pending = true;
+    const update = {
+      reviewIsComplete: true,
+      reviewApprovedBy: this.userId,
+      mailHasStarted: true,
+    };
+    this.statementService
+      .updateUploadRecord(this.uploadId, update)
+      .then((res) => {})
+      .catch((err) => {
+        console.error(err);
+      });
+
+    this.env = env;
+    this.startStatements(this.records, shouldOverwriteAddress).subscribe(
+      (s) => {},
+      (err) => {
+        console.log('error', err);
+      },
+      () => {
+        console.log('success', this.completedRequests - this.failedRequests);
+        console.log('error', this.failedRequests);
+        this.finished();
+      }
+    );
+  }
+
+  mailingOptionChanged(event) {
+    this.selectedMailingOption = event.target.value;
+  }
+
+  startMail(option: MailOptions) {
+    let message;
+    if (option === MailOptions.NONE) {
+      return;
+    } else if (option === MailOptions.SKIP_MAILING) {
+      message = `Are you sure? Confirmation will mark this batch as completed and no statements will be mailed`;
+      this.areYouSure(message, LOB_ENV.TEST, false);
+    } else if (option === MailOptions.MAIL_TO_CHC) {
+      message = `Are you sure? Confirmation will mail ${this.records.length} statements to CHC`;
+      this.areYouSure(message, LOB_ENV.LIVE, true);
+    } else if (option === MailOptions.MAIL_TO_PATIENT) {
+      message = `Are you sure? Confirmation will mail ${this.records.length} patient statements`;
+      this.areYouSure(message, LOB_ENV.LIVE, false);
+    }
+
+    //`Are you sure? Confirmation will mail ${this.records.length} statements. THIS CANNOT BE UNDONE`
+  }
+
+  goBack() {
+    this.router.navigate(['statements', 'review-batch', this.uploadId]);
   }
 
   reviewListFn() {
@@ -225,163 +393,47 @@ export class BatchReviewDetailsComponent
     };
     const list = [
       {
-        disabled: isDisabled(0),
         checked: isChecked(0),
-        title: StepTitles.REVIEW_1,
+        disabled: isDisabled(0),
         id: ReviewIdentifiers.one,
+        loading: false,
+        title: StepTitles.REVIEW_1,
       },
       {
-        disabled: isDisabled(1),
         checked: isChecked(1),
-        title: StepTitles.REVIEW_2,
+        disabled: isDisabled(1),
         id: ReviewIdentifiers.two,
+        loading: false,
+        title: StepTitles.REVIEW_2,
       },
       {
-        disabled: isDisabled(2),
         checked: isChecked(2),
-        title: StepTitles.REVIEW_3,
+        disabled: isDisabled(2),
         id: ReviewIdentifiers.three,
+        loading: false,
+        title: StepTitles.REVIEW_3,
       },
       {
-        disabled: isDisabled(3),
         checked: isChecked(3),
+        disabled: isDisabled(3),
+        loading: false,
         title: StepTitles.MAILING_APPROVED,
       },
       {
         disabled: isDisabled(4),
         checked: isChecked(4),
+        loading: false,
         title: StepTitles.MAILING_IN_PROGRESS,
       },
       {
-        disabled: isDisabled(5),
         checked: isChecked(5),
+        disabled: isDisabled(5),
+        loading: false,
         title: StepTitles.MAILING_COMPLETE,
       },
     ];
 
     this.reviewList = [[list[0], list[1], list[2]], list[3], list[4], list[5]];
     this.allSteps = [...list];
-    this.setCurrentStep();
-  }
-
-  mapCharges(record) {
-    return {
-      ...record,
-      charges: Object.keys(record.charges).map((key) => record.charges[key]),
-    };
-  }
-
-  async reviewStepClicked(index) {
-    const record = this.getRecordForReview(index);
-
-    if (!record) {
-      return;
-    }
-
-    let res;
-    let ltrId;
-
-    const recordCopy = Object.assign({}, record);
-    const recordWithCharges = this.mapCharges(recordCopy);
-
-    if (!record.ltrId) {
-      res = await this.lobService
-        .sendLetter(
-          this.env,
-          TemplateLookup[this.env],
-          recordWithCharges,
-          false
-        )
-        .pipe(take(1))
-        .toPromise();
-      ltrId = res.id;
-    } else {
-      ltrId = record.ltrId;
-    }
-
-    if (!ltrId) {
-      throw new Error('there was an error finding ltrId');
-      return;
-    }
-
-    this.router.navigate([ReviewIdentifiers[index], ltrId], {
-      relativeTo: this.route,
-    });
-  }
-
-  mailStepClicked(index) {
-    this.router.navigate(['statements/review-batch', this.uploadId]);
-    this.setCurrentStep();
-  }
-
-  setCurrentStep() {
-    this.currentStep = [...this.allSteps].find(
-      (step) => !step.checked && !step.disabled
-    ) || { title: '', id: '' };
-    this.showEmptyMessage = [
-      ReviewIdentifiers.one,
-      ReviewIdentifiers.two,
-      ReviewIdentifiers.three,
-    ].includes(this.currentStep.id);
-  }
-
-  areYouSure(message, env, shouldOverwriteAddress) {
-    if (!this.records) {
-      return;
-    }
-    const answer = confirm(message);
-    if (answer) {
-      this.mailFn(env, shouldOverwriteAddress);
-    }
-  }
-
-  mailFn(env: LOB_ENV, shouldOverwriteAddress: boolean) {
-    this.pending = true;
-    const update = {
-      reviewIsComplete: true,
-      reviewApprovedBy: this.userId,
-      mailHasStarted: true,
-    };
-    this.statementService
-      .updateUploadRecord(this.uploadId, update)
-      .then((res) => {})
-      .catch((err) => {
-        console.error(err);
-      });
-
-      this.env = env;
-      this.startStatements(this.records, shouldOverwriteAddress).subscribe(
-        (s) => {},
-        (err) => {
-          console.log('error', err);
-        },
-        () => {
-          console.log('success', this.completedRequests - this.failedRequests);
-          console.log('error', this.failedRequests);
-        this.finished();
-      }
-    );
-  }
-
-  mailingOptionChanged(event) {
-    this.selectedMailingOption = event.target.value;
-  }
-
-  startMail(option: MailOptions) {
-    let message;
-    if (option === MailOptions.NONE) {
-      return;
-    } else if (option === MailOptions.SKIP_MAILING) {
-      message = `Are you sure? Confirmation will mark this batch as completed and no statements will be mailed`;
-      this.areYouSure(message, LOB_ENV.TEST, false);
-    } else if (option === MailOptions.MAIL_TO_CHC) {
-      message = `Are you sure? Confirmation will mail ${this.records.length} statements to CHC`;
-      this.areYouSure(message, LOB_ENV.LIVE, true);
-    } else if (option === MailOptions.MAIL_TO_PATIENT) {
-      message = `Are you sure? Confirmation will mail ${this.records.length} patient statements`;
-      this.areYouSure(message, LOB_ENV.LIVE, false);
-    }
-
-    //`Are you sure? Confirmation will mail ${this.records.length} statements. THIS CANNOT BE UNDONE`
   }
 }

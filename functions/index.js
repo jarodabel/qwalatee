@@ -26,6 +26,7 @@ exports.postLobRequest = functions.https.onRequest((req, res) => {
         res.end();
       })
       .catch((err) => {
+        console.log(err);
         res.set('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({ message: err }));
         res.end();
@@ -43,6 +44,7 @@ exports.getLobRequest = functions.https.onRequest((req, res) => {
         res.end();
       })
       .catch((err) => {
+        console.log(err);
         res.set('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({ message: err }));
         res.end();
