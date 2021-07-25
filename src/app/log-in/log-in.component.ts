@@ -8,7 +8,7 @@ import firebase from 'firebase/app';
   templateUrl: './log-in.component.html',
   styleUrls: ['./log-in.component.scss'],
 })
-export class LogInComponent implements OnInit, AfterViewInit {
+export class LogInComponent implements OnInit {
   showForm = false;
   errorMessage = false;
   loginForm: FormGroup;
@@ -21,8 +21,6 @@ export class LogInComponent implements OnInit, AfterViewInit {
       password: ['', [Validators.required]],
     });
   }
-
-  ngAfterViewInit() {}
 
   emailPasswordForm() {
     this.showForm = true;
