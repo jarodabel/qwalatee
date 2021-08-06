@@ -1,9 +1,16 @@
 start: npm start
 
-build: ng build
+test: 
+- local: `npm run test:local`
+- coverage: `npm run test:coverage`
+
+build:
+- dev:`npm run build:dev`
+- default: `npm run build:prod`
 
 deploy 
 - everything: `firebase deploy -P default`
+  - def: `firebase deploy -P dev`
 - hosting only: `firebase deploy --only hosting -P default`
 - functions: `firebase deploy --only functions -P default`
   - `firebase deploy --only functions -P dev`
