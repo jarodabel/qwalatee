@@ -9,8 +9,9 @@ import { HttpClient } from '@angular/common/http';
 import { selectUser } from '../shared/selectors/user.selectors';
 import { environment } from '../../environments/environment';
 import { OrganizationService } from '../shared/services/organization.service';
+import { Title } from '@angular/platform-browser';
 
-
+const PAGE_TITLE = 'Qwalatee - Patient Statements';
 @Component({
   selector: 'app-home-page',
   templateUrl: './home-page.component.html',
@@ -29,8 +30,11 @@ export class HomePageComponent implements OnInit {
     private router: Router,
     private store: Store<AppState>,
     private http: HttpClient,
-    private organizationService$: OrganizationService
-  ) {}
+    private organizationService$: OrganizationService,
+    private titleService: Title,
+  ) {
+    this.titleService.setTitle(PAGE_TITLE);
+  }
 
   ngOnInit() {
     this.store.dispatch(resetBreadcrumb());

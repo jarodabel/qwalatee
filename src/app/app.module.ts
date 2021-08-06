@@ -52,7 +52,7 @@ import firebase from '@firebase/app';
     LogInComponent,
   ],
   imports: [
-    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     CommonModule,

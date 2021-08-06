@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, NgModule, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { select, Store } from '@ngrx/store';
 import { AppState } from '../app-state';
 import { setAllUsers } from '../shared/actions/statement.actions';
@@ -20,6 +20,7 @@ import { selectCurrentUserHasLobPermission, selectUser } from '../shared/selecto
 import { RoutePermissionMap } from './statements.types';
 import { StatementSearchComponent } from './statement-search/statement-search.component';
 
+const PAGE_TITLE = 'Statements - Qwalatee - Patient Statements';
 export enum TabNames {
   HistoryStatements = 'historyStatements',
   UploadHistory = 'uploadHistory',
@@ -44,7 +45,10 @@ export class StatementsComponent implements OnInit {
   constructor(
     private userService: UserService,
     private store: Store<AppState>,
-  ) {}
+    private titleService: Title
+  ) {
+    this.titleService.setTitle(PAGE_TITLE);
+  }
 
   ngOnInit() {
     this.getAllUsers();
