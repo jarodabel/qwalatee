@@ -6,6 +6,15 @@ exports.lobEvent = (req) => {
     try {
       const db = admin.firestore();
       const data = req.body
+      if(!data.id || !data.reference_id || !data.event_type) {
+        reject("Invalid request");
+      }
+
+      const evt = {
+        id: data.id,
+        reference_id: data.reference_id,
+        ...data.event_type,
+      }
 
       let collectionRef;
       const success = (documentRef) => {
@@ -17,7 +26,7 @@ exports.lobEvent = (req) => {
         reject("error");
       };
       collectionRef = db.collection('lob-events');
-      collectionRef.add(data).then(success).catch(failure);
+      collectionRef.doc(data.id).set(evt).then(success).catch(failure);
     }
     catch (err) {
       functions.logger.error(err);
