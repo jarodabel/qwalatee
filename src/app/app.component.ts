@@ -15,7 +15,6 @@ export class AppComponent implements OnInit {
   loaded = true;
   constructor(
     private userService: UserService,
-    private store: Store<AppState>
   ) {
   }
   close() {

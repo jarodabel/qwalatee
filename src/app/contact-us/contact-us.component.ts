@@ -8,9 +8,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ContactUsService } from '../shared/services/contact-us.service';
+
+const PAGE_TITLE = 'Contact Us - Qwalatee - Patient Statements';
 
 @Component({
   selector: 'contact-us',
@@ -30,7 +32,10 @@ export class ContactUsComponent implements AfterViewInit {
     private contactService: ContactUsService,
     private _sanitizer: DomSanitizer,
     private router: Router,
-  ) {}
+    private titleService: Title
+  ) {
+    this.titleService.setTitle(PAGE_TITLE);
+  }
 
   ngAfterViewInit() {
     this.onloadCallback();
@@ -71,10 +76,10 @@ export class ContactUsComponent implements AfterViewInit {
 
     this.contactService.sendMessage(message).subscribe(
       () => {
-        this.router.navigate(['/','messages'],{queryParams:{m :'contact-thank-you'}})
+        this.router.navigate(['/', 'messages'], { queryParams: { m: 'contact-thank-you' } })
       },
       () => {
-        this.router.navigate(['/','messages'],{queryParams:{m :'contact-error'}})
+        this.router.navigate(['/', 'messages'], { queryParams: { m: 'contact-error' } })
       }
     );
   }
@@ -86,4 +91,4 @@ export class ContactUsComponent implements AfterViewInit {
   imports: [CommonModule, SharedModule, FormsModule, ReactiveFormsModule],
   providers: [ContactUsService],
 })
-export class ContactUsModule {}
+export class ContactUsModule { }
