@@ -138,6 +138,9 @@ const routes: Routes = [
         canActivate: [CanActivateSubRouteService],
         component: BatchExploreComponent,
         path: 'review-history/:uploadId',
+        data: {
+          page: 'history',
+        },
       },
       {
         canActivate: [CanActivateSubRouteService],

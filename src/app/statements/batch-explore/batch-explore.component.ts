@@ -28,6 +28,7 @@ import firebase from 'firebase/app';
 import { ActivatedRoute, Router } from '@angular/router';
 import { selectUploadObjectById } from '../../shared/selectors/statements.selectors';
 import { BatchSharedComponent } from '../batch-shared/batch-shared.component';
+import { environment } from '../../../environments/environment';
 
 export enum ReviewIdentifiers {
   one,
@@ -45,6 +46,7 @@ export class BatchExploreComponent
   headings = ['', '', ...USER_FIELDS].splice(0, 8);
   fieldNames = [...USER_FIELDS].splice(0, 6);
 
+  page: string;
   uploadId: string;
   missingUploadId = false;
   filename: string;
@@ -68,7 +70,7 @@ export class BatchExploreComponent
     userService: UserService,
     store: Store<AppState>,
     route: ActivatedRoute,
-    router: Router,
+    router: Router
   ) {
     super(
       batchManagementService,
@@ -77,7 +79,7 @@ export class BatchExploreComponent
       userService,
       store,
       route,
-      router,
+      router
     );
   }
 
@@ -98,6 +100,7 @@ export class BatchExploreComponent
     this.uploadObject$.pipe(takeUntil(this.destroy$)).subscribe((obj) => {
       this.uploadObj = obj;
     });
+    this.page = this.route.snapshot.data.page;
   }
 
   ngOnDestroy(): void {
@@ -142,13 +145,17 @@ export class BatchExploreComponent
   }
 
   openUrl(id) {
+    // history page implies we have already mailed the statement so use "Live"
+    const currentEnv =
+      this.page === 'history' ? LOB_ENV.LIVE : LOB_ENV.TEST;
+
     const accessType =
-      this.env === LOB_ENV.LIVE
+      currentEnv === LOB_ENV.LIVE
         ? AccessType.STATEMENTS_VIEW_STATEMENT_LIVE
         : AccessType.STATEMENTS_VIEW_STATEMENT_TEST;
     this.userService.postAccessLog(accessType, id);
     this.lobService
-      .getLetterObject(LOB_ENV.TEST, id)
+      .getLetterObject(currentEnv, id)
       .pipe(take(1))
       .toPromise()
       .then((res: any) => {
@@ -167,6 +174,6 @@ export class BatchExploreComponent
         console.log('success', this.completedRequests - this.failedRequests);
         console.log('error', this.failedRequests);
       }
-    );;
+    );
   }
 }

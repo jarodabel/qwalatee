@@ -17,4 +17,7 @@ describe('lob service', () => {
   it('should work', () => {
     expect(ctx.service).toBeDefined();
   });
+
+  // test getCloudFnUrl
+
 });

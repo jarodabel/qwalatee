@@ -44,4 +44,6 @@ todo
 - search
   - show a results message
   - update searchable keys
+
+- should record what env each letter object is in
   
