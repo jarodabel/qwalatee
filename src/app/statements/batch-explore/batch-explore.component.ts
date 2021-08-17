@@ -100,7 +100,7 @@ export class BatchExploreComponent
     this.uploadObject$.pipe(takeUntil(this.destroy$)).subscribe((obj) => {
       this.uploadObj = obj;
     });
-    this.page = this.route.snapshot.data.page;
+    this.page = this.route?.snapshot?.data?.page;
   }
 
   ngOnDestroy(): void {
