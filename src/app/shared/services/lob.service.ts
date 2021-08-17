@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { ChcAddress } from '../../types/lob';
 @Injectable({
   providedIn: 'root',
@@ -10,8 +11,8 @@ export class LobService {
   excessTables = [];
 
   cloudFnUrl = {
-    Live: 'https://us-central1-pdsa-oskee.cloudfunctions.net',
-    Test: 'https://us-central1-pdsa-oskee-dev.cloudfunctions.net',
+    default: 'https://us-central1-pdsa-oskee.cloudfunctions.net',
+    dev: 'https://us-central1-pdsa-oskee-dev.cloudfunctions.net',
   }
 
   constructor(private http: HttpClient) {}
@@ -60,7 +61,7 @@ export class LobService {
     }
 
     return this.http.post(
-      `${this.cloudFnUrl[env]}/postLobRequest?env=${env}`,
+      `${this.getCloudFnUrl()}/postLobRequest?env=${env}`,
       {
         ...data,
       },
@@ -217,7 +218,7 @@ export class LobService {
 
   getLetterObject(env, id) {
     return this.http.post(
-      `${this.cloudFnUrl[env]}/getLobRequest?env=${env}`,
+      `${this.getCloudFnUrl()}/getLobRequest?env=${env}`,
       {
         id,
       },
@@ -227,6 +228,10 @@ export class LobService {
         }),
       }
     );
+  }
+
+  getCloudFnUrl() {
+    return environment.production === 'true' ? this.cloudFnUrl.default : this.cloudFnUrl.dev;
   }
 
   private personalStatementCodeGroup(row) {

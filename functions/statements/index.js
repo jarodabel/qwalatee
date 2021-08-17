@@ -36,7 +36,7 @@ exports.lobGetLetter = (req) => {
           success(obj);
         })
         .catch((error) => {
-          functions.logger.error(err)
+          functions.logger.error(JSON.stringify(error))
           failure(error);
         });
     } catch (err) {
@@ -71,7 +71,7 @@ exports.lobPostLetter = (req) => {
           success(data);
         })
         .catch((error) => {
-          functions.logger.error(err)
+          functions.logger.error(JSON.stringify(error))
           failure(error);
         });
     } catch (err) {

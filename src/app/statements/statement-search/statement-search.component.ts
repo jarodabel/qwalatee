@@ -5,7 +5,7 @@ import { UserService } from '../../shared/services/user.service';
 import { LobService } from '../../shared/services/lob.service';
 import { AccessType } from '../../types/access';
 import { LOB_ENV } from '../../types/lob';
-import  { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-statement-search',
@@ -21,7 +21,7 @@ export class StatementSearchComponent implements OnInit {
   constructor(
     private searchService: SearchService,
     private userService: UserService,
-    private lobService: LobService,
+    private lobService: LobService
   ) {}
 
   ngOnInit(): void {}
@@ -51,12 +51,15 @@ export class StatementSearchComponent implements OnInit {
   }
 
   openUrl(id) {
+    const currentEnv =
+      environment.production === 'true' ? LOB_ENV.LIVE : LOB_ENV.TEST;
     const accessType =
-      environment ? AccessType.STATEMENTS_VIEW_STATEMENT_LIVE
+      currentEnv === LOB_ENV.LIVE
+        ? AccessType.STATEMENTS_VIEW_STATEMENT_LIVE
         : AccessType.STATEMENTS_VIEW_STATEMENT_TEST;
     this.userService.postAccessLog(accessType, id);
     this.lobService
-      .getLetterObject(LOB_ENV.TEST, id)
+      .getLetterObject(currentEnv, id)
       .pipe(take(1))
       .toPromise()
       .then((res: any) => {
