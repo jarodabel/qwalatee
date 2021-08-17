@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { take } from 'rxjs/operators';
 import { SearchService } from '../../shared/services/search.service';
+import { UserService } from '../../shared/services/user.service';
+import { LobService } from '../../shared/services/lob.service';
+import { AccessType } from '../../types/access';
+import { LOB_ENV } from '../../types/lob';
+import  { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-statement-search',
@@ -11,7 +17,12 @@ export class StatementSearchComponent implements OnInit {
   searchResults = [];
   headings = ['', 'Date', 'First Name', 'Last Name', 'Amount Due'];
   fieldNames = ['date', 'first', 'last', 'amtDue'];
-  constructor(private searchService: SearchService) {}
+  env = LOB_ENV.TEST;
+  constructor(
+    private searchService: SearchService,
+    private userService: UserService,
+    private lobService: LobService,
+  ) {}
 
   ngOnInit(): void {}
 
@@ -37,5 +48,19 @@ export class StatementSearchComponent implements OnInit {
 
   clearSearch() {
     this.searchResults.length = 0;
+  }
+
+  openUrl(id) {
+    const accessType =
+      environment ? AccessType.STATEMENTS_VIEW_STATEMENT_LIVE
+        : AccessType.STATEMENTS_VIEW_STATEMENT_TEST;
+    this.userService.postAccessLog(accessType, id);
+    this.lobService
+      .getLetterObject(LOB_ENV.TEST, id)
+      .pipe(take(1))
+      .toPromise()
+      .then((res: any) => {
+        window.open(res.url, '_blank');
+      });
   }
 }

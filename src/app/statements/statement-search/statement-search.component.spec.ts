@@ -6,6 +6,10 @@ import firebase from 'firebase';
 import { firestore } from '../../shared/services/firebase.mock';
 import { SearchService } from '../../shared/services/search.service';
 import { SearchServiceMock } from '../../shared/services/search.service.mock';
+import { UserService } from '../../shared/services/user.service';
+import { UserServiceMock } from '../../shared/services/user.service.mock';
+import { LobService } from '../../shared/services/lob.service';
+import { MockLobService } from '../../shared/services/lob.service.mock';
 
 jest.mock('firebase');
 
@@ -24,7 +28,9 @@ describe('StatementSearchComponent', () => {
         FormsModule,
       ],
       providers: [
-        {provide: SearchService, useClass: SearchServiceMock }
+        {provide: SearchService, useClass: SearchServiceMock },
+        {provide: UserService, useClass: UserServiceMock },
+        {provide: LobService, useClass: MockLobService},
       ]
     })
     .compileComponents();

@@ -3,7 +3,7 @@ const environment = require('./environment');
 const isProd = process.env.firebaseEnv === 'prod';
 console.log('isProd', isProd);
 
-process.env.production = environment.e.production;
+process.env.production = isProd.toString();
 process.env.blogger = environment.e.blogger;
 process.env.sendGrid = environment.e.sendGrid;
 // firebase

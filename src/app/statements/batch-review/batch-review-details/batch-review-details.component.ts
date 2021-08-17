@@ -339,7 +339,7 @@ export class BatchReviewDetailsComponent
       this.areYouSure(message, LOB_ENV.LIVE, false);
     }
 
-    //`Are you sure? Confirmation will mail ${this.records.length} statements. THIS CANNOT BE UNDONE`
+    // `Are you sure? Confirmation will mail ${this.records.length} statements. THIS CANNOT BE UNDONE`
   }
 
   goBack() {
