@@ -9,16 +9,10 @@ import { UserService } from './shared/services/user.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  @ViewChild('constructionNotification')
-  constructionNotification: ElementRef;
-
   loaded = true;
   constructor(
     private userService: UserService,
   ) {
-  }
-  close() {
-    this.constructionNotification.nativeElement.remove();
   }
 
   ngOnInit() {

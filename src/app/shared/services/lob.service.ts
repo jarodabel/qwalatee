@@ -129,16 +129,21 @@ export class LobService {
         '</strong>';
     }
 
+    const characterMax = 5000;
     const baseIndex = 21;
     const tableMax = 30;
     const thirdPageExtraRows = 0;
 
     const chargesCount = charges.length;
 
-    if (chargesCount >= baseIndex) {
+    // if excessive length ignore second table;
+    let maxRows = [this.getHeaderRow(), ...charges.slice(0, tableMax * 2)];
+    const bothTablesCharacterLength = maxRows.join('').length;
+    maxRows = undefined;
+
+    if (chargesCount >= baseIndex && bothTablesCharacterLength < characterMax) {
       const firstRows = [this.getHeaderRow(), ...charges.slice(0, tableMax)];
       firstTable = this.getTableWrap('firstTable', firstRows);
-
       const remaining = [
         ...charges.slice(tableMax, tableMax * 2 + thirdPageExtraRows),
       ];
@@ -148,36 +153,9 @@ export class LobService {
       }
       secondTable = this.getTableWrap('secondTable', rows);
     } else {
-      const firstRows = [this.getHeaderRow(), ...charges];
+      const firstRows = [this.getHeaderRow(), ...charges.slice(0, baseIndex)];
       firstTable = this.getTableWrap('firstTable', firstRows);
     }
-
-    // second table > 51
-    // if (chargesCount > baseIndex) {
-    //   const rows = [
-    //     this.getHeaderRow(),
-    //     ...charges.slice(tableMax, tableMax * 2),
-    //   ];
-    //   secondTable = this.getTableWrap('secondTable', rows);
-    // }
-
-    // // third table
-    // if (chargesCount > tableMax * 2) {
-    //   const rows = [
-    //     this.getHeaderRow(),
-    //     ...charges.slice(tableMax * 2, tableMax * 3),
-    //   ];
-    //   thirdTable = this.getTableWrap('thirdTable', rows);
-    // }
-
-    // // fourth table
-    // if (chargesCount > tableMax * 3) {
-    //   const rows = [
-    //     this.getHeaderRow(),
-    //     ...charges.slice(tableMax * 3, tableMax * 4),
-    //   ];
-    //   fourthTable = this.getTableWrap('fourthTable', rows);
-    // }
 
     const dateParts = user.date.split('-');
     const formattedDate = `${dateParts[1]}-${dateParts[2]}-${dateParts[0]}`;
@@ -207,12 +185,7 @@ export class LobService {
     if (secondTable) {
       obj.secondTable = secondTable;
     }
-    if (thirdTable) {
-      obj.thirdTable = thirdTable;
-    }
-    if (fourthTable) {
-      obj.fourthTable = fourthTable;
-    }
+
     return obj;
   }
 

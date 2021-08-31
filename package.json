@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "local=true firebaseEnv=dev npm run env:create && ng serve",
+    "start:prod": "local=true firebaseEnv=prod npm run env:create && ng serve",
     "build:dev": "local=true firebaseEnv=dev npm run env:create && ng build",
     "build:prod": "local=true firebaseEnv=prod npm run env:create && ng build",
     "test:ci": "yarn run env:create && jest --runInBand",
