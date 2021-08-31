@@ -4,6 +4,7 @@
 /.firebase
 /src/environments/*
 environment.js
+functions/sendgrid.env
 
 # compiled output
 /dist
