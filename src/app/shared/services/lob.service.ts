@@ -84,8 +84,6 @@ export class LobService {
     let statementCodeMessage = '';
     let firstTable;
     let secondTable;
-    let thirdTable;
-    let fourthTable;
     let totalCharges = 0.0;
     let totalPayments = 0.0;
     let checkForNoBill = false;
