@@ -127,7 +127,7 @@ export class LobService {
         '</strong>';
     }
 
-    const characterMax = 5000;
+    const characterMax = 4400;
     const baseIndex = 21;
     const tableMax = 30;
     const thirdPageExtraRows = 0;
@@ -138,6 +138,8 @@ export class LobService {
     let maxRows = [this.getHeaderRow(), ...charges.slice(0, tableMax * 2)];
     const bothTablesCharacterLength = maxRows.join('').length;
     maxRows = undefined;
+
+    console.log(bothTablesCharacterLength)
 
     if (chargesCount >= baseIndex && bothTablesCharacterLength < characterMax) {
       const firstRows = [this.getHeaderRow(), ...charges.slice(0, tableMax)];
@@ -154,6 +156,9 @@ export class LobService {
       const firstRows = [this.getHeaderRow(), ...charges.slice(0, baseIndex)];
       firstTable = this.getTableWrap('firstTable', firstRows);
     }
+
+    console.log(firstTable?.length);
+    console.log(secondTable?.length);
 
     const dateParts = user.date.split('-');
     const formattedDate = `${dateParts[1]}-${dateParts[2]}-${dateParts[0]}`;
@@ -277,42 +282,5 @@ export class LobService {
   private reset() {
     this.statementCodes.length = 0;
     this.excessTables.length = 0;
-  }
-
-  private buildTablesForRemainingRows(remainingRows) {
-    const characterLimit = 2900;
-
-    // chunk remaining rows based on total character length
-    const tempTable = [];
-    let characterCount = 0;
-
-    const excessChunks = [];
-
-    for (let i = 0; i < remainingRows.length; i++) {
-      const row = remainingRows[i];
-      const characters = row.length;
-      if (characterCount + characters < characterLimit) {
-        tempTable.push(row);
-      } else {
-        if (excessChunks.length === 0) {
-          excessChunks.push([this.getHeaderRow(), ...tempTable]);
-        } else {
-          excessChunks.push([...tempTable]);
-        }
-        tempTable.length = 0;
-        characterCount = 0;
-        tempTable.push(row);
-      }
-      characterCount += characters;
-
-      // handle last table
-      if (i === remainingRows.length - 1) {
-        excessChunks.push([...tempTable]);
-      }
-    }
-
-    excessChunks.forEach((chunk, i) => {
-      this.excessTables.push(this.getTableWrap(`excessTable${i}`, chunk));
-    });
   }
 }
