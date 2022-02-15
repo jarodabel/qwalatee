@@ -8,8 +8,8 @@ export enum TemplateLookup {
 }
 
 export enum ChcAddress {
-  Test = 'adr_c8d9ac8d6813d156',
-  Live = 'adr_88eaffec30a56832',
+  Test = 'adr_361aa87798b8b2cf',
+  Live = 'adr_5c30cc88df784f64',
 }
 
 export enum AddressOverwrite {
